@@ -1,0 +1,7 @@
+{
+  "required": [
+    "keyword",
+    "search_intent",
+    "sources"
+  ]
+}

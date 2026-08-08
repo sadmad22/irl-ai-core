@@ -1,0 +1,14 @@
+{
+  "modules": [
+    {
+      "name": "research",
+      "directories": [
+        "contracts",
+        "schema",
+        "pipeline",
+        "examples",
+        "validation"
+      ]
+    }
+  ]
+}
