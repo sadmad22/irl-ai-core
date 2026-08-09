@@ -6,21 +6,6 @@ import json
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_FILE = ROOT / "tools/project-generator/config/modules.json"
 
-DIRECTORIES = [
-    "modules/research/contracts",
-    "modules/research/schema",
-    "modules/research/pipeline",
-    "modules/research/examples",
-    "modules/research/validation",
-    "shared/models",
-    "shared/schemas",
-    "shared/types",
-    "shared/utils",
-    "knowledge-vault",
-    "docs",
-    "tests"
-]
-
 FILES = {
     "modules/research/README.md": "# Research Engine\n",
     "modules/research/contracts/research-report.json": """{
@@ -61,23 +46,50 @@ def load_config():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def create_directories():
-    for directory in DIRECTORIES:
+def create_directories(config):
+    for module in config["modules"]:
+        base = f"modules/{module['name']}"
+
+        (ROOT / base).mkdir(parents=True, exist_ok=True)
+        print(f"[DIR] {base}")
+
+        for directory in module["directories"]:
+            path = f"{base}/{directory}"
+            (ROOT / path).mkdir(parents=True, exist_ok=True)
+            print(f"[DIR] {path}")
+
+    shared_dirs = [
+        "shared/models",
+        "shared/schemas",
+        "shared/types",
+        "shared/utils",
+        "knowledge-vault",
+        "docs",
+        "tests"
+    ]
+
+    for directory in shared_dirs:
         (ROOT / directory).mkdir(parents=True, exist_ok=True)
-        print(f"[DIR]  {directory}")
+        print(f"[DIR] {directory}")
 
 def create_files():
     for path, content in FILES.items():
         file_path = ROOT / path
+
         if not file_path.exists():
             file_path.write_text(content, encoding="utf-8")
             print(f"[FILE] {path}")
         else:
             print(f"[SKIP] {path}")
 
+
 if __name__ == "__main__":
     print("IRL AI Core Project Generator")
-    print(load_config())
-    create_directories()
+
+    config = load_config()
+    print(config)
+
+    create_directories(config)
     create_files()
+
     print("Done.")

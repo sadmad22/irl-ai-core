@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "path": "modules/research/README.md",
+      "content": "# Research Engine\n"
+    },
+    {
+      "path": "modules/research/contracts/research-report.json",
+      "content": "{\n  \\\"keyword\\\": \\\"\\\",\n  \\\"search_intent\\\": \\\"\\\"\n}"
+    },
+    {
+      "path": "modules/research/schema/report.schema.json",
+      "content": "{\n  \\\"$schema\\\": \\\"https://json-schema.org/draft/2020-12/schema\\\"\n}"
+    },
+    {
+      "path": "modules/research/pipeline/workflow.md",
+      "content": "# Workflow\n"
+    },
+    {
+      "path": "modules/research/examples/example.json",
+      "content": "{\n}"
+    },
+    {
+      "path": "modules/research/validation/validation-rules.json",
+      "content": "{\n  \\\"required\\\": []\n}"
+    }
+  ]
+}
