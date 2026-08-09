@@ -4,7 +4,10 @@ from pathlib import Path
 import json
 
 ROOT = Path(__file__).resolve().parents[2]
+
 CONFIG_FILE = ROOT / "tools/project-generator/config/modules.json"
+FILES_CONFIG = ROOT / "tools/project-generator/config/files.json"
+TEMPLATES_CONFIG = ROOT / "tools/project-generator/config/templates.json"
 
 FILES = {
     "modules/research/README.md": "# Research Engine\n",
@@ -46,6 +49,17 @@ def load_config():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
+def load_files_config():
+    with open(FILES_CONFIG, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_templates_config():
+    with open(TEMPLATES_CONFIG, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def create_directories(config):
     for module in config["modules"]:
         base = f"modules/{module['name']}"
@@ -73,15 +87,35 @@ def create_directories(config):
         print(f"[DIR] {directory}")
 
 def create_files():
-    for path, content in FILES.items():
-        file_path = ROOT / path
+    files_config = load_files_config()
+    templates_config = load_templates_config()
 
+    templates = {}
+
+    for template in templates_config["templates"]:
+        templates[template["name"]] = template["file"]
+
+    for file in files_config["files"]:
+        
+        path = file["path"]
+        
+        if "template" in file:
+            template_file = templates[file["template"]]
+            content = (
+                ROOT
+                / "tools/project-generator/templates"
+                / template_file
+            ).read_text(encoding="utf-8")
+        else:
+            content = file["content"]
+        
+        file_path = ROOT / path
+        
         if not file_path.exists():
             file_path.write_text(content, encoding="utf-8")
             print(f"[FILE] {path}")
         else:
-            print(f"[SKIP] {path}")
-
+             print(f"[SKIP] {path}")
 
 if __name__ == "__main__":
     print("IRL AI Core Project Generator")

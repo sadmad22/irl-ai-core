@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "modules/research/README.md",
-      "content": "# Research Engine\n"
+      "template": "research-readme"
     },
     {
       "path": "modules/research/contracts/research-report.json",
