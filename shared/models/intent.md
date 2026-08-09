@@ -2,19 +2,25 @@
 
 ## Purpose
 
-Defines user search intent.
+Defines search intent.
 
-## Types
+## Fields
 
-- Informational
-- Commercial
-- Transactional
-- Navigational
-
-## Confidence
-
-0-100%
+| Field | Type | Required | Description |
+|--------|------|----------|-------------|
+| type | string | Yes | Informational, Commercial, Transactional, Navigational |
+| confidence | number | Yes | Confidence score |
 
 ## Validation
 
-Intent required.
+- type is required
+- confidence between 0 and 1
+
+## Example
+
+```json
+{
+  "type": "Commercial",
+  "confidence": 0.94
+}
+```
