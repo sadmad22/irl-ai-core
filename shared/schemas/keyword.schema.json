@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Keyword Model",
+  "type": "object",
+  "properties": {
+    "keyword": {
+      "type": "string",
+      "description": "Primary keyword"
+    },
+    "search_volume": {
+      "type": "integer",
+      "description": "Monthly search volume"
+    },
+    "difficulty": {
+      "type": "integer",
+      "description": "Keyword difficulty"
+    },
+    "cpc": {
+      "type": "number",
+      "description": "Cost per click"
+    },
+    "trend": {
+      "type": "array",
+      "description": "Search trend history"
+    },
+    "language": {
+      "type": "string",
+      "description": "ISO language code"
+    },
+    "country": {
+      "type": "string",
+      "description": "ISO country code"
+    }
+  },
+  "required": [
+    "keyword",
+    "language",
+    "country"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Search Metrics Model",
+  "type": "object",
+  "properties": {},
+  "required": []
+}

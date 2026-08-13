@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Metadata Model",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique research identifier"
+    },
+    "keyword": {
+      "type": "string",
+      "description": "Target keyword"
+    },
+    "language": {
+      "type": "string",
+      "description": "ISO language code"
+    },
+    "country": {
+      "type": "string",
+      "description": "ISO country code"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Creation timestamp"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "Last update timestamp"
+    },
+    "version": {
+      "type": "string",
+      "description": "Engine version"
+    },
+    "status": {
+      "type": "string",
+      "description": "Research status"
+    }
+  },
+  "required": [
+    "id",
+    "keyword",
+    "language",
+    "country",
+    "created_at",
+    "updated_at",
+    "version",
+    "status"
+  ]
+}
