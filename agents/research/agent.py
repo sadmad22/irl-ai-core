@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
 
-from connectors.keyword_metrics.provider import get_provider
+from .connectors.keyword_metrics.provider import get_provider
+from .connectors.serp.provider import get_provider as get_serp_provider
 
 SEARCH_METRICS_FILE = "search-metrics.json"
+SERP_ANALYSIS_FILE = "serp-analysis.json"
 
 def load_keyword(project_name: str) -> dict:
     """
@@ -94,8 +96,15 @@ def run(project_name: str) -> None:
     print(f"Country  : {keyword_data['country']}")
 
     provider = get_provider()
+    serp_provider = get_serp_provider()
 
     metrics = provider.get_metrics(
+    keyword=keyword_data["keyword"],
+    language=keyword_data["language"],
+    country=keyword_data["country"],
+)
+
+    serp_results = serp_provider.get_results(
     keyword=keyword_data["keyword"],
     language=keyword_data["language"],
     country=keyword_data["country"],
@@ -105,6 +114,12 @@ def run(project_name: str) -> None:
     project_name,
     SEARCH_METRICS_FILE,
     metrics,
+)
+
+    save_project_file_if_changed(
+    project_name,
+    SERP_ANALYSIS_FILE,
+    serp_results,
 )
     
     print()

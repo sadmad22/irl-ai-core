@@ -2,6 +2,24 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "SERP Analysis Model",
   "type": "object",
-  "properties": {},
-  "required": []
+  "properties": {
+    "keyword": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "results": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "keyword",
+    "country",
+    "language",
+    "results"
+  ]
 }
