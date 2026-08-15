@@ -53,3 +53,24 @@ def test_empty_serp_intent_analysis():
     assert result["dominant_confidence"] == 0.0
     assert result["mixed_intent"] is False
     assert result["results"] == []
+
+
+def test_generic_domain_token_is_not_navigational():
+    result = analyze_serp_intent(
+        {
+            "keyword": "expat health insurance",
+            "language": "en",
+            "country": "US",
+            "results": [
+                {
+                    "position": 1,
+                    "title": "International Health Insurance Coverage for Living Abroad",
+                    "url": "https://www.internationalinsurance.com/health/",
+                    "domain": "www.internationalinsurance.com",
+                    "snippet": "International medical insurance coverage and pricing.",
+                }
+            ],
+        }
+    )
+
+    assert result["results"][0]["intent"] != "Navigational"
