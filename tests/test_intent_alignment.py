@@ -23,3 +23,23 @@ def test_misaligned_intent():
         {"keyword": "expat health insurance", "dominant_intent": "Commercial", "mixed_intent": False, "dominant_confidence": 0.8},
     )
     assert result["alignment"] == "misaligned"
+
+def test_alignment_preserves_serp_evidence():
+    result = analyze_intent_alignment(
+        {"keyword": "expat health insurance", "primary_intent": "Informational"},
+        {
+            "keyword": "expat health insurance",
+            "dominant_intent": "Informational",
+            "mixed_intent": True,
+            "dominant_confidence": 0.6337,
+            "intent_distribution": {
+                "Commercial": 0.2747,
+                "Informational": 0.6337,
+                "Transactional": 0.0916,
+            },
+        },
+    )
+
+    assert result["serp_mixed"] is True
+    assert result["intent_distribution"]["Informational"] == 0.6337
+    assert result["intent_distribution"]["Commercial"] == 0.2747

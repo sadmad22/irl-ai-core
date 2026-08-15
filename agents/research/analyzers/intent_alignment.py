@@ -8,6 +8,7 @@ def analyze_intent_alignment(query_intent: dict, serp_intent: dict) -> dict:
     serp_dominant = serp_intent.get("dominant_intent")
     serp_mixed = bool(serp_intent.get("mixed_intent", False))
     serp_confidence = float(serp_intent.get("dominant_confidence", 0.0) or 0.0)
+    intent_distribution = serp_intent.get("intent_distribution", {})
 
     if query_primary not in INTENTS or serp_dominant not in INTENTS:
         return {
@@ -16,6 +17,8 @@ def analyze_intent_alignment(query_intent: dict, serp_intent: dict) -> dict:
             "serp_dominant_intent": serp_dominant,
             "alignment": "indeterminate",
             "confidence": 0.0,
+            "serp_mixed": serp_mixed,
+            "intent_distribution": intent_distribution,
         }
 
     if query_primary == serp_dominant and not serp_mixed:
@@ -31,4 +34,6 @@ def analyze_intent_alignment(query_intent: dict, serp_intent: dict) -> dict:
         "serp_dominant_intent": serp_dominant,
         "alignment": alignment,
         "confidence": round(serp_confidence, 4),
+        "serp_mixed": serp_mixed,
+        "intent_distribution": intent_distribution,
     }

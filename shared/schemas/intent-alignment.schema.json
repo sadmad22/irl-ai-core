@@ -22,6 +22,17 @@
       "type": "number",
       "minimum": 0,
       "maximum": 1
+    },
+    "serp_mixed": {
+      "type": "boolean"
+    },
+    "intent_distribution": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
     }
   },
   "required": [
@@ -29,6 +40,8 @@
     "query_primary_intent",
     "serp_dominant_intent",
     "alignment",
-    "confidence"
+    "confidence",
+    "serp_mixed",
+    "intent_distribution"
   ]
 }

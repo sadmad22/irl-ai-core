@@ -3,5 +3,11 @@
     "query_primary_intent": "Informational",
     "serp_dominant_intent": "Informational",
     "alignment": "mixed",
-    "confidence": 0.6337
+    "confidence": 0.6337,
+    "serp_mixed": true,
+    "intent_distribution": {
+        "Commercial": 0.2747,
+        "Informational": 0.6337,
+        "Transactional": 0.0916
+    }
 }
