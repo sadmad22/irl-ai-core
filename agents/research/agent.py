@@ -4,6 +4,7 @@ from pathlib import Path
 from .connectors.keyword_metrics.provider import get_provider
 from .connectors.serp.provider import get_provider as get_serp_provider
 from .analyzers.competitor import analyze_competitors
+from .analyzers.intent_alignment import analyze_intent_alignment
 from .analyzers.query_intent import classify_query_intent
 from .analyzers.serp_intent import analyze_serp_intent
 
@@ -12,6 +13,7 @@ SERP_ANALYSIS_FILE = "serp-analysis.json"
 COMPETITOR_ANALYSIS_FILE = "competitor-analysis.json"
 QUERY_INTENT_ANALYSIS_FILE = "query-intent-analysis.json"
 SERP_INTENT_ANALYSIS_FILE = "serp-intent-analysis.json"
+INTENT_ALIGNMENT_ANALYSIS_FILE = "intent-alignment-analysis.json"
 
 def load_keyword(project_name: str) -> dict:
     """Load keyword.json from a research project."""
@@ -137,6 +139,21 @@ def run(project_name: str) -> None:
         project_name,
         SERP_INTENT_ANALYSIS_FILE,
         serp_intent_analysis,
+    )
+
+    # -------------------------
+    # Intent Alignment Analysis
+    # -------------------------
+
+    intent_alignment_analysis = analyze_intent_alignment(
+        query_intent_analysis,
+        serp_intent_analysis,
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        INTENT_ALIGNMENT_ANALYSIS_FILE,
+        intent_alignment_analysis,
     )
 
     print()
