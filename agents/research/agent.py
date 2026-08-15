@@ -4,10 +4,12 @@ from pathlib import Path
 from .connectors.keyword_metrics.provider import get_provider
 from .connectors.serp.provider import get_provider as get_serp_provider
 from .analyzers.competitor import analyze_competitors
+from .analyzers.serp_intent import analyze_serp_intent
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
 COMPETITOR_ANALYSIS_FILE = "competitor-analysis.json"
+SERP_INTENT_ANALYSIS_FILE = "serp-intent-analysis.json"
 
 def load_keyword(project_name: str) -> dict:
     """
@@ -153,6 +155,10 @@ def run(project_name: str) -> None:
         serp_results,
     )
 
+    # -------------------------
+    # Competitor Analysis
+    # -------------------------
+
     competitor_analysis = analyze_competitors(
         serp_results,
     )
@@ -161,6 +167,20 @@ def run(project_name: str) -> None:
         project_name,
         COMPETITOR_ANALYSIS_FILE,
         competitor_analysis,
+    )
+
+    # -------------------------
+    # SERP Intent Analysis
+    # -------------------------
+
+    serp_intent_analysis = analyze_serp_intent(
+        serp_results,
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        SERP_INTENT_ANALYSIS_FILE,
+        serp_intent_analysis,
     )
 
     print()
