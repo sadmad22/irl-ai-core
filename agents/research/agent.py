@@ -3,9 +3,11 @@ from pathlib import Path
 
 from .connectors.keyword_metrics.provider import get_provider
 from .connectors.serp.provider import get_provider as get_serp_provider
+from .analyzers.competitor import analyze_competitors
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
+COMPETITOR_ANALYSIS_FILE = "competitor-analysis.json"
 
 def load_keyword(project_name: str) -> dict:
     """
@@ -95,33 +97,72 @@ def run(project_name: str) -> None:
     print(f"Language : {keyword_data['language']}")
     print(f"Country  : {keyword_data['country']}")
 
-    provider = get_provider()
-    serp_provider = get_serp_provider()
+    # -------------------------
+    # Keyword Metrics
+    # -------------------------
 
-    metrics = provider.get_metrics(
-    keyword=keyword_data["keyword"],
-    language=keyword_data["language"],
-    country=keyword_data["country"],
-)
+    metrics_file = Path("research") / project_name / SEARCH_METRICS_FILE
 
-    serp_results = serp_provider.get_results(
-    keyword=keyword_data["keyword"],
-    language=keyword_data["language"],
-    country=keyword_data["country"],
-)
+    if metrics_file.exists():
+        print("Using existing search metrics.")
+        metrics = load_project_file(
+            project_name,
+            SEARCH_METRICS_FILE,
+        )
+    else:
+        print("Fetching search metrics...")
+        provider = get_provider()
+
+        metrics = provider.get_metrics(
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
+        )
 
     save_project_file_if_changed(
-    project_name,
-    SEARCH_METRICS_FILE,
-    metrics,
-)
+        project_name,
+        SEARCH_METRICS_FILE,
+        metrics,
+    )
+
+    # -------------------------
+    # SERP Analysis
+    # -------------------------
+
+    serp_file = Path("research") / project_name / SERP_ANALYSIS_FILE
+
+    if serp_file.exists():
+        print("Using existing SERP data.")
+        serp_results = load_project_file(
+            project_name,
+            SERP_ANALYSIS_FILE,
+        )
+    else:
+        print("Fetching SERP data...")
+        serp_provider = get_serp_provider()
+
+        serp_results = serp_provider.get_results(
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
+        )
 
     save_project_file_if_changed(
-    project_name,
-    SERP_ANALYSIS_FILE,
-    serp_results,
-)
-    
+        project_name,
+        SERP_ANALYSIS_FILE,
+        serp_results,
+    )
+
+    competitor_analysis = analyze_competitors(
+        serp_results,
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        COMPETITOR_ANALYSIS_FILE,
+        competitor_analysis,
+    )
+
     print()
     print("Updating metadata...")
 

@@ -1,7 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Competitor Analysis",
+  "title": "Competitor Analysis Model",
   "type": "object",
-  "properties": {},
-  "required": []
+  "properties": {
+    "keyword": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "competitors": {
+      "type": "array"
+    },
+    "domain_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "average_position": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "top_competitors": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "keyword",
+    "country",
+    "language",
+    "competitors",
+    "domain_counts",
+    "average_position",
+    "top_competitors"
+  ]
 }

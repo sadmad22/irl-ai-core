@@ -1,8 +1,7 @@
-from ..keyword_metrics.config import (
+from ..config import (
+    ACTIVE_PROVIDER,
     BASE_URL,
     LOGIN,
     PASSWORD,
     LOCATION_CODES,
 )
-
-ACTIVE_PROVIDER = "dataforseo"
