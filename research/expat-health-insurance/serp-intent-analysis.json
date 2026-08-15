@@ -2,7 +2,7 @@
     "keyword": "expat health insurance",
     "country": "US",
     "language": "en",
-    "dominant_intent": "Informational",
+    "dominant_intent": null,
     "dominant_confidence": 0.0,
     "intent_distribution": {},
     "intent_counts": {},
