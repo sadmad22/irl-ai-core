@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SERP Intent Analysis Model",
+  "type": "object",
+  "properties": {
+    "keyword": { "type": "string" },
+    "country": { "type": "string" },
+    "language": { "type": "string" },
+    "dominant_intent": {
+      "type": ["string", "null"],
+      "enum": ["Informational", "Commercial", "Transactional", "Navigational", null]
+    },
+    "dominant_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "intent_distribution": {
+      "type": "object",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "intent_counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "mixed_intent": { "type": "boolean" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "position": { "type": ["integer", "null"] },
+          "domain": { "type": ["string", "null"] },
+          "title": { "type": ["string", "null"] },
+          "url": { "type": "string" },
+          "intent": { "type": "string", "enum": ["Informational", "Commercial", "Transactional", "Navigational"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "reasons": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["position", "domain", "title", "url", "intent", "confidence", "reasons"]
+      }
+    }
+  },
+  "required": [
+    "keyword",
+    "country",
+    "language",
+    "dominant_intent",
+    "dominant_confidence",
+    "intent_distribution",
+    "intent_counts",
+    "mixed_intent",
+    "results"
+  ]
+}
