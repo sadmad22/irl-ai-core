@@ -65,6 +65,10 @@ def _tokens(text: str) -> set[str]:
     return set(re.findall(r"[a-z0-9]+", text.lower()))
 
 
+def _normalized(text: str) -> str:
+    return " ".join(_tokens(text))
+
+
 def _classify_result(result: dict, keyword: str) -> tuple[str, float, list[str]]:
     title = result.get("title", "") or ""
     snippet = result.get("snippet", "") or ""
@@ -88,16 +92,22 @@ def _classify_result(result: dict, keyword: str) -> tuple[str, float, list[str]]
                 scores[intent] += weight
                 reasons[intent].append(signal)
 
-    domain = result.get("domain") or urlparse(url).netloc
     title_tokens = _tokens(title)
 
     if query_tokens and query_tokens.issubset(title_tokens):
         scores["Informational"] += 1
         reasons["Informational"].append("query-aligned-title")
 
-    if domain and any(token in domain.lower() for token in query_tokens if len(token) > 3):
+    # Do not treat a generic keyword token in a domain as navigational intent.
+    # For example, "insurance" appears in many unrelated domains. Require the
+    # complete normalized query to be represented in the hostname.
+    domain = result.get("domain") or urlparse(url).netloc
+    domain_normalized = _normalized(domain.replace("-", " ").replace(".", " "))
+    query_normalized = _normalized(keyword)
+
+    if query_normalized and query_normalized in domain_normalized:
         scores["Navigational"] += 2
-        reasons["Navigational"].append("query-aligned-domain")
+        reasons["Navigational"].append("full-query-domain-match")
 
     if not scores:
         scores["Informational"] = 1
