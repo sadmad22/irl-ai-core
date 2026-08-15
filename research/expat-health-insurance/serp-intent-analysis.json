@@ -16,14 +16,109 @@
     },
     "mixed_intent": true,
     "results": [
-        {"position": 2, "domain": "www.imglobal.com", "title": "Expat Health Insurance", "url": "https://www.imglobal.com/expat-insurance", "intent": "Commercial", "confidence": 0.5, "reasons": ["plans"]},
-        {"position": 3, "domain": "www.allianzcare.com", "title": "Expat Health Insurance for Professionals", "url": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html", "intent": "Informational", "confidence": 1.0, "reasons": ["coverage", "query-aligned-title"]},
-        {"position": 4, "domain": "www.reddit.com", "title": "Expat Medical/Health Insurance", "url": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/", "intent": "Informational", "confidence": 1.0, "reasons": ["query-aligned-title"]},
-        {"position": 6, "domain": "www.axaglobalhealthcare.com", "title": "Expat health insurance", "url": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/", "intent": "Transactional", "confidence": 0.5, "reasons": ["quote"]},
-        {"position": 7, "domain": "www.greenbacktaxservices.com", "title": "Do I Need Health Insurance Living Abroad? Expat Guide", "url": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/", "intent": "Informational", "confidence": 1.0, "reasons": ["guide", "coverage", "query-aligned-title"]},
-        {"position": 8, "domain": "www.cignaglobal.com", "title": "Global Expat Health Insurance Explained", "url": "https://www.cignaglobal.com/resources/expat-health-insurance-explained", "intent": "Informational", "confidence": 1.0, "reasons": ["explained", "query-aligned-title"]},
-        {"position": 9, "domain": "aaro.org", "title": "AARO Health Insurance Plan for Expat Americans", "url": "https://aaro.org/health-insurance/health-insurance-plan", "intent": "Informational", "confidence": 1.0, "reasons": ["query-aligned-title"]},
-        {"position": 10, "domain": "www.internationalinsurance.com", "title": "International Health Insurance Coverage for Living Abroad", "url": "https://www.internationalinsurance.com/health/?srsltid=x", "intent": "Informational", "confidence": 0.75, "reasons": ["cost", "coverage"]},
-        {"position": 11, "domain": "www.international-sante.com", "title": "Expatriate health insurance in the United States", "url": "https://www.international-sante.com/healthforexpats/expat-insurance/country/united-states/", "intent": "Informational", "confidence": 1.0, "reasons": ["default"]}
+        {
+            "position": 2,
+            "domain": "www.imglobal.com",
+            "title": "Expat Health Insurance",
+            "url": "https://www.imglobal.com/expat-insurance",
+            "intent": "Commercial",
+            "confidence": 0.5,
+            "reasons": [
+                "plans"
+            ]
+        },
+        {
+            "position": 3,
+            "domain": "www.allianzcare.com",
+            "title": "Expat Health Insurance for Professionals",
+            "url": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "coverage",
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 4,
+            "domain": "www.reddit.com",
+            "title": "Expat Medical/Health Insurance",
+            "url": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 6,
+            "domain": "www.axaglobalhealthcare.com",
+            "title": "Expat health insurance",
+            "url": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/",
+            "intent": "Transactional",
+            "confidence": 0.5,
+            "reasons": [
+                "quote"
+            ]
+        },
+        {
+            "position": 7,
+            "domain": "www.greenbacktaxservices.com",
+            "title": "Do I Need Health Insurance Living Abroad? Expat Guide",
+            "url": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "guide",
+                "coverage",
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 8,
+            "domain": "www.cignaglobal.com",
+            "title": "Global Expat Health Insurance Explained",
+            "url": "https://www.cignaglobal.com/resources/expat-health-insurance-explained",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "explained",
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 9,
+            "domain": "aaro.org",
+            "title": "AARO Health Insurance Plan for Expat Americans",
+            "url": "https://aaro.org/health-insurance/health-insurance-plan",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 10,
+            "domain": "www.internationalinsurance.com",
+            "title": "International Health Insurance Coverage for Living Abroad",
+            "url": "https://www.internationalinsurance.com/health/",
+            "intent": "Informational",
+            "confidence": 0.75,
+            "reasons": [
+                "cost",
+                "coverage"
+            ]
+        },
+        {
+            "position": 11,
+            "domain": "www.international-sante.com",
+            "title": "Expatriate health insurance in the United States",
+            "url": "https://www.international-sante.com/healthforexpats/expat-insurance/country/united-states/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        }
     ]
 }
