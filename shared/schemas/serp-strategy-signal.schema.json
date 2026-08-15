@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SERP Strategy Signal Model",
+  "type": "object",
+  "properties": {
+    "keyword": {
+      "type": "string"
+    },
+    "primary_intent": {
+      "type": ["string", "null"],
+      "enum": [
+        "Informational",
+        "Commercial",
+        "Transactional",
+        "Navigational",
+        null
+      ]
+    },
+    "dominant_serp_intent": {
+      "type": ["string", "null"],
+      "enum": [
+        "Informational",
+        "Commercial",
+        "Transactional",
+        "Navigational",
+        null
+      ]
+    },
+    "alignment": {
+      "type": "string",
+      "enum": [
+        "aligned",
+        "mixed",
+        "misaligned",
+        "indeterminate"
+      ]
+    },
+    "strategy_signal": {
+      "type": "string",
+      "enum": [
+        "informational",
+        "commercial",
+        "transactional",
+        "navigational",
+        "mixed",
+        "indeterminate"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "keyword",
+    "primary_intent",
+    "dominant_serp_intent",
+    "alignment",
+    "strategy_signal",
+    "confidence"
+  ]
+}
