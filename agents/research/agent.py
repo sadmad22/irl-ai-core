@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .connectors.keyword_metrics.provider import get_provider
 from .connectors.serp.provider import get_provider as get_serp_provider
+from .connectors.serp.providers.dataforseo import normalize_serp_url
 from .analyzers.competitor import analyze_competitors
 from .analyzers.intent_alignment import analyze_intent_alignment
 from .analyzers.query_intent import classify_query_intent
@@ -43,6 +44,18 @@ def save_project_file_if_changed(project_name: str, filename: str, data: dict) -
     current_data = load_project_file(project_name, filename)
     if current_data != data:
         save_project_file(project_name, filename, data)
+
+def canonicalize_serp_results(serp_data: dict) -> dict:
+    """Canonicalize SERP URLs from both fetched and cached SERP data."""
+    data = dict(serp_data)
+    data["results"] = [
+        {
+            **result,
+            "url": normalize_serp_url(result.get("url", "")),
+        }
+        for result in serp_data.get("results", [])
+    ]
+    return data
 
 def save_metadata(project_name: str, status: str) -> None:
     """Update metadata.json for the project."""
@@ -114,6 +127,8 @@ def run(project_name: str) -> None:
             language=keyword_data["language"],
             country=keyword_data["country"],
         )
+
+    serp_results = canonicalize_serp_results(serp_results)
 
     save_project_file_if_changed(project_name, SERP_ANALYSIS_FILE, serp_results)
 
