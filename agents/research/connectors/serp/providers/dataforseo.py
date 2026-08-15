@@ -1,9 +1,43 @@
 import requests
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 API_ENDPOINT = "/v3/serp/google/organic/live/advanced"
 
 from ..base import SERPProvider
 from ..config import BASE_URL, LOGIN, PASSWORD
+
+
+TRACKING_QUERY_PARAMS = {
+    "gclid",
+    "fbclid",
+    "dclid",
+    "msclkid",
+    "srsltid",
+    "_gl",
+}
+
+
+def normalize_serp_url(url: str) -> str:
+    """Remove known tracking parameters while preserving functional URL parameters."""
+    if not url:
+        return url
+
+    parts = urlsplit(url)
+    filtered_query = [
+        (key, value)
+        for key, value in parse_qsl(parts.query, keep_blank_values=True)
+        if key.lower() not in TRACKING_QUERY_PARAMS and not key.lower().startswith("utm_")
+    ]
+
+    return urlunsplit(
+        (
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            urlencode(filtered_query),
+            parts.fragment,
+        )
+    )
 
 
 class DataForSEOSERPProvider(SERPProvider):
@@ -61,7 +95,7 @@ class DataForSEOSERPProvider(SERPProvider):
         {
             "position": item["rank_absolute"],
             "title": item["title"],
-            "url": item["url"],
+            "url": normalize_serp_url(item["url"]),
             "domain": item["domain"],
             "snippet": item["description"],
         }
