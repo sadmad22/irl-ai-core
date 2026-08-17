@@ -19,8 +19,8 @@ def build_entity_evidence(
 ) -> list[dict[str, Any]]:
     """Build the minimum canonical Entity Evidence set.
 
-    One observation records entity presence. An optional relevance score is a
-    second independent observation; it is deliberately not derived here.
+    The builder records presence and entity classification as independent
+    observations. Relevance is optional and remains an independent observation.
     """
     if not entity_id:
         raise ValueError("entity_id is required")
@@ -41,7 +41,18 @@ def build_entity_evidence(
             provenance=provenance,
             confidence=confidence,
             captured_at=captured_at,
-        )
+        ),
+        build_observation(
+            report_id=report_id,
+            domain="entity",
+            subject=subject,
+            claim={"type": "entity_classification", "attribute": "type"},
+            value={"type": "categorical", "data": entity_type},
+            source=source,
+            provenance=provenance,
+            confidence=confidence,
+            captured_at=captured_at,
+        ),
     ]
     if relevance is not None:
         evidence.append(
