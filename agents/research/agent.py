@@ -1,4 +1,3 @@
-import hashlib
 import json
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from .analyzers.serp_intent import analyze_serp_intent
 from .evidence.query_intent import build_query_intent_evidence
 from .evidence.serp_intent import build_serp_intent_evidence
 from .evidence.intent_alignment import build_intent_alignment_evidence
+from .evidence.serp_strategy_signal import build_serp_strategy_signal_evidence
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
@@ -24,6 +24,7 @@ SERP_INTENT_EVIDENCE_FILE = "serp-intent-evidence.json"
 INTENT_ALIGNMENT_ANALYSIS_FILE = "intent-alignment-analysis.json"
 INTENT_ALIGNMENT_EVIDENCE_FILE = "intent-alignment-evidence.json"
 SERP_STRATEGY_SIGNAL_FILE = "serp-strategy-signal.json"
+SERP_STRATEGY_SIGNAL_EVIDENCE_FILE = "serp-strategy-signal-evidence.json"
 
 
 def load_keyword(project_name: str) -> dict:
@@ -94,12 +95,19 @@ def get_report_id(project_name: str) -> str:
     return f"rr_{project_name}"
 
 
-def get_query_intent_evidence_id(report_id: str) -> str:
-    """Return a deterministic Evidence id for the report's query intent."""
-    digest = hashlib.sha256(
-        f"{report_id}:intent:query_intent:primary_intent".encode("utf-8")
-    ).hexdigest()[:16]
-    return f"ev_{digest}"
+def get_canonical_serp_intent_evidence_ids(serp_intent_evidence: list[dict]) -> list[str]:
+    """Return aggregate SERP intent evidence used as canonical alignment inputs.
+
+    Alignment consumes the dominant-intent and mixed-intent claims rather than
+    directly depending on every result-level observation. Those aggregate claims
+    retain their own ``derived_from`` lineage back to the SERP observations.
+    """
+    canonical_attributes = {"dominant_intent", "mixed_intent"}
+    return [
+        item["evidence_id"]
+        for item in serp_intent_evidence
+        if item.get("claim", {}).get("attribute") in canonical_attributes
+    ]
 
 
 def run(project_name: str) -> None:
@@ -133,7 +141,6 @@ def run(project_name: str) -> None:
     query_intent_evidence = build_query_intent_evidence(
         query_intent_analysis,
         report_id=report_id,
-        evidence_id=get_query_intent_evidence_id(report_id),
     )
 
     save_project_file_if_changed(
@@ -223,9 +230,9 @@ def run(project_name: str) -> None:
         serp_intent_evidence,
     )
 
-    serp_intent_evidence_ids = [
-        item["evidence_id"] for item in serp_intent_evidence
-    ]
+    canonical_serp_intent_evidence_ids = get_canonical_serp_intent_evidence_ids(
+        serp_intent_evidence
+    )
 
     # -------------------------
     # Intent Alignment Analysis
@@ -250,7 +257,7 @@ def run(project_name: str) -> None:
         intent_alignment_analysis,
         report_id=report_id,
         query_intent_evidence_id=query_intent_evidence["evidence_id"],
-        serp_intent_evidence_ids=serp_intent_evidence_ids,
+        serp_intent_evidence_ids=canonical_serp_intent_evidence_ids,
     )
 
     save_project_file_if_changed(
@@ -271,6 +278,22 @@ def run(project_name: str) -> None:
         project_name,
         SERP_STRATEGY_SIGNAL_FILE,
         serp_strategy_signal,
+    )
+
+    # -------------------------
+    # SERP Strategy Signal Evidence
+    # -------------------------
+
+    serp_strategy_signal_evidence = build_serp_strategy_signal_evidence(
+        serp_strategy_signal,
+        report_id=report_id,
+        intent_alignment_evidence_id=intent_alignment_evidence["evidence_id"],
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        SERP_STRATEGY_SIGNAL_EVIDENCE_FILE,
+        serp_strategy_signal_evidence,
     )
 
     print()
