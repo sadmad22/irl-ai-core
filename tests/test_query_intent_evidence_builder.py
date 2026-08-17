@@ -60,6 +60,16 @@ def test_builder_preserves_explicit_capture_time():
     assert evidence["source"]["retrieved_at"] == "2026-08-17T00:00:00Z"
 
 
+def test_builder_default_id_is_deterministic_for_report():
+    analysis = classify_query_intent("expat health insurance")
+
+    first = build_query_intent_evidence(analysis, report_id="rr_001")
+    second = build_query_intent_evidence(analysis, report_id="rr_001")
+
+    assert first["evidence_id"] == second["evidence_id"]
+    assert first["evidence_id"].startswith("ev_")
+
+
 def test_builder_rejects_missing_report_id():
     analysis = classify_query_intent("expat health insurance")
 
