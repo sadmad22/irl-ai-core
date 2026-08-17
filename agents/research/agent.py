@@ -159,7 +159,11 @@ def run(project_name: str) -> None:
         search_metrics=metrics,
         serp_analysis=serp_results,
         competitor_analysis=competitor_analysis,
-        intent_evidence=query_intent_evidence + serp_intent_evidence + [intent_alignment_evidence, serp_strategy_signal_evidence],
+        intent_evidence=(
+            [query_intent_evidence]
+            + serp_intent_evidence
+            + [intent_alignment_evidence, serp_strategy_signal_evidence]
+        ),
     )
     save_project_file_if_changed(project_name, RESEARCH_REPORT_FILE, research_report)
 
