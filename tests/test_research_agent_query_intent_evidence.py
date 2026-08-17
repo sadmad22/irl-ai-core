@@ -43,7 +43,7 @@ def test_research_agent_writes_query_intent_evidence_end_to_end(tmp_path, monkey
     assert evidence["provenance"]["analyzer"] == "query_intent"
     assert evidence["evidence_id"].startswith("ev_")
     assert evidence["status"] == "active"
-    assert metadata["status"] == "recommendation_ready"
+    assert metadata["status"] == "decision_ready"
 
 
 def test_research_agent_uses_stable_fallback_report_id(tmp_path, monkeypatch):
