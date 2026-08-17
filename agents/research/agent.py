@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -9,29 +10,35 @@ from .analyzers.intent_alignment import analyze_intent_alignment
 from .analyzers.serp_strategy_signal import analyze_serp_strategy_signal
 from .analyzers.query_intent import classify_query_intent
 from .analyzers.serp_intent import analyze_serp_intent
+from .evidence.query_intent import build_query_intent_evidence
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
 COMPETITOR_ANALYSIS_FILE = "competitor-analysis.json"
 QUERY_INTENT_ANALYSIS_FILE = "query-intent-analysis.json"
+QUERY_INTENT_EVIDENCE_FILE = "query-intent-evidence.json"
 SERP_INTENT_ANALYSIS_FILE = "serp-intent-analysis.json"
 INTENT_ALIGNMENT_ANALYSIS_FILE = "intent-alignment-analysis.json"
 SERP_STRATEGY_SIGNAL_FILE = "serp-strategy-signal.json"
+
 
 def load_keyword(project_name: str) -> dict:
     """Load keyword.json from a research project."""
     file_path = Path("research") / project_name / "keyword.json"
     return json.loads(file_path.read_text(encoding="utf-8"))
 
+
 def save_json(path, data):
     """Save a dictionary as JSON."""
     with open(path, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
+
 def save_project_file(project_name: str, filename: str, data: dict) -> None:
     """Save a JSON file inside a research project."""
     path = Path("research") / project_name / filename
     save_json(path, data)
+
 
 def load_project_file(project_name: str, filename: str) -> dict:
     """Load a JSON file from a research project."""
@@ -41,11 +48,13 @@ def load_project_file(project_name: str, filename: str) -> dict:
     with open(path, "r", encoding="utf-8") as file:
         return json.load(file)
 
+
 def save_project_file_if_changed(project_name: str, filename: str, data: dict) -> None:
     """Save a project file only if its content has changed."""
     current_data = load_project_file(project_name, filename)
     if current_data != data:
         save_project_file(project_name, filename, data)
+
 
 def canonicalize_serp_results(serp_data: dict) -> dict:
     """Canonicalize SERP URLs from both fetched and cached SERP data."""
@@ -59,6 +68,7 @@ def canonicalize_serp_results(serp_data: dict) -> dict:
     ]
     return data
 
+
 def save_metadata(project_name: str, status: str) -> None:
     """Update metadata.json for the project."""
     file_path = Path("research") / project_name / "metadata.json"
@@ -69,6 +79,24 @@ def save_metadata(project_name: str, status: str) -> None:
         json.dumps(data, indent=4, ensure_ascii=False),
         encoding="utf-8"
     )
+
+
+def get_report_id(project_name: str) -> str:
+    """Return a stable report identifier for Evidence ownership."""
+    metadata = load_project_file(project_name, "metadata.json")
+    metadata_id = str(metadata.get("id", "")).strip()
+    if metadata_id:
+        return metadata_id
+    return f"rr_{project_name}"
+
+
+def get_query_intent_evidence_id(report_id: str) -> str:
+    """Return a deterministic Evidence id for the report's query intent."""
+    digest = hashlib.sha256(
+        f"{report_id}:intent:query_intent:primary_intent".encode("utf-8")
+    ).hexdigest()[:16]
+    return f"ev_{digest}"
+
 
 def run(project_name: str) -> None:
     """Execute the Research Agent."""
@@ -90,6 +118,22 @@ def run(project_name: str) -> None:
         project_name,
         QUERY_INTENT_ANALYSIS_FILE,
         query_intent_analysis,
+    )
+
+    # -------------------------
+    # Query Intent Evidence
+    # -------------------------
+
+    query_intent_evidence = build_query_intent_evidence(
+        query_intent_analysis,
+        report_id=get_report_id(project_name),
+        evidence_id=get_query_intent_evidence_id(get_report_id(project_name)),
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        QUERY_INTENT_EVIDENCE_FILE,
+        query_intent_evidence,
     )
 
     # -------------------------
@@ -191,6 +235,7 @@ def run(project_name: str) -> None:
     print("Updating metadata...")
     save_metadata(project_name, "research_started")
     print("Metadata updated.")
+
 
 if __name__ == "__main__":
     run("expat-health-insurance")
