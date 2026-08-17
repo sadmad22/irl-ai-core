@@ -66,7 +66,7 @@ def build_serp_intent_evidence(
             raise ValueError(f"analysis.results[{index}].confidence must be between 0 and 1")
 
         source_id = url or f"{keyword}:{position if position is not None else index}"
-        result_key = f"{keyword}|{position}|{domain}|{url}|{index}"
+        result_key = f"{report_id}|{keyword}|{position}|{domain}|{url}|{index}"
         evidence_id = _stable_id("ev_serp_result", result_key)
         result_evidence_ids.append(evidence_id)
 
@@ -125,7 +125,7 @@ def build_serp_intent_evidence(
 
     evidence.append(
         {
-            "evidence_id": _stable_id("ev_serp_distribution", keyword),
+            "evidence_id": _stable_id("ev_serp_distribution", f"{report_id}|{keyword}"),
             "report_id": report_id,
             "schema_version": SCHEMA_VERSION,
             "type": "derived",
@@ -161,7 +161,7 @@ def build_serp_intent_evidence(
     if dominant_intent:
         evidence.append(
             {
-                "evidence_id": _stable_id("ev_serp_dominant", keyword),
+                "evidence_id": _stable_id("ev_serp_dominant", f"{report_id}|{keyword}"),
                 "report_id": report_id,
                 "schema_version": SCHEMA_VERSION,
                 "type": "derived",
@@ -200,7 +200,7 @@ def build_serp_intent_evidence(
 
     evidence.append(
         {
-            "evidence_id": _stable_id("ev_serp_mixed", keyword),
+            "evidence_id": _stable_id("ev_serp_mixed", f"{report_id}|{keyword}"),
             "report_id": report_id,
             "schema_version": SCHEMA_VERSION,
             "type": "derived",
