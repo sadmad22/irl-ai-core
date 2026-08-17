@@ -81,9 +81,22 @@ def test_research_agent_writes_full_intent_evidence_lineage_end_to_end(tmp_path,
         "attribute": "alignment",
     }
 
-    lineage = alignment_evidence["derived_from"]
+    canonical_serp_ids = {
+        item["evidence_id"]
+        for item in serp_evidence
+        if item["claim"]["attribute"] in {"dominant_intent", "mixed_intent"}
+    }
+    lineage = set(alignment_evidence["derived_from"])
+
     assert query_evidence["evidence_id"] in lineage
-    assert set(item["evidence_id"] for item in serp_evidence).issubset(set(lineage))
+    assert canonical_serp_ids.issubset(lineage)
+    assert not lineage.intersection(
+        {
+            item["evidence_id"]
+            for item in serp_evidence
+            if item["type"] == "observation"
+        }
+    )
     assert alignment_evidence["provenance"]["analyzer"] == "intent_alignment"
 
 
@@ -100,36 +113,20 @@ def test_research_agent_alignment_evidence_has_stable_lineage(tmp_path, monkeypa
         {"id": "rr_stable_alignment", "status": "draft", "project_name": project_name},
     )
     _write_json(project_dir / "search-metrics.json", {})
-    _write_json(
-        project_dir / "serp-analysis.json",
-        {
-            "keyword": "consultant insurance",
-            "language": "en",
-            "country": "US",
-            "results": [
-                {
-                    "position": 1,
-                    "domain": "example.com",
-                    "title": "Consultant Insurance Guide",
-                    "url": "https://example.com/guide",
-                }
-            ],
-        },
-    )
+    _write_json(project_dir / "serp-analysis.json", {"keyword": "consultant insurance", "language": "en", "country": "US", "results": [{"position": 1, "domain": "example.com", "title": "Consultant Insurance Guide", "url": "https://example.com/guide"}]})
 
     monkeypatch.chdir(tmp_path)
     research_agent.run(project_name)
 
-    first = json.loads(
-        (project_dir / "intent-alignment-evidence.json").read_text(encoding="utf-8")
-    )
+    first = json.loads((project_dir / "intent-alignment-evidence.json").read_text(encoding="utf-8"))
+    first_query = json.loads((project_dir / "query-intent-evidence.json").read_text(encoding="utf-8"))
 
     research_agent.run(project_name)
 
-    second = json.loads(
-        (project_dir / "intent-alignment-evidence.json").read_text(encoding="utf-8")
-    )
+    second = json.loads((project_dir / "intent-alignment-evidence.json").read_text(encoding="utf-8"))
+    second_query = json.loads((project_dir / "query-intent-evidence.json").read_text(encoding="utf-8"))
 
     assert first["evidence_id"] == second["evidence_id"]
     assert first["derived_from"] == second["derived_from"]
     assert first["report_id"] == second["report_id"]
+    assert first_query["evidence_id"] == second_query["evidence_id"]
