@@ -22,7 +22,7 @@ def assert_valid(evidence):
     VALIDATOR.validate(evidence)
 
 
-def test_entity_presence_and_relevance_are_valid_and_deterministic():
+def test_entity_presence_classification_and_relevance_are_valid_and_deterministic():
     first = build_entity_evidence(
         report_id="rr_001", entity_id="cigna", entity_type="organization", mentioned=True,
         relevance=0.9, source=SOURCE, provenance=PROVENANCE, confidence=1.0,
@@ -33,7 +33,8 @@ def test_entity_presence_and_relevance_are_valid_and_deterministic():
         relevance=0.9, source=SOURCE, provenance=PROVENANCE, confidence=1.0,
         captured_at="2026-08-17T20:00:00+00:00",
     )
-    assert len(first) == 2
+    assert len(first) == 3
+    assert first[1]["claim"]["attribute"] == "type"
     assert [item["evidence_id"] for item in first] == [item["evidence_id"] for item in second]
     for item in first:
         assert_valid(item)
