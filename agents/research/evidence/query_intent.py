@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from uuid import uuid4
+from hashlib import sha256
 
 SCHEMA_VERSION = "1.0"
 ANALYZER = "query_intent"
@@ -11,6 +11,13 @@ METHOD = "rule_based"
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _stable_id(report_id: str) -> str:
+    digest = sha256(
+        f"{report_id}:intent:query_intent:primary_intent".encode("utf-8")
+    ).hexdigest()[:16]
+    return f"ev_{digest}"
 
 
 def build_query_intent_evidence(
@@ -42,7 +49,7 @@ def build_query_intent_evidence(
     captured = captured_at or _now_iso()
 
     return {
-        "evidence_id": evidence_id or f"ev_{uuid4().hex}",
+        "evidence_id": evidence_id or _stable_id(report_id),
         "report_id": report_id,
         "schema_version": SCHEMA_VERSION,
         "type": "observation",
