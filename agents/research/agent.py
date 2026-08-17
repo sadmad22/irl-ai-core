@@ -11,6 +11,8 @@ from .analyzers.serp_strategy_signal import analyze_serp_strategy_signal
 from .analyzers.query_intent import classify_query_intent
 from .analyzers.serp_intent import analyze_serp_intent
 from .evidence.query_intent import build_query_intent_evidence
+from .evidence.serp_intent import build_serp_intent_evidence
+from .evidence.intent_alignment import build_intent_alignment_evidence
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
@@ -18,7 +20,9 @@ COMPETITOR_ANALYSIS_FILE = "competitor-analysis.json"
 QUERY_INTENT_ANALYSIS_FILE = "query-intent-analysis.json"
 QUERY_INTENT_EVIDENCE_FILE = "query-intent-evidence.json"
 SERP_INTENT_ANALYSIS_FILE = "serp-intent-analysis.json"
+SERP_INTENT_EVIDENCE_FILE = "serp-intent-evidence.json"
 INTENT_ALIGNMENT_ANALYSIS_FILE = "intent-alignment-analysis.json"
+INTENT_ALIGNMENT_EVIDENCE_FILE = "intent-alignment-evidence.json"
 SERP_STRATEGY_SIGNAL_FILE = "serp-strategy-signal.json"
 
 
@@ -108,6 +112,8 @@ def run(project_name: str) -> None:
     print(f"Language : {keyword_data['language']}")
     print(f"Country  : {keyword_data['country']}")
 
+    report_id = get_report_id(project_name)
+
     # -------------------------
     # Query Intent Analysis
     # -------------------------
@@ -126,8 +132,8 @@ def run(project_name: str) -> None:
 
     query_intent_evidence = build_query_intent_evidence(
         query_intent_analysis,
-        report_id=get_report_id(project_name),
-        evidence_id=get_query_intent_evidence_id(get_report_id(project_name)),
+        report_id=report_id,
+        evidence_id=get_query_intent_evidence_id(report_id),
     )
 
     save_project_file_if_changed(
@@ -203,6 +209,25 @@ def run(project_name: str) -> None:
     )
 
     # -------------------------
+    # SERP Intent Evidence
+    # -------------------------
+
+    serp_intent_evidence = build_serp_intent_evidence(
+        serp_intent_analysis,
+        report_id=report_id,
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        SERP_INTENT_EVIDENCE_FILE,
+        serp_intent_evidence,
+    )
+
+    serp_intent_evidence_ids = [
+        item["evidence_id"] for item in serp_intent_evidence
+    ]
+
+    # -------------------------
     # Intent Alignment Analysis
     # -------------------------
 
@@ -215,6 +240,23 @@ def run(project_name: str) -> None:
         project_name,
         INTENT_ALIGNMENT_ANALYSIS_FILE,
         intent_alignment_analysis,
+    )
+
+    # -------------------------
+    # Intent Alignment Evidence
+    # -------------------------
+
+    intent_alignment_evidence = build_intent_alignment_evidence(
+        intent_alignment_analysis,
+        report_id=report_id,
+        query_intent_evidence_id=query_intent_evidence["evidence_id"],
+        serp_intent_evidence_ids=serp_intent_evidence_ids,
+    )
+
+    save_project_file_if_changed(
+        project_name,
+        INTENT_ALIGNMENT_EVIDENCE_FILE,
+        intent_alignment_evidence,
     )
 
     # -------------------------
