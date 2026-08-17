@@ -11,6 +11,11 @@ def _refs(items: list[dict[str, Any]] | None) -> list[str]:
     return list(dict.fromkeys(item["evidence_id"] for item in items))
 
 
+def _stable_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
+    """Keep report metadata stable across lifecycle status transitions."""
+    return {key: value for key, value in metadata.items() if key != "status"}
+
+
 def build_research_report(
     *,
     report_id: str,
@@ -30,11 +35,7 @@ def build_research_report(
     business_evidence: list[dict[str, Any]] | None = None,
     authority_evidence: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Assemble the canonical pre-decision research state.
-
-    This builder owns aggregation only. It does not invent recommendation or
-    decision values; those remain null until their dedicated engines run.
-    """
+    """Assemble the canonical pre-decision research state."""
     if not report_id:
         raise ValueError("report_id is required")
     if not keyword.get("keyword"):
@@ -44,7 +45,7 @@ def build_research_report(
         "report_id": report_id,
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "research_complete",
-        "metadata": dict(metadata),
+        "metadata": _stable_metadata(metadata),
         "keyword": dict(keyword),
         "search_intent": dict(search_intent) if search_intent is not None else None,
         "search_metrics": dict(search_metrics),
