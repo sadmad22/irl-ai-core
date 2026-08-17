@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/research-report-assembly.schema.json",
+  "title": "IRL AI Core Pre-Decision Research Report",
+  "description": "Canonical research state assembled from structured analysis outputs and evidence before recommendation and decision are generated.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "report_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "type": "string", "minLength": 1 },
+    "lifecycle_stage": { "type": "string", "const": "research_complete" },
+    "metadata": { "type": "object" },
+    "keyword": { "type": "object" },
+    "search_intent": { "type": ["object", "null"] },
+    "search_metrics": { "type": "object" },
+    "serp_analysis": { "type": "object" },
+    "competitor_analysis": { "type": "object" },
+    "entity_analysis": { "type": "object" },
+    "question_analysis": { "type": "object" },
+    "topical_authority": { "type": "object" },
+    "business_analysis": { "type": "object" },
+    "evidence_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intent": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "entity": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "question": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "business": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "authority": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      },
+      "required": ["intent", "entity", "question", "business", "authority"]
+    },
+    "recommendation": { "type": "null" },
+    "decision": { "type": "null" },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "validation_status": { "type": "string", "enum": ["pending", "valid", "invalid"] },
+        "validation_errors": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["validation_status", "validation_errors", "notes"]
+    }
+  },
+  "required": [
+    "report_id", "schema_version", "lifecycle_stage", "metadata", "keyword",
+    "search_intent", "search_metrics", "serp_analysis", "competitor_analysis",
+    "entity_analysis", "question_analysis", "topical_authority", "business_analysis",
+    "evidence_refs", "recommendation", "decision", "audit"
+  ]
+}
