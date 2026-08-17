@@ -15,6 +15,7 @@ from .evidence.intent_alignment import build_intent_alignment_evidence
 from .evidence.serp_strategy_signal import build_serp_strategy_signal_evidence
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
+from .decision_runner import run_decision_from_report
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
@@ -29,6 +30,7 @@ SERP_STRATEGY_SIGNAL_FILE = "serp-strategy-signal.json"
 SERP_STRATEGY_SIGNAL_EVIDENCE_FILE = "serp-strategy-signal-evidence.json"
 RESEARCH_REPORT_FILE = "research-report.json"
 RECOMMENDATION_FILE = "recommendation.json"
+DECISION_FILE = "decision.json"
 
 
 def load_keyword(project_name: str) -> dict:
@@ -172,8 +174,11 @@ def run(project_name: str) -> None:
     recommendation = run_recommendation_from_report(research_report)
     save_project_file_if_changed(project_name, RECOMMENDATION_FILE, recommendation)
 
+    decision = run_decision_from_report(research_report, recommendation)
+    save_project_file_if_changed(project_name, DECISION_FILE, decision)
+
     print("\nUpdating metadata...")
-    save_metadata(project_name, "recommendation_ready")
+    save_metadata(project_name, "decision_ready")
     print("Metadata updated.")
 
 
