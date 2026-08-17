@@ -14,13 +14,4 @@ def run_recommendation_from_report(report: dict[str, Any]) -> dict[str, Any]:
     if report.get("decision") is not None:
         raise ValueError("ResearchReport already contains a decision")
 
-    evidence_refs = report.get("evidence_refs", {})
-    refs = []
-    for values in evidence_refs.values():
-        refs.extend(values)
-
-    return build_recommendation(
-        report_id=report["report_id"],
-        research_report=report,
-        evidence_refs=list(dict.fromkeys(refs)),
-    )
+    return build_recommendation(report)
