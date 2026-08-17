@@ -31,10 +31,30 @@ def test_research_agent_builds_canonical_report_end_to_end(tmp_path, monkeypatch
     assert report["search_intent"]
     assert report["serp_analysis"]
     assert report["competitor_analysis"] is not None
+    assert report["entity_analysis"]["entities"]
+    assert report["question_analysis"]
+    assert report["business_analysis"]["commercial_value"] in {"low", "medium", "high"}
+    assert 0 <= report["topical_authority"]["authority_score"] <= 1
     assert report["evidence_refs"]["intent"]
+    assert report["evidence_refs"]["entity"]
+    assert report["evidence_refs"]["question"]
+    assert report["evidence_refs"]["business"]
+    assert report["evidence_refs"]["authority"]
     assert report["recommendation"] is None
     assert report["decision"] is None
     assert report["audit"]["validation_status"] == "pending"
+
+    for filename in (
+        "entity-analysis.json",
+        "entity-evidence.json",
+        "question-analysis.json",
+        "question-evidence.json",
+        "business-analysis.json",
+        "business-evidence.json",
+        "authority-analysis.json",
+        "authority-evidence.json",
+    ):
+        assert (destination / filename).exists()
 
 
 def test_research_agent_report_is_stable_on_second_run(tmp_path, monkeypatch):
