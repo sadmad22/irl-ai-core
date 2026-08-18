@@ -8,6 +8,8 @@ def draft(): return {"draft_id":"d1","brief_id":"b1","report_id":"r1","decision_
 def test_agent_prepares_allowed_publication_end_to_end():
  r=run_publisher_agent(publication=publication(),article_draft=draft()); assert r["lifecycle_stage"]=="publisher_ready"; assert r["execution_mode"]=="dry_run"; assert r["publish_status"]=="ready"
 def test_agent_blocks_non_allowed_publication():
- p=publication(); p["gate_status"]="blocked"; p["publication_status"]="blocked"; r=run_publisher_agent(publication=p,article_draft=draft()); assert r["publish_status"]=="blocked"
+ p=publication(); p["gate_status"]="blocked"; p["publication_status"]="blocked"
+ with pytest.raises(ValueError, match="allowed Publication Gate"):
+  run_publisher_agent(publication=p,article_draft=draft())
 def test_agent_is_deterministic_and_immutable():
  p,d=publication(),draft(); snap=copy.deepcopy((p,d)); a=run_publisher_agent(publication=p,article_draft=d); b=run_publisher_agent(publication=p,article_draft=d); assert a==b; assert (p,d)==snap
