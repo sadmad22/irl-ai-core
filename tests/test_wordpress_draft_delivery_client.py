@@ -49,4 +49,9 @@ def test_missing_post_id_is_rejected():
 def test_no_credentials_in_error_contract():
     try: deliver_wordpress_draft(delivery=delivery(),connection=None,transport=None)
     except ValueError as exc:
-        text=str(exc); assert "app-password" in text and "editor" not in text
+        text=str(exc)
+        assert "WORDPRESS_APPLICATION_PASSWORD" in text
+        assert "app-password" not in text
+        assert "editor" not in text
+    else:
+        raise AssertionError("expected ValueError")
