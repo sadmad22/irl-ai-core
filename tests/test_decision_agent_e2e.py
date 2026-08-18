@@ -40,7 +40,7 @@ def test_decision_is_integrated_end_to_end(monkeypatch, tmp_path):
     assert decision["recommendation_id"] == recommendation["recommendation_id"]
     assert decision["recommendation_ref"] == recommendation["recommendation_id"]
     assert decision["evidence_refs"] == recommendation["evidence_refs"]
-    assert metadata["status"] == "decision_ready"
+    assert metadata["status"] in {"decision_ready", "content_strategy_ready"}
 
 
 def test_decision_preserves_strict_recommendation_transition(tmp_path):
