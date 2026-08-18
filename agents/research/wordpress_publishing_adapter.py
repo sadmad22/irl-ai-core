@@ -8,7 +8,7 @@ def _id(payload:dict[str,Any])->str:
     raw=json.dumps(payload,sort_keys=True,ensure_ascii=False)
     return "wp_adapter_"+hashlib.sha256(raw.encode()).hexdigest()[:16]
 
-def build_wordpress_publish_request(*, publisher:dict[str,Any], article_draft:dict[str,Any], execution_mode:str="dry_run") -> dict[str,Any]:
+def build_wordpress_publishing_request(*, publisher:dict[str,Any], article_draft:dict[str,Any], execution_mode:str="dry_run") -> dict[str,Any]:
     """Prepare a WordPress REST API request. This engine never performs network I/O."""
     if publisher.get("lifecycle_stage")!="publisher_ready": raise ValueError("WordPress Adapter requires a publisher_ready Publisher result")
     if publisher.get("publish_status")!="ready": raise ValueError("WordPress Adapter requires a ready Publisher result")
@@ -33,3 +33,6 @@ def build_wordpress_publish_request(*, publisher:dict[str,Any], article_draft:di
     if str(article_draft.get("excerpt","")).strip(): payload["excerpt"]=str(article_draft["excerpt"]).strip()
     identity={"publisher_id":str(publisher.get("publisher_id","")),"publication_id":str(publisher.get("publication_id","")),"draft_id":draft_id,"execution_mode":execution_mode,"request_payload":payload}
     return {"adapter_id":_id(identity),**identity,"platform":"wordpress","api_version":"v2","endpoint":"/wp-json/wp/v2/posts","method":"POST","lifecycle_stage":"wordpress_publish_ready","publish_status":"ready","evidence_refs":refs,"audit":{"method":"wordpress_rest_publish_adapter","version":METHOD_VERSION,"validation_status":"validated"}}
+
+# Backward-compatible singular-name alias for callers created during the adapter rollout.
+build_wordpress_publish_request = build_wordpress_publishing_request
