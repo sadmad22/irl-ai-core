@@ -13,7 +13,7 @@ def test_agent_delivers_wordpress_draft_end_to_end():
     result=run_wordpress_draft_delivery_agent(publisher=publisher(),article_draft=draft())
     assert result["lifecycle_stage"]=="wordpress_draft_ready"
     assert result["platform"]=="wordpress"
-    assert result["publish_status"]=="ready"
+    assert result["delivery_status"]=="ready"
     assert result["request_payload"]["status"]=="draft"
 
 def test_live_mode_still_forces_draft():
