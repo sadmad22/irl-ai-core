@@ -270,11 +270,15 @@ def run(project_name: str) -> None:
     decision = run_decision_from_report(research_report, recommendation)
     save_project_file_if_changed(project_name, DECISION_FILE, decision)
 
-    content_strategy = run_content_strategy_from_report(research_report, decision)
-    save_project_file_if_changed(project_name, CONTENT_STRATEGY_FILE, content_strategy)
+    if decision.get("outcome") == "approved":
+        content_strategy = run_content_strategy_from_report(research_report, decision)
+        save_project_file_if_changed(project_name, CONTENT_STRATEGY_FILE, content_strategy)
+        final_status = "content_strategy_ready"
+    else:
+        final_status = "decision_ready"
 
     print("\nUpdating metadata...")
-    save_metadata(project_name, "content_strategy_ready")
+    save_metadata(project_name, final_status)
     print("Metadata updated.")
 
 
