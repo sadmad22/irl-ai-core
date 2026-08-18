@@ -24,6 +24,7 @@ from .evidence.authority import build_authority_evidence
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
 from .decision_runner import run_decision_from_report
+from .content_strategy_runner import run_content_strategy_from_report
 
 SEARCH_METRICS_FILE = "search-metrics.json"
 SERP_ANALYSIS_FILE = "serp-analysis.json"
@@ -47,6 +48,7 @@ AUTHORITY_EVIDENCE_FILE = "authority-evidence.json"
 RESEARCH_REPORT_FILE = "research-report.json"
 RECOMMENDATION_FILE = "recommendation.json"
 DECISION_FILE = "decision.json"
+CONTENT_STRATEGY_FILE = "content-strategy.json"
 
 
 def load_keyword(project_name: str) -> dict:
@@ -268,8 +270,11 @@ def run(project_name: str) -> None:
     decision = run_decision_from_report(research_report, recommendation)
     save_project_file_if_changed(project_name, DECISION_FILE, decision)
 
+    content_strategy = run_content_strategy_from_report(research_report, decision)
+    save_project_file_if_changed(project_name, CONTENT_STRATEGY_FILE, content_strategy)
+
     print("\nUpdating metadata...")
-    save_metadata(project_name, "decision_ready")
+    save_metadata(project_name, "content_strategy_ready")
     print("Metadata updated.")
 
 
