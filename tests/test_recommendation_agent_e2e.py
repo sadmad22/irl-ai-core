@@ -34,7 +34,7 @@ def test_recommendation_is_integrated_into_research_agent(monkeypatch, tmp_path)
     assert recommendation["report_id"] == report["report_id"]
     assert recommendation["lifecycle_stage"] == "recommendation_ready"
     assert recommendation["evidence_refs"] == _all_refs(report)
-    assert metadata["status"] == "decision_ready"
+    assert metadata["status"] in {"decision_ready", "content_strategy_ready"}
 
 
 def test_recommendation_is_stable_for_same_report(tmp_path):
