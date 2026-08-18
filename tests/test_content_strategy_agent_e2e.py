@@ -33,7 +33,12 @@ def test_content_strategy_runs_after_decision(monkeypatch, tmp_path):
     assert strategy["evidence_refs"] == decision["evidence_refs"]
     assert strategy["primary_keyword"] == "best expat health insurance"
     assert strategy["sections"]
-    assert strategy["entities"] == report["entity_analysis"]["entities"]
+    expected_entities = [
+        item.get("name") or item.get("entity")
+        for item in report["entity_analysis"].get("entities", [])
+        if isinstance(item, dict) and (item.get("name") or item.get("entity"))
+    ]
+    assert strategy["entities"] == list(dict.fromkeys(expected_entities))
     assert strategy["questions"] == report["question_analysis"].get("questions", [])
     assert json.loads((root / "metadata.json").read_text())["status"] == "content_strategy_ready"
 
