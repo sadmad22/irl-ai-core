@@ -7,7 +7,7 @@ def publisher():
     return {"publisher_id":"pub1","publication_id":"p1","draft_id":"d1","brief_id":"b1","report_id":"r1","decision_id":"dec1","strategy_id":"s1","seo_strategy_id":"seo1","seo_validation_id":"sv1","review_id":"rev1","lifecycle_stage":"publisher_ready","publish_status":"ready","execution_mode":"dry_run","evidence_refs":["e1"]}
 
 def draft():
-    return {"draft_id":"d1","brief_id":"b1","report_id":"r1","decision_id":"dec1","strategy_id":"s1","lifecycle_stage":"draft_ready","title":"Accountant Insurance Guide","primary_keyword":"accountant insurance","content":"Article body","evidence_refs":["e1"]}
+    return {"draft_id":"d1","brief_id":"b1","report_id":"r1","decision_id":"dec1","strategy_id":"s1","lifecycle_stage":"draft_ready","title":"Accountant Insurance Guide","primary_keyword":"accountant insurance","sections":[{"heading":"Coverage","body":"Article body"}],"evidence_refs":["e1"]}
 
 def test_agent_prepares_wordpress_request_end_to_end():
     result=run_wordpress_publishing_adapter_agent(publisher=publisher(),article_draft=draft())
