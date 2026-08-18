@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from agents.research.content_brief_agent import run
+from agents.research.content_brief_runner import run_content_brief_from_artifacts
 
 
 def _seed(tmp_path: Path, project: str = "brief-demo") -> Path:
@@ -56,7 +57,7 @@ def test_content_brief_agent_runs_full_downstream_path(tmp_path, monkeypatch):
 
 
 def test_content_brief_agent_is_deterministic(tmp_path, monkeypatch):
-    root = _seed(tmp_path, "stable-brief")
+    _seed(tmp_path, "stable-brief")
     monkeypatch.chdir(tmp_path)
 
     first = run("stable-brief")
@@ -68,16 +69,25 @@ def test_content_brief_agent_is_deterministic(tmp_path, monkeypatch):
     assert first["report_id"] == second["report_id"]
 
 
-def test_content_brief_agent_requires_approved_decision(tmp_path, monkeypatch):
-    root = _seed(tmp_path, "guarded-brief")
-    monkeypatch.chdir(tmp_path)
+def test_content_brief_runner_rejects_non_approved_decision():
+    report = {"report_id": "rr_guard", "lifecycle_stage": "research_complete"}
+    decision = {
+        "report_id": "rr_guard",
+        "decision_id": "dec_guard",
+        "lifecycle_stage": "decision_ready",
+        "outcome": "deferred",
+    }
+    strategy = {
+        "report_id": "rr_guard",
+        "decision_id": "dec_guard",
+        "strategy_id": "strat_guard",
+        "lifecycle_stage": "content_strategy_ready",
+        "evidence_refs": ["ev_1"],
+    }
 
-    # Seed the downstream artifacts directly to isolate the brief-agent guard.
-    (root / "research-report.json").write_text(json.dumps({"report_id": "rr_guard", "lifecycle_stage": "research_complete"}))
-    (root / "decision.json").write_text(json.dumps({"report_id": "rr_guard", "decision_id": "dec_guard", "lifecycle_stage": "decision_ready", "outcome": "deferred"}))
-    (root / "content-strategy.json").write_text(json.dumps({"report_id": "rr_guard", "decision_id": "dec_guard", "strategy_id": "strat_guard", "lifecycle_stage": "content_strategy_ready"}))
-
-    # The wrapper invokes the Research Agent first; the seeded invalid artifacts
-    # are therefore not allowed to bypass the upstream pipeline.
-    with pytest.raises(ValueError):
-        run("guarded-brief")
+    with pytest.raises(ValueError, match="approved"):
+        run_content_brief_from_artifacts(
+            research_report=report,
+            decision=decision,
+            content_strategy=strategy,
+        )
