@@ -24,7 +24,7 @@ def brief():
         "primary_keyword": "accountant insurance",
         "search_intent": "informational",
         "content_type": "guide",
-        "outline": [{"section": "Coverage", "purpose": "explain coverage"}],
+        "outline": [{"heading": "Coverage", "purpose": "explain coverage"}],
         "evidence_refs": ["e1"],
     }
 
