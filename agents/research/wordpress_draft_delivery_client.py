@@ -1,11 +1,14 @@
 from __future__ import annotations
+
 import base64
 import json
 import os
 from dataclasses import dataclass
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import Request
+
+import requests
 
 
 @dataclass(frozen=True)
@@ -34,6 +37,19 @@ def _auth(username: str, password: str) -> str:
     return f"Basic {token}"
 
 
+def _requests_sender(request: Request, timeout: float) -> Any:
+    """Send the API request through Requests rather than urllib's default client."""
+    response = requests.request(
+        method=request.get_method(),
+        url=request.full_url,
+        data=request.data,
+        headers=dict(request.header_items()),
+        timeout=timeout,
+    )
+    response.raise_for_status()
+    return response
+
+
 def deliver_wordpress_draft(
     *,
     delivery: dict[str, Any],
@@ -50,6 +66,7 @@ def deliver_wordpress_draft(
         raise ValueError("WordPress Draft Delivery requires status=draft")
     if connection is None:
         connection = WordPressConnection.from_env()
+
     body = json.dumps({**payload, "status": "draft"}, ensure_ascii=False).encode("utf-8")
     request = Request(
         _endpoint(connection.base_url),
@@ -62,15 +79,19 @@ def deliver_wordpress_draft(
             "User-Agent": "IRL-AI-Core/1.0",
         },
     )
-    sender = transport or (lambda req, timeout: urlopen(req, timeout=timeout))
+    sender = transport or _requests_sender
     try:
         response = sender(request, connection.timeout)
         raw = response.read()
         data = json.loads(raw.decode("utf-8"))
-    except HTTPError as exc:
-        raise RuntimeError(f"WordPress draft delivery failed with HTTP {exc.code}") from exc
-    except (URLError, TimeoutError) as exc:
+    except (HTTPError, requests.HTTPError) as exc:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        if status is None:
+            status = getattr(exc, "code", "unknown")
+        raise RuntimeError(f"WordPress draft delivery failed with HTTP {status}") from exc
+    except (URLError, requests.RequestException, TimeoutError) as exc:
         raise RuntimeError("WordPress draft delivery connection failed") from exc
+
     if data.get("status") != "draft":
         raise RuntimeError("WordPress refused the immutable draft requirement")
     post_id = data.get("id")
