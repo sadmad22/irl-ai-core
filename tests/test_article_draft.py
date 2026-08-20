@@ -20,8 +20,8 @@ def _brief():
         "objective": "help readers compare options",
         "title_direction": "guide framing",
         "outline": [
-            {"section": "What Is Expat Health Insurance?", "purpose": "define the topic"},
-            {"section": "How to Compare Plans", "purpose": "explain selection criteria"},
+            {"heading": "What Is Expat Health Insurance?", "purpose": "define the topic"},
+            {"heading": "How to Compare Plans", "purpose": "explain selection criteria"},
         ],
         "required_entities": ["Cigna Global"],
         "required_questions": ["What does it cost?"],
