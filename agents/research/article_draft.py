@@ -73,7 +73,6 @@ def build_article_draft(*, content_brief: dict[str, Any]) -> dict[str, Any]:
     sections = [
         {
             "heading": str(item["heading"]).strip(),
-            
             "purpose": str(item["purpose"]).strip(),
             "body": _section_body(item),
         }

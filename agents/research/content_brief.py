@@ -39,8 +39,7 @@ def _title_direction(keyword: str, content_type: str) -> str:
 
 def _outline(strategy: dict[str, Any]) -> list[dict[str, str]]:
     return [
-        {"heading": section,
-          "purpose": f"Address the '{section}' requirement from the approved content strategy without introducing unsupported claims."}
+        {"heading": section, "purpose": f"Address the '{section}' requirement from the approved content strategy without introducing unsupported claims."}
         for section in strategy.get("sections", [])
     ]
 
