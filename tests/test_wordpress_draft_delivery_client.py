@@ -46,8 +46,17 @@ def test_missing_post_id_is_rejected():
     except RuntimeError as exc: assert "post id" in str(exc)
     else: raise AssertionError("expected RuntimeError")
 
-def test_no_credentials_in_error_contract():
-    try: deliver_wordpress_draft(delivery=delivery(),connection=None,transport=None)
+def test_no_credentials_in_error_contract(monkeypatch):
+    monkeypatch.delenv("WORDPRESS_BASE_URL", raising=False)
+    monkeypatch.delenv("WORDPRESS_USERNAME", raising=False)
+    monkeypatch.delenv("WORDPRESS_APPLICATION_PASSWORD", raising=False)
+
+    try:
+        deliver_wordpress_draft(
+            delivery=delivery(),
+            connection=None,
+            transport=None,
+        )
     except ValueError as exc:
         text=str(exc)
         assert "WORDPRESS_APPLICATION_PASSWORD" in text
