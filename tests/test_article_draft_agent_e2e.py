@@ -99,7 +99,7 @@ def test_writer_agent_requires_a_publishable_content_brief(tmp_path, monkeypatch
             "strategy_id": "strat_guard",
             "lifecycle_stage": "draft_ready",
             "evidence_refs": ["ev_guard"],
-            "outline": [{"section": "Intro", "purpose": "Introduce the topic"}],
+            "outline": [{"heading": "Intro", "purpose": "Introduce the topic"}],
             "content_type": "guide",
             "primary_keyword": "guarded keyword",
         }),
