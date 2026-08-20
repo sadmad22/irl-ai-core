@@ -22,6 +22,14 @@ def test_creates_wordpress_draft_and_returns_remote_id():
     assert seen["method"]=="POST" and seen["body"]["status"]=="draft"
     assert seen["auth"].startswith("Basic ")
 
+def test_uses_explicit_application_user_agent():
+    seen={}
+    def transport(req, timeout):
+        seen["user_agent"]=req.headers["User-agent"]
+        return Response({"id":124,"status":"draft","link":"https://example.com/?p=124"})
+    deliver_wordpress_draft(delivery=delivery(),connection=connection(),transport=transport)
+    assert seen["user_agent"] == "IRL-AI-Core/1.0"
+
 def test_rejects_publish_payload_before_network():
     d=delivery(); d["request_payload"]["status"]="publish"
     called=[]
