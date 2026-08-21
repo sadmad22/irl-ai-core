@@ -4,6 +4,8 @@ import hashlib
 import json
 from typing import Any
 
+from .section_evidence_grounding import ground_evidence_by_section
+
 SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
 
@@ -36,20 +38,16 @@ def _evidence_text(record: dict[str, Any]) -> str:
     return f"The research evidence records {attribute} for {subject_id}: {observation}."
 
 
-def _section_body(section: dict[str, str], evidence_records: list[dict[str, Any]]) -> str:
-    """Render prose only from explicitly supplied evidence observations."""
+def _section_body(evidence_records: list[dict[str, Any]]) -> str:
+    """Render prose only from explicitly supplied section-level evidence."""
     if not evidence_records:
-        return (
-            f"Draft this section to {section['purpose']} "
-            "Use the upstream evidence_refs for factual claims and mark any claim "
-            "that still requires editorial verification before publication."
-        )
-    observations = [_evidence_text(record) for record in evidence_records[:4]]
-    return " ".join(observations) + " These observations require editorial verification before publication."
+        return ""
+    observations = [_evidence_text(record) for record in evidence_records]
+    return " ".join(observations)
 
 
 def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Translate an approved Content Brief into an evidence-grounded draft."""
+    """Translate an approved Content Brief into a section-grounded draft."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -77,12 +75,23 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         for record in (evidence_records or [])
         if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()
     }
-    grounded_records = [indexed_records[ref] for ref in sorted(ref_set) if ref in indexed_records]
+    grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
+    section_refs = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=list(dict.fromkeys(str(ref) for ref in refs if str(ref).strip())),
+        evidence_records=list(grounded_records.values()),
+    )
 
-    sections = [
-        {"heading": str(item["heading"]).strip(), "purpose": str(item["purpose"]).strip(), "body": _section_body(item, grounded_records)}
-        for item in outline
-    ]
+    sections = []
+    for item, refs_for_section in zip(outline, section_refs):
+        section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
+        sections.append({
+            "heading": str(item["heading"]).strip(),
+            "purpose": str(item["purpose"]).strip(),
+            "body": _section_body(section_records),
+            "evidence_refs": refs_for_section,
+        })
+
     payload = {
         "title": _title(content_brief),
         "content_type": content_type,
@@ -100,5 +109,5 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "draft_ready",
         **payload,
-        "audit": {"method": "content_brief_to_evidence_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"},
+        "audit": {"method": "content_brief_to_section_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"},
     }
