@@ -126,3 +126,15 @@ def test_section_evidence_is_relevant_to_heading():
 
     assert draft["sections"][0]["evidence_refs"] == ["ev_1", "ev_2"]
     assert draft["sections"][1]["evidence_refs"] == ["ev_2", "ev_1"]
+
+
+def test_claim_ids_are_globally_unique_and_encode_section_identity():
+    draft = build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+    )
+    claims = [claim for section in draft["sections"] for claim in section["claims"]]
+    claim_ids = [claim["claim_id"] for claim in claims]
+
+    assert len(claim_ids) == len(set(claim_ids))
+    assert all(claim_id.startswith(f"claim_{index}_") for index, section in enumerate(draft["sections"], 1) for claim_id in [section["claims"][0]["claim_id"]])
