@@ -35,14 +35,16 @@ def _evidence_records():
     return [
         {
             "evidence_id": "ev_1",
+            "domain": "entity",
             "subject": {"type": "keyword", "id": "expat health insurance"},
             "claim": {"type": "observation", "attribute": "coverage"},
             "value": {"type": "categorical", "data": "international"},
         },
         {
             "evidence_id": "ev_2",
+            "domain": "question",
             "subject": {"type": "keyword", "id": "expat health insurance"},
-            "claim": {"type": "observation", "attribute": "market"},
+            "claim": {"type": "question", "attribute": "faq"},
             "value": {"type": "categorical", "data": "commercial"},
         },
     ]
@@ -112,3 +114,15 @@ def test_evidence_grounded_body_does_not_leak_section_purpose():
         assert "explain selection criteria" not in section["body"]
         assert "The research evidence records" in section["body"]
         assert section["body"].strip()
+        assert section["evidence_refs"]
+        assert set(section["evidence_refs"]).issubset(set(draft["evidence_refs"]))
+
+
+def test_section_evidence_is_relevant_to_heading():
+    draft = build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+    )
+
+    assert draft["sections"][0]["evidence_refs"] == ["ev_1", "ev_2"]
+    assert draft["sections"][1]["evidence_refs"] == ["ev_2", "ev_1"]
