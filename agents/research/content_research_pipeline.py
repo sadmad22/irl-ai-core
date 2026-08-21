@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .agent import run as run_research_agent
-from .article_draft_agent import run as run_article_draft_agent
+from .article_draft_agent import run as run_article_draft_agent, _load_evidence_records
 from .article_draft_quality import validate_article_draft_quality
+from .claim_audit import audit_article_claims
 from .seo_strategy_agent import run_seo_strategy_agent
 from .seo_validation_agent import run_seo_validation_agent
 from .editorial_review import build_editorial_review
@@ -32,15 +33,12 @@ def build_content_research_to_wordpress_draft(
     research_report: dict[str, Any],
     content_brief: dict[str, Any],
     article_draft: dict[str, Any],
+    evidence_records: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Connect existing content artifacts through the publication gates to Draft Delivery.
+    """Connect content artifacts through quality, claim audit, and publication gates.
 
-    This function performs no filesystem or network I/O. It composes existing
-    engines and preserves their lineage; the final WordPress artifact is always
-    draft-only.
-
-    Article Draft Quality is the first gate after draft generation. A failed
-    quality result stops the downstream SEO/editorial/publication/delivery path.
+    This function performs no filesystem or network I/O. Claim Audit is a
+    fail-closed fact-checking layer between Article Draft Quality and SEO.
     """
     article_draft_quality = validate_article_draft_quality(article_draft=article_draft)
 
@@ -52,6 +50,16 @@ def build_content_research_to_wordpress_draft(
     }
 
     if article_draft_quality.get("outcome") != "passed":
+        return result
+
+    records = evidence_records if evidence_records is not None else []
+    claim_audit = audit_article_claims(
+        article_draft=article_draft,
+        evidence_records=records,
+    )
+    result["claim_audit"] = claim_audit
+
+    if claim_audit.get("outcome") != "passed":
         return result
 
     seo_strategy = run_seo_strategy_agent(
@@ -109,14 +117,17 @@ def run_content_research_to_wordpress_draft(
     run_research_agent(project_name)
     run_article_draft_agent(project_name)
 
+    evidence_records = _load_evidence_records(project_name)
     artifacts = build_content_research_to_wordpress_draft(
         research_report=_load(project_name, "research-report.json"),
         content_brief=_load(project_name, "content-brief.json"),
         article_draft=_load(project_name, "article-draft.json"),
+        evidence_records=evidence_records,
     )
 
     artifact_files = {
         "article_draft_quality": "article-draft-quality.json",
+        "claim_audit": "claim-audit.json",
         "seo_strategy": "seo-strategy.json",
         "seo_validation": "seo-validation.json",
         "editorial_review": "editorial-review.json",
@@ -134,6 +145,11 @@ def run_content_research_to_wordpress_draft(
 
     if artifacts["article_draft_quality"].get("outcome") != "passed":
         metadata["status"] = "article_draft_quality_blocked"
+        metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
+        return artifacts
+
+    if artifacts["claim_audit"].get("outcome") != "passed":
+        metadata["status"] = "claim_audit_blocked"
         metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
         return artifacts
 
