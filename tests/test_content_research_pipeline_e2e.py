@@ -36,15 +36,19 @@ def draft():
         "report_id": "report_1",
         "decision_id": "decision_1",
         "strategy_id": "strategy_1",
+        "schema_version": "1.0",
         "lifecycle_stage": "draft_ready",
         "title": "A Practical Guide to Accountant Insurance",
+        "content_type": "guide",
         "primary_keyword": "accountant insurance",
         "sections": [{
             "heading": "Coverage",
             "purpose": "coverage",
-            "body": "Draft this section using evidence_refs and mark any claim that still requires editorial verification before publication.",
+            "body": "Accountants may evaluate professional liability coverage based on their services and risk profile.",
         }],
         "evidence_refs": ["e1"],
+        "editorial_constraints": ["verify factual claims"],
+        "audit": {"method": "test", "version": "v1", "validation_status": "pending"},
     }
 
 
@@ -52,6 +56,7 @@ def test_content_research_pipeline_reaches_wordpress_draft_contract():
     result = build_content_research_to_wordpress_draft(
         research_report=report(), content_brief=brief(), article_draft=draft()
     )
+    assert result["article_draft_quality"]["outcome"] == "passed"
     assert result["seo_validation"]["outcome"] == "passed"
     assert result["editorial_review"]["outcome"] == "approved"
     assert result["publication"]["gate_status"] == "allowed"
@@ -67,3 +72,20 @@ def test_content_research_pipeline_does_not_publish():
     payload = result["wordpress_draft_delivery"]["request_payload"]
     assert payload["status"] == "draft"
     assert "publish" not in payload["status"]
+
+
+def test_content_research_pipeline_stops_on_article_draft_quality_failure():
+    value = draft()
+    value["sections"][0]["body"] = "Draft this section to Address the requirement from the approved content strategy."
+
+    result = build_content_research_to_wordpress_draft(
+        research_report=report(), content_brief=brief(), article_draft=value
+    )
+
+    assert result["article_draft_quality"]["outcome"] == "needs_revision"
+    assert result["article_draft_quality"]["checks"]["placeholders"] is False
+    assert "seo_validation" not in result
+    assert "editorial_review" not in result
+    assert "publication" not in result
+    assert "publisher" not in result
+    assert "wordpress_draft_delivery" not in result
