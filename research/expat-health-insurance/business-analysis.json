@@ -1,1 +1,12 @@
-{}
+{
+    "affiliate_potential": "low",
+    "adsense_potential": "low",
+    "conversion_potential": "low",
+    "commercial_value": "low",
+    "commercial_value_score": 0.3575,
+    "cpc_signal": 1.0,
+    "volume_signal": 0.13,
+    "competition_signal": 1.0,
+    "method": "business-v1",
+    "keyword": "expat health insurance"
+}

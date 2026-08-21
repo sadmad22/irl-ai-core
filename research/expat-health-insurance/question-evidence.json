@@ -1,0 +1,34 @@
+{
+    "evidence_id": "ev_f84050d29bd3788b8db432d4",
+    "report_id": "rr_expat-health-insurance",
+    "schema_version": "1.0",
+    "type": "observation",
+    "domain": "question",
+    "subject": {
+        "type": "keyword",
+        "id": "expat health insurance"
+    },
+    "claim": {
+        "type": "question_frequency",
+        "attribute": "count"
+    },
+    "value": {
+        "type": "numeric",
+        "data": 8
+    },
+    "source": {
+        "type": "research_artifact",
+        "project": "expat-health-insurance",
+        "artifact": "serp-analysis.json"
+    },
+    "provenance": {
+        "analyzer": "question",
+        "method": "question-v1",
+        "version": "v1"
+    },
+    "confidence": 0.85,
+    "relation": "supports",
+    "derived_from": [],
+    "captured_at": "2026-08-21T12:45:59.617827+00:00",
+    "status": "active"
+}

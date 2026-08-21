@@ -1,1 +1,491 @@
-{}
+{
+    "report_id": "rr_expat-health-insurance",
+    "schema_version": "1.0",
+    "lifecycle_stage": "research_complete",
+    "metadata": {
+        "id": "",
+        "keyword": "",
+        "language": "",
+        "country": "",
+        "created_at": "",
+        "updated_at": "",
+        "version": "",
+        "project_name": "expat-health-insurance"
+    },
+    "keyword": {
+        "keyword": "expat health insurance",
+        "search_volume": 0,
+        "difficulty": 0,
+        "cpc": 0,
+        "trend": [],
+        "language": "en",
+        "country": "US"
+    },
+    "search_intent": {
+        "keyword": "expat health insurance",
+        "primary_intent": "Informational",
+        "secondary_intent": null,
+        "confidence": 1.0,
+        "scores": {
+            "Informational": 1
+        },
+        "signals": {
+            "Informational": [
+                "no-explicit-intent-signal"
+            ]
+        }
+    },
+    "search_metrics": {
+        "keyword": "expat health insurance",
+        "search_volume": 1300,
+        "difficulty": 18,
+        "cpc": 19.35,
+        "trend": [
+            {
+                "year": 2026,
+                "month": 7,
+                "search_volume": 1300
+            },
+            {
+                "year": 2026,
+                "month": 6,
+                "search_volume": 720
+            },
+            {
+                "year": 2026,
+                "month": 5,
+                "search_volume": 1300
+            },
+            {
+                "year": 2026,
+                "month": 4,
+                "search_volume": 1600
+            },
+            {
+                "year": 2026,
+                "month": 3,
+                "search_volume": 1900
+            },
+            {
+                "year": 2026,
+                "month": 2,
+                "search_volume": 1000
+            },
+            {
+                "year": 2026,
+                "month": 1,
+                "search_volume": 880
+            },
+            {
+                "year": 2025,
+                "month": 12,
+                "search_volume": 880
+            },
+            {
+                "year": 2025,
+                "month": 11,
+                "search_volume": 1300
+            },
+            {
+                "year": 2025,
+                "month": 10,
+                "search_volume": 1000
+            },
+            {
+                "year": 2025,
+                "month": 9,
+                "search_volume": 2400
+            },
+            {
+                "year": 2025,
+                "month": 8,
+                "search_volume": 1000
+            }
+        ],
+        "language": "en",
+        "country": "US"
+    },
+    "serp_analysis": {
+        "keyword": "expat health insurance",
+        "language": "en",
+        "country": "US",
+        "results": [
+            {
+                "position": 2,
+                "title": "Expat Health Insurance",
+                "url": "https://www.imglobal.com/expat-insurance",
+                "domain": "www.imglobal.com",
+                "snippet": "IMG's expat health insurance plans have solutions for physical health, mental wellness, financial protection, crisis support, and personal property."
+            },
+            {
+                "position": 3,
+                "title": "Expat Health Insurance for Professionals",
+                "url": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html",
+                "domain": "www.allianzcare.com",
+                "snippet": "Expatriate Health Insurance provides medical coverage for professionals called expats who reside in a foreign country for a prolonged period usually for work- ... Read more"
+            },
+            {
+                "position": 4,
+                "title": "Expat Medical/Health Insurance",
+                "url": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/",
+                "domain": "www.reddit.com",
+                "snippet": "Are there any expat health insurance companies that aren't horrible? Cignaglobal, IMG, Geoblue all have HORRIBLE online ratings. Read more"
+            },
+            {
+                "position": 6,
+                "title": "Expat health insurance",
+                "url": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/",
+                "domain": "www.axaglobalhealthcare.com",
+                "snippet": "Get an expat health insurance quote with AXA. We provide flexible medical cover around the world. 5 levels of cover,"
+            },
+            {
+                "position": 7,
+                "title": "Do I Need Health Insurance Living Abroad? Expat Guide",
+                "url": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/",
+                "domain": "www.greenbacktaxservices.com",
+                "snippet": "Apr 16, 2026 — Expat health insurance costs vary significantly based on your age, location, coverage level, and whether the plan includes the U.S. According to ... Read more"
+            },
+            {
+                "position": 8,
+                "title": "Global Expat Health Insurance Explained",
+                "url": "https://www.cignaglobal.com/resources/expat-health-insurance-explained",
+                "domain": "www.cignaglobal.com",
+                "snippet": "Expat health insurance is an inclusive safety net for you and your family to live your life abroad without restriction."
+            },
+            {
+                "position": 9,
+                "title": "AARO Health Insurance Plan for Expat Americans",
+                "url": "https://aaro.org/health-insurance/health-insurance-plan",
+                "domain": "aaro.org",
+                "snippet": "AARO provides a reasonably-priced health care plan for Americans living abroad. Available in most countries, the plan provides special features for expat ..."
+            },
+            {
+                "position": 10,
+                "title": "International Health Insurance Coverage for Living Abroad",
+                "url": "https://www.internationalinsurance.com/health/",
+                "domain": "www.internationalinsurance.com",
+                "snippet": "Jul 9, 2026 — The average annual cost of an international medical insurance plan is about $6,900. Annual plan pricing varies widely, from under $500 for ..."
+            },
+            {
+                "position": 11,
+                "title": "Expatriate health insurance in the United States",
+                "url": "https://www.international-sante.com/healthforexpats/expat-insurance/country/united-states/",
+                "domain": "www.international-sante.com",
+                "snippet": "Buying expatriate healthcare insurance is essential in the US, where a trip to the emergency room costs between $ 1,000 and $ 4,000, and appendicitis between $ ... Read more"
+            }
+        ]
+    },
+    "competitor_analysis": {
+        "keyword": "expat health insurance",
+        "country": "US",
+        "language": "en",
+        "competitors": [
+            {
+                "position": 2,
+                "domain": "www.imglobal.com",
+                "title": "Expat Health Insurance",
+                "url": "https://www.imglobal.com/expat-insurance"
+            },
+            {
+                "position": 3,
+                "domain": "www.allianzcare.com",
+                "title": "Expat Health Insurance for Professionals",
+                "url": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html"
+            },
+            {
+                "position": 4,
+                "domain": "www.reddit.com",
+                "title": "Expat Medical/Health Insurance",
+                "url": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/"
+            },
+            {
+                "position": 6,
+                "domain": "www.axaglobalhealthcare.com",
+                "title": "Expat health insurance",
+                "url": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/"
+            },
+            {
+                "position": 7,
+                "domain": "www.greenbacktaxservices.com",
+                "title": "Do I Need Health Insurance Living Abroad? Expat Guide",
+                "url": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/"
+            },
+            {
+                "position": 8,
+                "domain": "www.cignaglobal.com",
+                "title": "Global Expat Health Insurance Explained",
+                "url": "https://www.cignaglobal.com/resources/expat-health-insurance-explained"
+            },
+            {
+                "position": 9,
+                "domain": "aaro.org",
+                "title": "AARO Health Insurance Plan for Expat Americans",
+                "url": "https://aaro.org/health-insurance/health-insurance-plan"
+            },
+            {
+                "position": 10,
+                "domain": "www.internationalinsurance.com",
+                "title": "International Health Insurance Coverage for Living Abroad",
+                "url": "https://www.internationalinsurance.com/health/"
+            },
+            {
+                "position": 11,
+                "domain": "www.international-sante.com",
+                "title": "Expatriate health insurance in the United States",
+                "url": "https://www.international-sante.com/healthforexpats/expat-insurance/country/united-states/"
+            }
+        ],
+        "domain_counts": {
+            "www.imglobal.com": 1,
+            "www.allianzcare.com": 1,
+            "www.reddit.com": 1,
+            "www.axaglobalhealthcare.com": 1,
+            "www.greenbacktaxservices.com": 1,
+            "www.cignaglobal.com": 1,
+            "aaro.org": 1,
+            "www.internationalinsurance.com": 1,
+            "www.international-sante.com": 1
+        },
+        "average_position": 6.666666666666667,
+        "top_competitors": [
+            {
+                "position": 2,
+                "domain": "www.imglobal.com",
+                "title": "Expat Health Insurance",
+                "url": "https://www.imglobal.com/expat-insurance"
+            },
+            {
+                "position": 3,
+                "domain": "www.allianzcare.com",
+                "title": "Expat Health Insurance for Professionals",
+                "url": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html"
+            },
+            {
+                "position": 4,
+                "domain": "www.reddit.com",
+                "title": "Expat Medical/Health Insurance",
+                "url": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/"
+            },
+            {
+                "position": 6,
+                "domain": "www.axaglobalhealthcare.com",
+                "title": "Expat health insurance",
+                "url": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/"
+            },
+            {
+                "position": 7,
+                "domain": "www.greenbacktaxservices.com",
+                "title": "Do I Need Health Insurance Living Abroad? Expat Guide",
+                "url": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/"
+            }
+        ]
+    },
+    "entity_analysis": {
+        "entities": [
+            {
+                "entity_id": "www.imglobal.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.95,
+                "source_position": 2
+            },
+            {
+                "entity_id": "www.allianzcare.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.7667,
+                "source_position": 3
+            },
+            {
+                "entity_id": "www.reddit.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.825,
+                "source_position": 4
+            },
+            {
+                "entity_id": "www.axaglobalhealthcare.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.7833,
+                "source_position": 6
+            },
+            {
+                "entity_id": "www.greenbacktaxservices.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6714,
+                "source_position": 7
+            },
+            {
+                "entity_id": "www.cignaglobal.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6625,
+                "source_position": 8
+            },
+            {
+                "entity_id": "aaro.org",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.5556,
+                "source_position": 9
+            },
+            {
+                "entity_id": "www.internationalinsurance.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.45,
+                "source_position": 10
+            },
+            {
+                "entity_id": "www.international-sante.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3455,
+                "source_position": 11
+            }
+        ],
+        "entity_count": 9,
+        "unique_domains": 9,
+        "method": "entity-v1"
+    },
+    "question_analysis": {
+        "questions": [
+            {
+                "text": "Expat Health Insurance for Professionals",
+                "source_position": 3,
+                "count": 1
+            },
+            {
+                "text": "Expat Medical/Health Insurance",
+                "source_position": 4,
+                "count": 2
+            },
+            {
+                "text": "Do I Need Health Insurance Living Abroad? Expat Guide",
+                "source_position": 7,
+                "count": 2
+            },
+            {
+                "text": "Global Expat Health Insurance Explained",
+                "source_position": 8,
+                "count": 1
+            },
+            {
+                "text": "International Health Insurance Coverage for Living Abroad",
+                "source_position": 10,
+                "count": 1
+            },
+            {
+                "text": "Expatriate health insurance in the United States",
+                "source_position": 11,
+                "count": 1
+            }
+        ],
+        "question_count": 8,
+        "result_question_count": 6,
+        "method": "question-v1"
+    },
+    "topical_authority": {
+        "authority_score": 0.9278,
+        "topic_fit": 0.9667,
+        "serp_domain_diversity": 0.8889,
+        "serp_domain_count": 9,
+        "method": "authority-v1",
+        "keyword": "expat health insurance",
+        "competitor_domains": {
+            "www.imglobal.com": 1,
+            "www.allianzcare.com": 1,
+            "www.reddit.com": 1,
+            "www.axaglobalhealthcare.com": 1,
+            "www.greenbacktaxservices.com": 1,
+            "www.cignaglobal.com": 1,
+            "aaro.org": 1,
+            "www.internationalinsurance.com": 1,
+            "www.international-sante.com": 1
+        }
+    },
+    "business_analysis": {
+        "affiliate_potential": "low",
+        "adsense_potential": "low",
+        "conversion_potential": "low",
+        "commercial_value": "low",
+        "commercial_value_score": 0.3575,
+        "cpc_signal": 1.0,
+        "volume_signal": 0.13,
+        "competition_signal": 1.0,
+        "method": "business-v1",
+        "keyword": "expat health insurance"
+    },
+    "evidence_refs": {
+        "intent": [
+            "ev_454e683da39cd64e",
+            "ev_serp_result_8c55baaa568b274e",
+            "ev_serp_result_9fca0aafc956a04f",
+            "ev_serp_result_27c34d1b9fd94a85",
+            "ev_serp_result_934b1f0f571fbebc",
+            "ev_serp_result_45fad6e64d09c0fa",
+            "ev_serp_result_ec809fb47b6a343c",
+            "ev_serp_result_4413a1140f635b3d",
+            "ev_serp_result_1872aaa543564c6b",
+            "ev_serp_result_892a0c39ffc23f0e",
+            "ev_serp_distribution_23165a6f509de19b",
+            "ev_serp_dominant_23165a6f509de19b",
+            "ev_serp_mixed_23165a6f509de19b",
+            "ev_intent_alignment_91b405f6a64df87f",
+            "ev_serp_strategy_233923c86c15a3ff"
+        ],
+        "entity": [
+            "ev_1f7c321cdd7bbdefe1b7855f",
+            "ev_66f8572090e5cf1c0bb2a707",
+            "ev_13ef75e026eb0bd9b79113c1",
+            "ev_50e9829c101f7598b6abbed2",
+            "ev_e46114e2a051b4e33b77ea50",
+            "ev_28b89e80c06138321f65204e",
+            "ev_4912cc056c11898cfd31b559",
+            "ev_41ce894922a669e77259fe8d",
+            "ev_a4f6407a46d260fa22115039",
+            "ev_bc9ff3dcb9f285126eaa9056",
+            "ev_9b0ec503dd8840276bbd1920",
+            "ev_e0a5ce381840068fecf3b3df",
+            "ev_966b60767ec46c4b67169fe5",
+            "ev_c8691b781dd1015730fd7ed9",
+            "ev_95b314fd4ffaf1a9d24ca9f3",
+            "ev_d5eaa5677934b1b915cd1bdc",
+            "ev_3208ff0460e2eac3dbfb4281",
+            "ev_63d7e6223b14df00ac60858a",
+            "ev_1c9e5d9ea6c70ffa5f47e7b9",
+            "ev_8339719bc6939f1323a34b60",
+            "ev_ed51b02715143f81635f7151",
+            "ev_f6c60ce0bfdde4c3d62c2f96",
+            "ev_8524552715be757833bbad8b",
+            "ev_4f502e2cf646837ad3f36c8d",
+            "ev_34d5b8c82a8a2b98aee648dc",
+            "ev_1bf31d73d0b60edf2c380eb9",
+            "ev_07fc4e7394d17a0f39bcc541"
+        ],
+        "question": [
+            "ev_f84050d29bd3788b8db432d4"
+        ],
+        "business": [
+            "ev_b633ce73305b1d2c88449135",
+            "ev_d0907041f5ed42b9daf437e3",
+            "ev_7b92ea8033047a27cfc7dd90",
+            "ev_45682e20adad3758e08109db"
+        ],
+        "authority": [
+            "ev_7728da4194f34bd5e6a1cf77",
+            "ev_a55b2cd0b14d31d8f94c3634"
+        ]
+    },
+    "recommendation": null,
+    "decision": null,
+    "audit": {
+        "validation_status": "pending",
+        "validation_errors": [],
+        "notes": [
+            "Pre-decision research state; recommendation and decision are intentionally not generated."
+        ]
+    }
+}

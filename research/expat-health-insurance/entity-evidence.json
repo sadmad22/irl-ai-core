@@ -1,0 +1,920 @@
+[
+    {
+        "evidence_id": "ev_1f7c321cdd7bbdefe1b7855f",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.imglobal.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.615971+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_66f8572090e5cf1c0bb2a707",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.imglobal.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.615988+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_13ef75e026eb0bd9b79113c1",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.imglobal.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.95
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616005+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_50e9829c101f7598b6abbed2",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.allianzcare.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616019+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e46114e2a051b4e33b77ea50",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.allianzcare.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616030+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_28b89e80c06138321f65204e",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.allianzcare.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.7667
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616041+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_4912cc056c11898cfd31b559",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616053+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_41ce894922a669e77259fe8d",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616064+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_a4f6407a46d260fa22115039",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.825
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616076+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_bc9ff3dcb9f285126eaa9056",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.axaglobalhealthcare.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616101+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_9b0ec503dd8840276bbd1920",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.axaglobalhealthcare.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616112+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e0a5ce381840068fecf3b3df",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.axaglobalhealthcare.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.7833
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616124+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_966b60767ec46c4b67169fe5",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.greenbacktaxservices.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616136+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_c8691b781dd1015730fd7ed9",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.greenbacktaxservices.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616147+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_95b314fd4ffaf1a9d24ca9f3",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.greenbacktaxservices.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6714
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616160+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_d5eaa5677934b1b915cd1bdc",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cignaglobal.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616172+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_3208ff0460e2eac3dbfb4281",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cignaglobal.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616184+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_63d7e6223b14df00ac60858a",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cignaglobal.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6625
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616195+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_1c9e5d9ea6c70ffa5f47e7b9",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "aaro.org"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616207+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_8339719bc6939f1323a34b60",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "aaro.org"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616218+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_ed51b02715143f81635f7151",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "aaro.org"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.5556
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616230+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f6c60ce0bfdde4c3d62c2f96",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.internationalinsurance.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616243+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_8524552715be757833bbad8b",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.internationalinsurance.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616253+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_4f502e2cf646837ad3f36c8d",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.internationalinsurance.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.45
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616265+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_34d5b8c82a8a2b98aee648dc",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.international-sante.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616277+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_1bf31d73d0b60edf2c380eb9",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.international-sante.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616288+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_07fc4e7394d17a0f39bcc541",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.international-sante.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3455
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.616299+00:00",
+        "status": "active"
+    }
+]

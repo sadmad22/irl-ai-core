@@ -1,16 +1,11 @@
 {
-    "decision_id": "dec_f2ee50bddcd3057d",
-    "report_id": "rr_expat-health-insurance",
-    "recommendation_id": "rec_12755891ec68d5e4",
-    "schema_version": "1.0",
-    "lifecycle_stage": "decision_ready",
-    "outcome": "approved",
-    "rationale": [
-        "Decision follows the existing recommendation: pursue.",
-        "Decision does not independently re-score or reinterpret upstream evidence.",
-        "The recommendation to pursue is accepted as the operational decision."
-    ],
-    "recommendation_ref": "rec_12755891ec68d5e4",
+    "delivery_id": "wp_draft_b395771ce30749be",
+    "platform": "wordpress",
+    "post_id": 4939,
+    "status": "draft",
+    "edit_url": "https://www.insurancereviewlab.com/?p=4939",
+    "remote_status": "draft",
+    "delivery_status": "delivered",
     "evidence_refs": [
         "ev_454e683da39cd64e",
         "ev_serp_result_8c55baaa568b274e",
@@ -63,8 +58,8 @@
         "ev_a55b2cd0b14d31d8f94c3634"
     ],
     "audit": {
-        "method": "recommendation_to_decision_transition",
+        "method": "wordpress_draft_delivery_http",
         "version": "v1",
-        "validation_status": "pending"
+        "validation_status": "validated"
     }
 }

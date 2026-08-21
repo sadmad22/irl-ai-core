@@ -1,16 +1,8 @@
 {
-    "decision_id": "dec_f2ee50bddcd3057d",
-    "report_id": "rr_expat-health-insurance",
-    "recommendation_id": "rec_12755891ec68d5e4",
-    "schema_version": "1.0",
-    "lifecycle_stage": "decision_ready",
-    "outcome": "approved",
-    "rationale": [
-        "Decision follows the existing recommendation: pursue.",
-        "Decision does not independently re-score or reinterpret upstream evidence.",
-        "The recommendation to pursue is accepted as the operational decision."
-    ],
-    "recommendation_ref": "rec_12755891ec68d5e4",
+    "publisher_id": "publisher_6a1fea0429bf4a01",
+    "publication_id": "pub_1473b31c50411ff6",
+    "publish_status": "ready",
+    "execution_mode": "dry_run",
     "evidence_refs": [
         "ev_454e683da39cd64e",
         "ev_serp_result_8c55baaa568b274e",
@@ -62,9 +54,19 @@
         "ev_7728da4194f34bd5e6a1cf77",
         "ev_a55b2cd0b14d31d8f94c3634"
     ],
+    "draft_id": "draft_8c7db15603b4e470",
+    "brief_id": "brief_cdeb974c02e6d07e",
+    "report_id": "rr_expat-health-insurance",
+    "decision_id": "dec_f2ee50bddcd3057d",
+    "strategy_id": "strat_1c4fbf8d9fb4d4fe",
+    "seo_strategy_id": "seo_8efe2d7d0f8d3632",
+    "seo_validation_id": "seo_validation_3ab3c949ebbdec23",
+    "review_id": "review_579fb5d0d2aaaafc",
+    "schema_version": "1.0",
+    "lifecycle_stage": "publisher_ready",
     "audit": {
-        "method": "recommendation_to_decision_transition",
+        "method": "publication_gate_publisher_dry_run",
         "version": "v1",
-        "validation_status": "pending"
+        "validation_status": "validated"
     }
 }

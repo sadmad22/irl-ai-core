@@ -1,0 +1,35 @@
+{
+    "evidence_id": "ev_454e683da39cd64e",
+    "report_id": "rr_expat-health-insurance",
+    "schema_version": "1.0",
+    "type": "observation",
+    "domain": "intent",
+    "subject": {
+        "type": "keyword",
+        "id": "expat health insurance"
+    },
+    "claim": {
+        "type": "query_intent",
+        "attribute": "primary_intent"
+    },
+    "value": {
+        "type": "categorical",
+        "data": "Informational"
+    },
+    "source": {
+        "type": "query",
+        "source_id": "expat health insurance",
+        "provider": "local",
+        "retrieved_at": "2026-08-21T12:45:59Z"
+    },
+    "provenance": {
+        "analyzer": "query_intent",
+        "analyzer_version": "1.0",
+        "method": "rule_based"
+    },
+    "confidence": 1.0,
+    "relation": "supports",
+    "derived_from": [],
+    "captured_at": "2026-08-21T12:45:59Z",
+    "status": "active"
+}

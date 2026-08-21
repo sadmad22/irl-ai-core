@@ -1,1 +1,70 @@
-{}
+{
+    "entities": [
+        {
+            "entity_id": "www.imglobal.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.95,
+            "source_position": 2
+        },
+        {
+            "entity_id": "www.allianzcare.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.7667,
+            "source_position": 3
+        },
+        {
+            "entity_id": "www.reddit.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.825,
+            "source_position": 4
+        },
+        {
+            "entity_id": "www.axaglobalhealthcare.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.7833,
+            "source_position": 6
+        },
+        {
+            "entity_id": "www.greenbacktaxservices.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6714,
+            "source_position": 7
+        },
+        {
+            "entity_id": "www.cignaglobal.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6625,
+            "source_position": 8
+        },
+        {
+            "entity_id": "aaro.org",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.5556,
+            "source_position": 9
+        },
+        {
+            "entity_id": "www.internationalinsurance.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.45,
+            "source_position": 10
+        },
+        {
+            "entity_id": "www.international-sante.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3455,
+            "source_position": 11
+        }
+    ],
+    "entity_count": 9,
+    "unique_domains": 9,
+    "method": "entity-v1"
+}

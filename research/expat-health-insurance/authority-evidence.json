@@ -1,0 +1,70 @@
+[
+    {
+        "evidence_id": "ev_7728da4194f34bd5e6a1cf77",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "authority_score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9278
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.618915+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_a55b2cd0b14d31d8f94c3634",
+        "report_id": "rr_expat-health-insurance",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "topic_fit"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9667
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-21T12:45:59.618947+00:00",
+        "status": "active"
+    }
+]

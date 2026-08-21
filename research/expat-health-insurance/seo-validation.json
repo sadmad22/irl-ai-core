@@ -1,16 +1,22 @@
 {
-    "decision_id": "dec_f2ee50bddcd3057d",
+    "seo_validation_id": "seo_validation_3ab3c949ebbdec23",
+    "draft_id": "draft_8c7db15603b4e470",
+    "brief_id": "brief_cdeb974c02e6d07e",
     "report_id": "rr_expat-health-insurance",
-    "recommendation_id": "rec_12755891ec68d5e4",
+    "decision_id": "dec_f2ee50bddcd3057d",
+    "strategy_id": "strat_1c4fbf8d9fb4d4fe",
+    "seo_strategy_id": "seo_8efe2d7d0f8d3632",
     "schema_version": "1.0",
-    "lifecycle_stage": "decision_ready",
-    "outcome": "approved",
-    "rationale": [
-        "Decision follows the existing recommendation: pursue.",
-        "Decision does not independently re-score or reinterpret upstream evidence.",
-        "The recommendation to pursue is accepted as the operational decision."
-    ],
-    "recommendation_ref": "rec_12755891ec68d5e4",
+    "lifecycle_stage": "seo_validation_ready",
+    "outcome": "passed",
+    "checks": {
+        "primary_keyword": true,
+        "title": true,
+        "headings": true,
+        "evidence_lineage": true,
+        "structure": true
+    },
+    "findings": [],
     "evidence_refs": [
         "ev_454e683da39cd64e",
         "ev_serp_result_8c55baaa568b274e",
@@ -63,8 +69,8 @@
         "ev_a55b2cd0b14d31d8f94c3634"
     ],
     "audit": {
-        "method": "recommendation_to_decision_transition",
+        "method": "article_draft_against_seo_strategy",
         "version": "v1",
-        "validation_status": "pending"
+        "validation_status": "validated"
     }
 }

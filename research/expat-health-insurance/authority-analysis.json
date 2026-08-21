@@ -1,0 +1,19 @@
+{
+    "authority_score": 0.9278,
+    "topic_fit": 0.9667,
+    "serp_domain_diversity": 0.8889,
+    "serp_domain_count": 9,
+    "method": "authority-v1",
+    "keyword": "expat health insurance",
+    "competitor_domains": {
+        "www.imglobal.com": 1,
+        "www.allianzcare.com": 1,
+        "www.reddit.com": 1,
+        "www.axaglobalhealthcare.com": 1,
+        "www.greenbacktaxservices.com": 1,
+        "www.cignaglobal.com": 1,
+        "aaro.org": 1,
+        "www.internationalinsurance.com": 1,
+        "www.international-sante.com": 1
+    }
+}

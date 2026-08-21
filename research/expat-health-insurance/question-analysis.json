@@ -1,1 +1,37 @@
-{}
+{
+    "questions": [
+        {
+            "text": "Expat Health Insurance for Professionals",
+            "source_position": 3,
+            "count": 1
+        },
+        {
+            "text": "Expat Medical/Health Insurance",
+            "source_position": 4,
+            "count": 2
+        },
+        {
+            "text": "Do I Need Health Insurance Living Abroad? Expat Guide",
+            "source_position": 7,
+            "count": 2
+        },
+        {
+            "text": "Global Expat Health Insurance Explained",
+            "source_position": 8,
+            "count": 1
+        },
+        {
+            "text": "International Health Insurance Coverage for Living Abroad",
+            "source_position": 10,
+            "count": 1
+        },
+        {
+            "text": "Expatriate health insurance in the United States",
+            "source_position": 11,
+            "count": 1
+        }
+    ],
+    "question_count": 8,
+    "result_question_count": 6,
+    "method": "question-v1"
+}

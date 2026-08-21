@@ -1,16 +1,33 @@
 {
-    "decision_id": "dec_f2ee50bddcd3057d",
+    "strategy_id": "strat_1c4fbf8d9fb4d4fe",
     "report_id": "rr_expat-health-insurance",
-    "recommendation_id": "rec_12755891ec68d5e4",
+    "decision_id": "dec_f2ee50bddcd3057d",
     "schema_version": "1.0",
-    "lifecycle_stage": "decision_ready",
-    "outcome": "approved",
-    "rationale": [
-        "Decision follows the existing recommendation: pursue.",
-        "Decision does not independently re-score or reinterpret upstream evidence.",
-        "The recommendation to pursue is accepted as the operational decision."
+    "lifecycle_stage": "content_strategy_ready",
+    "content_type": "guide",
+    "primary_keyword": "expat health insurance",
+    "audience": "Readers seeking clear, trustworthy insurance information",
+    "angle": "Independent, evidence-led guide explaining expat health insurance and the factors readers need to evaluate.",
+    "format": "structured long-form guide",
+    "sections": [
+        "Introduction",
+        "What You Need to Know",
+        "Coverage and Key Factors",
+        "Costs and Pricing Factors",
+        "How to Compare Options",
+        "Frequently Asked Questions",
+        "Sources and Editorial Methodology"
     ],
-    "recommendation_ref": "rec_12755891ec68d5e4",
+    "entities": [],
+    "questions": [
+        "{'text': 'Expat Health Insurance for Professionals', 'source_position': 3, 'count': 1}",
+        "{'text': 'Expat Medical/Health Insurance', 'source_position': 4, 'count': 2}",
+        "{'text': 'Do I Need Health Insurance Living Abroad? Expat Guide', 'source_position': 7, 'count': 2}",
+        "{'text': 'Global Expat Health Insurance Explained', 'source_position': 8, 'count': 1}",
+        "{'text': 'International Health Insurance Coverage for Living Abroad', 'source_position': 10, 'count': 1}",
+        "{'text': 'Expatriate health insurance in the United States', 'source_position': 11, 'count': 1}"
+    ],
+    "business_goal": "Build qualified organic traffic and provide trustworthy insurance guidance.",
     "evidence_refs": [
         "ev_454e683da39cd64e",
         "ev_serp_result_8c55baaa568b274e",
@@ -63,7 +80,7 @@
         "ev_a55b2cd0b14d31d8f94c3634"
     ],
     "audit": {
-        "method": "recommendation_to_decision_transition",
+        "method": "decision_to_content_strategy",
         "version": "v1",
         "validation_status": "pending"
     }
