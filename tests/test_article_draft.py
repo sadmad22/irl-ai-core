@@ -42,9 +42,9 @@ def _evidence_records():
         },
         {
             "evidence_id": "ev_2",
-            "domain": "question",
+            "domain": "serp",
             "subject": {"type": "keyword", "id": "expat health insurance"},
-            "claim": {"type": "question", "attribute": "faq"},
+            "claim": {"type": "comparison_signal", "attribute": "provider"},
             "value": {"type": "categorical", "data": "commercial"},
         },
     ]
