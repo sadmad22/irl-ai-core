@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IRL Autonomous Revision Plan",
+  "type": "object",
+  "required": ["schema_version", "lifecycle_stage", "outcome", "plans", "summary", "audit"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "lifecycle_stage": {"const": "revision_plan_ready"},
+    "outcome": {"enum": ["planned", "not_required"]},
+    "plans": {"type": "array", "items": {"$ref": "#/$defs/plan"}},
+    "summary": {
+      "type": "object",
+      "required": ["total", "critical", "targeted"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "critical": {"type": "integer", "minimum": 0},
+        "targeted": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"type": "string"},
+        "version": {"type": "string"},
+        "validation_status": {"const": "validated"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "plan": {
+      "type": "object",
+      "required": ["plan_id", "priority", "gate", "action", "target", "reason", "evidence_refs", "rerun_gates"],
+      "properties": {
+        "plan_id": {"type": "string", "minLength": 1},
+        "priority": {"enum": ["critical", "high"]},
+        "gate": {"type": "string", "minLength": 1},
+        "action": {"type": "string", "minLength": 1},
+        "target": {"type": "object"},
+        "reason": {"type": "string", "minLength": 1},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "rerun_gates": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "minItems": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
