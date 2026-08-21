@@ -59,12 +59,7 @@ def build_orchestration_result(
     result: dict[str, Any],
     decision: dict[str, Any],
 ) -> dict[str, Any]:
-    """Convert pipeline state into one explicit orchestration decision.
-
-    This function is pure: it does not run agents, write files, or perform
-    network I/O. The orchestrator is responsible for choosing the next safe
-    action from the existing gate contracts rather than duplicating them.
-    """
+    """Convert pipeline state into one explicit orchestration decision."""
     next_action, rationale = _decision_action(result=result, decision=decision)
 
     gates = {
@@ -96,8 +91,11 @@ def build_orchestration_result(
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": lifecycle_stage,
         "current_stage": next_action,
+        "stage": next_action,
         "next_action": next_action,
         "decision_outcome": decision.get("outcome"),
+        "outcome": "complete" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required",
+        "reason": rationale,
         "rationale": [rationale],
         "gates": gates,
         "audit": {
@@ -130,3 +128,25 @@ def run_irl_core(
     )
     result["core_orchestration"] = orchestration
     return result
+
+
+def run_core_orchestration(
+    project_name: str,
+    *,
+    deliver: bool = True,
+    connection: WordPressConnection | None = None,
+    transport: Callable[..., Any] | None = None,
+) -> dict[str, Any]:
+    """Run the IRL Core and return its authoritative orchestration state.
+
+    Delivery defaults to a WordPress *draft* only; the underlying pipeline never
+    publishes content. Callers that only want to inspect routing can pass
+    ``deliver=False``.
+    """
+    result = run_irl_core(
+        project_name,
+        deliver=deliver,
+        connection=connection,
+        transport=transport,
+    )
+    return result["core_orchestration"]
