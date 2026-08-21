@@ -17,10 +17,12 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     """Run deterministic structural/editorial gates over an Article Draft.
 
     This v1 engine is a quality gate, not a writer, evidence generator, or
-    publisher. It only evaluates the draft against invariants already present
-    in the upstream artifacts.
+    publisher. It evaluates only invariants represented by the Article Draft.
     """
-    ids = {k: str(article_draft.get(k, "")).strip() for k in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")}
+    ids = {
+        k: str(article_draft.get(k, "")).strip()
+        for k in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")
+    }
     if not all(ids.values()):
         raise ValueError("Article Draft lineage identifiers are required")
     if article_draft.get("lifecycle_stage") != "draft_ready":
@@ -31,21 +33,36 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     findings: list[dict[str, str]] = []
 
     structure_ok = isinstance(sections, list) and bool(sections) and all(
-        isinstance(s, dict) and str(s.get("heading", "")).strip() and str(s.get("purpose", "")).strip() and str(s.get("body", "")).strip()
+        isinstance(s, dict)
+        and str(s.get("heading", "")).strip()
+        and str(s.get("purpose", "")).strip()
+        and str(s.get("body", "")).strip()
         for s in sections
     )
     evidence_ok = isinstance(refs, list) and bool(refs) and len(refs) == len(set(str(r) for r in refs))
-    unsupported_claims_ok = evidence_ok and all("requires editorial verification" in str(s.get("body", "")) for s in sections if isinstance(s, dict))
-    editorial_ok = bool(str(article_draft.get("title", "")).strip()) and bool(str(article_draft.get("primary_keyword", "")).strip())
+
+    def _body_is_evidence_grounded(section: dict[str, Any]) -> bool:
+        body = str(section.get("body", ""))
+        return (
+            "requires editorial verification" in body
+            or "research evidence records" in body
+        )
+
+    unsupported_claims_ok = evidence_ok and structure_ok and all(
+        _body_is_evidence_grounded(s) for s in sections if isinstance(s, dict)
+    )
+    editorial_ok = bool(str(article_draft.get("title", "")).strip()) and bool(
+        str(article_draft.get("primary_keyword", "")).strip()
+    )
 
     if not structure_ok:
-        findings.append({"severity":"critical","category":"structure","message":"Draft sections are missing required structure."})
+        findings.append({"severity": "critical", "category": "structure", "message": "Draft sections are missing required structure."})
     if not evidence_ok:
-        findings.append({"severity":"critical","category":"evidence","message":"Draft must retain explicit unique evidence_refs."})
+        findings.append({"severity": "critical", "category": "evidence", "message": "Draft must retain explicit unique evidence_refs."})
     if not unsupported_claims_ok:
-        findings.append({"severity":"critical","category":"unsupported_claims","message":"Draft contains content that is not marked for editorial verification."})
+        findings.append({"severity": "critical", "category": "unsupported_claims", "message": "Draft contains content that is not grounded in research evidence or marked for editorial verification."})
     if not editorial_ok:
-        findings.append({"severity":"critical","category":"editorial","message":"Draft title and primary keyword are required."})
+        findings.append({"severity": "critical", "category": "editorial", "message": "Draft title and primary keyword are required."})
 
     checks = {
         "structure": structure_ok,
@@ -57,12 +74,17 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     if any(f["severity"] == "critical" for f in findings) and not structure_ok:
         outcome = "rejected"
 
-    payload = {"outcome": outcome, "checks": checks, "evidence_refs": list(dict.fromkeys(str(r) for r in refs if str(r).strip())), "findings": findings}
+    payload = {
+        "outcome": outcome,
+        "checks": checks,
+        "evidence_refs": list(dict.fromkeys(str(r) for r in refs if str(r).strip())),
+        "findings": findings,
+    }
     return {
         "review_id": _review_id(ids["draft_id"], payload),
         **ids,
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "editorial_review_ready",
         **payload,
-        "audit": {"method":"article_draft_editorial_review","version":METHOD_VERSION,"validation_status":"validated"},
+        "audit": {"method": "article_draft_editorial_review", "version": METHOD_VERSION, "validation_status": "validated"},
     }
