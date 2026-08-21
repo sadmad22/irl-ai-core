@@ -6,10 +6,11 @@ import re
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v2"
 
 _SECTION_RE = re.compile(r"section_(\d+)")
 _CLAIM_RE = re.compile(r"claim_(\d+)_([0-9]+)(?:_[a-z0-9]+)?")
+_QUALITY_CLAIM_RE = re.compile(r"claim_(\d+)(?=[_:])")
 
 
 def _plan_id(*, gate: str, action: str, target: dict[str, Any], reason: str) -> str:
@@ -29,6 +30,10 @@ def _target_from_text(text: str) -> dict[str, Any]:
         target["section_index"] = int(section.group(1))
     if claim:
         target["claim_id"] = claim.group(0)
+    else:
+        quality_claim = _QUALITY_CLAIM_RE.search(text)
+        if quality_claim:
+            target["claim_id"] = quality_claim.group(0)
     return target
 
 
@@ -43,7 +48,16 @@ def _claim_lookup(article_draft: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return claims
 
 
-def _add_plan(plans: list[dict[str, Any]], *, gate: str, action: str, target: dict[str, Any], reason: str, evidence_refs: list[str] | None = None, rerun_gates: list[str] | None = None) -> None:
+def _add_plan(
+    plans: list[dict[str, Any]],
+    *,
+    gate: str,
+    action: str,
+    target: dict[str, Any],
+    reason: str,
+    evidence_refs: list[str] | None = None,
+    rerun_gates: list[str] | None = None,
+) -> None:
     evidence_refs = list(dict.fromkeys(str(ref).strip() for ref in (evidence_refs or []) if str(ref).strip()))
     rerun_gates = list(dict.fromkeys(rerun_gates or []))
     plan = {
@@ -107,7 +121,14 @@ def build_revision_plan(*, result: dict[str, Any]) -> dict[str, Any]:
                 claim_id = str(item.get("claim_id", "")).strip()
                 target = {"claim_id": claim_id} if claim_id else {}
                 claim = claims.get(claim_id, {})
-                section_index = next((index for index, section in enumerate(draft.get("sections", []), start=1) if any(isinstance(c, dict) and c.get("claim_id") == claim_id for c in section.get("claims", []))), None)
+                section_index = next(
+                    (
+                        index
+                        for index, section in enumerate(draft.get("sections", []), start=1)
+                        if any(isinstance(c, dict) and c.get("claim_id") == claim_id for c in section.get("claims", []))
+                    ),
+                    None,
+                )
                 if section_index is not None:
                     target["section_index"] = section_index
                 _add_plan(
@@ -143,6 +164,10 @@ def build_revision_plan(*, result: dict[str, Any]) -> dict[str, Any]:
         "lifecycle_stage": "revision_plan_ready",
         "outcome": outcome,
         "plans": plans,
-        "summary": {"total": len(plans), "critical": sum(item["priority"] == "critical" for item in plans), "targeted": sum(bool(item["target"]) for item in plans)},
+        "summary": {
+            "total": len(plans),
+            "critical": sum(item["priority"] == "critical" for item in plans),
+            "targeted": sum(bool(item["target"]) for item in plans),
+        },
         "audit": {"method": "autonomous_revision_planner", "version": METHOD_VERSION, "validation_status": "validated"},
     }
