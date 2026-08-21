@@ -17,7 +17,7 @@ def draft():
             "heading": "Coverage", "purpose": "Explain the core coverage.",
             "body": "Accountants may evaluate professional liability coverage based on their services and risk profile.",
             "evidence_refs": ["e1", "e2"],
-            "claims": [{"claim_id": "claim_1", "text": "Accountants may evaluate professional liability coverage based on their services and risk profile.", "evidence_refs": ["e1"], "grounding_status": "grounded"}],
+            "claims": [{"claim_id": "claim_1_1_fixture", "text": "Accountants may evaluate professional liability coverage based on their services and risk profile.", "evidence_refs": ["e1"], "grounding_status": "grounded"}],
         }],
         "evidence_refs": ["e1", "e2"], "editorial_constraints": ["verify factual claims"],
         "audit": {"method": "test", "version": "v2", "validation_status": "pending"},
