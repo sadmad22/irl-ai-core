@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,7 @@ _PLACEHOLDER_PATTERNS = (
     "requirement from the approved content strategy",
 )
 _FORBIDDEN_TOP_LEVEL_KEYS = {"decision", "recommendation", "decision_result", "recommendation_result"}
-_CLAIM_ID_PATTERN = r"^claim_(\d+)_(\d+)_([0-9a-f]+)$"
+_CLAIM_ID_PATTERN = re.compile(r"^claim_(\d+)_(\d+)_([a-z0-9]+)$")
 
 
 def _quality_id(draft_id: str, payload: dict[str, Any]) -> str:
@@ -108,8 +109,7 @@ def _claim_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str
                 if claim_id in global_claim_ids:
                     errors.append(f"section_{section_index}:claim_{claim_index}:duplicate_claim_id")
                 global_claim_ids.add(claim_id)
-                import re
-                match = re.fullmatch(_CLAIM_ID_PATTERN, claim_id)
+                match = _CLAIM_ID_PATTERN.fullmatch(claim_id)
                 if not match:
                     errors.append(f"section_{section_index}:claim_{claim_index}:invalid_claim_id_format")
                 elif int(match.group(1)) != section_index or int(match.group(2)) != claim_index:
@@ -130,6 +130,7 @@ def _claim_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str
             elif status == "blocked":
                 if refs:
                     errors.append(f"section_{section_index}:claim_{claim_index}:blocked_with_evidence")
+                errors.append(f"section_{section_index}:claim_{claim_index}:not_grounded")
             elif status == "provisional":
                 errors.append(f"section_{section_index}:claim_{claim_index}:provisional_not_publishable")
             else:
