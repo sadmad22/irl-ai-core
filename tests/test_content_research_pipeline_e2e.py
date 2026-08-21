@@ -46,19 +46,21 @@ def draft():
             "purpose": "Explain the core coverage considerations.",
             "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile. Any factual claim requires editorial verification before publication.",
             "evidence_refs": ["e1"],
+            "claims": [
+                {"claim_id": "claim_1_1_fixture", "text": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile.", "evidence_refs": ["e1"], "grounding_status": "grounded"},
+                {"claim_id": "claim_1_2_fixture", "text": "Any factual claim requires editorial verification before publication.", "evidence_refs": ["e1"], "grounding_status": "grounded"}
+            ],
         }],
         "evidence_refs": ["e1"],
         "editorial_constraints": ["verify factual claims"],
-        "audit": {"method": "article_draft_agent", "version": "v1", "validation_status": "validated"},
+        "audit": {"method": "article_draft_agent", "version": "v2", "validation_status": "validated"},
     }
 
 
 def test_content_research_pipeline_reaches_wordpress_draft_contract():
-    result = build_content_research_to_wordpress_draft(
-        research_report=report(), content_brief=brief(), article_draft=draft()
-    )
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft())
     assert result["article_draft_quality"]["outcome"] == "passed"
-    assert result["article_draft_quality"]["checks"]["section_evidence_grounding"] is True
+    assert result["article_draft_quality"]["checks"]["claim_evidence_grounding"] is True
     assert result["seo_validation"]["outcome"] == "passed"
     assert result["editorial_review"]["outcome"] == "approved"
     assert result["publication"]["gate_status"] == "allowed"
@@ -68,9 +70,7 @@ def test_content_research_pipeline_reaches_wordpress_draft_contract():
 
 
 def test_content_research_pipeline_does_not_publish():
-    result = build_content_research_to_wordpress_draft(
-        research_report=report(), content_brief=brief(), article_draft=draft()
-    )
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft())
     payload = result["wordpress_draft_delivery"]["request_payload"]
     assert payload["status"] == "draft"
     assert "publish" not in payload["status"]
@@ -79,11 +79,7 @@ def test_content_research_pipeline_does_not_publish():
 def test_content_research_pipeline_stops_on_article_draft_quality_failure():
     value = draft()
     value["sections"][0]["body"] = "Draft this section to Address the requirement from the approved content strategy."
-
-    result = build_content_research_to_wordpress_draft(
-        research_report=report(), content_brief=brief(), article_draft=value
-    )
-
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=value)
     assert result["article_draft_quality"]["outcome"] == "needs_revision"
     assert result["article_draft_quality"]["checks"]["placeholders"] is False
     assert "seo_validation" not in result
