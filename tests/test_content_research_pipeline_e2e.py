@@ -43,12 +43,12 @@ def draft():
         "primary_keyword": "accountant insurance",
         "sections": [{
             "heading": "Coverage",
-            "purpose": "coverage",
-            "body": "Accountants may evaluate professional liability coverage based on their services and risk profile.",
+            "purpose": "Explain the core coverage considerations.",
+            "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile.",
         }],
         "evidence_refs": ["e1"],
         "editorial_constraints": ["verify factual claims"],
-        "audit": {"method": "test", "version": "v1", "validation_status": "pending"},
+        "audit": {"method": "article_draft_agent", "version": "v1", "validation_status": "validated"},
     }
 
 
