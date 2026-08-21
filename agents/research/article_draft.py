@@ -46,12 +46,7 @@ def _evidence_text(record: dict[str, Any]) -> str:
 
 
 def _section_body(section: dict[str, str], evidence_records: list[dict[str, Any]]) -> str:
-    """Render only observations present in supplied evidence records.
-
-    If no evidence is available, retain the controlled scaffold so the
-    Article Draft Quality Gate blocks downstream publication rather than
-    allowing unsupported prose through.
-    """
+    """Render prose only from explicitly supplied evidence observations."""
     if not evidence_records:
         return (
             f"Draft this section to {section['purpose']} "
@@ -74,10 +69,9 @@ def build_article_draft(
 ) -> dict[str, Any]:
     """Translate an approved Content Brief into an evidence-grounded draft.
 
-    The Writer consumes the brief plus explicitly supplied evidence records. It
-    never creates evidence, makes decisions, or claims unsupported facts are
-    publishable. When evidence is unavailable it emits a controlled scaffold
-    that the Article Draft Quality Gate will block.
+    Only evidence records whose IDs occur in Content Brief.evidence_refs are
+    eligible for prose generation. Missing referenced evidence deliberately
+    leaves the draft blocked by the Article Draft Quality Gate.
     """
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
@@ -103,12 +97,19 @@ def build_article_draft(
     if not keyword:
         raise ValueError("Content Brief.primary_keyword is required")
 
-    evidence_records = evidence_records or []
+    ref_set = {str(ref).strip() for ref in refs if str(ref).strip()}
+    indexed_records = {
+        str(record.get("evidence_id")).strip(): record
+        for record in (evidence_records or [])
+        if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()
+    }
+    grounded_records = [indexed_records[ref] for ref in sorted(ref_set) if ref in indexed_records]
+
     sections = [
         {
             "heading": str(item["heading"]).strip(),
             "purpose": str(item["purpose"]).strip(),
-            "body": _section_body(item, evidence_records),
+            "body": _section_body(item, grounded_records),
         }
         for item in outline
     ]
