@@ -9,23 +9,14 @@ METHOD_VERSION = "v1"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
-    raw = json.dumps(
-        {"brief_id": brief["brief_id"], "payload": payload},
-        sort_keys=True,
-        ensure_ascii=False,
-    )
+    raw = json.dumps({"brief_id": brief["brief_id"], "payload": payload}, sort_keys=True, ensure_ascii=False)
     return f"draft_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
 def _title(brief: dict[str, Any]) -> str:
     keyword = brief["primary_keyword"]
     content_type = brief["content_type"]
-    prefixes = {
-        "guide": "A Practical Guide to",
-        "comparison": "Comparing",
-        "buyer_guide": "How to Choose",
-        "article": "Understanding",
-    }
+    prefixes = {"guide": "A Practical Guide to", "comparison": "Comparing", "buyer_guide": "How to Choose", "article": "Understanding"}
     return f"{prefixes[content_type]} {keyword.title()}"
 
 
@@ -53,25 +44,12 @@ def _section_body(section: dict[str, str], evidence_records: list[dict[str, Any]
             "Use the upstream evidence_refs for factual claims and mark any claim "
             "that still requires editorial verification before publication."
         )
-
     observations = [_evidence_text(record) for record in evidence_records[:4]]
-    return (
-        " ".join(observations)
-        + " These observations require editorial verification before publication."
-    )
+    return " ".join(observations) + " These observations require editorial verification before publication."
 
 
-def build_article_draft(
-    *,
-    content_brief: dict[str, Any],
-    evidence_records: list[dict[str, Any]] | None = None,
-) -> dict[str, Any]:
-    """Translate an approved Content Brief into an evidence-grounded draft.
-
-    Only evidence records whose IDs occur in Content Brief.evidence_refs are
-    eligible for prose generation. Missing referenced evidence deliberately
-    leaves the draft blocked by the Article Draft Quality Gate.
-    """
+def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Translate an approved Content Brief into an evidence-grounded draft."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -80,15 +58,12 @@ def build_article_draft(
         raise ValueError("Content Brief lineage identifiers are required")
     if content_brief.get("lifecycle_stage") != "content_brief_ready":
         raise ValueError("Article Draft requires a content_brief_ready Content Brief")
-
     refs = content_brief.get("evidence_refs")
     if not isinstance(refs, list) or not refs:
         raise ValueError("Content Brief must contain explicit evidence_refs")
-
     outline = content_brief.get("outline")
     if not isinstance(outline, list) or not outline:
         raise ValueError("Content Brief must contain a non-empty outline")
-
     content_type = content_brief.get("content_type")
     keyword = str(content_brief.get("primary_keyword", "")).strip()
     if content_type not in {"guide", "comparison", "buyer_guide", "article"}:
@@ -105,25 +80,17 @@ def build_article_draft(
     grounded_records = [indexed_records[ref] for ref in sorted(ref_set) if ref in indexed_records]
 
     sections = [
-        {
-            "heading": str(item["heading"]).strip(),
-            "purpose": str(item["purpose"]).strip(),
-            "body": _section_body(item, grounded_records),
-        }
+        {"heading": str(item["heading"]).strip(), "purpose": str(item["purpose"]).strip(), "body": _section_body(item, grounded_records)}
         for item in outline
     ]
-
     payload = {
         "title": _title(content_brief),
         "content_type": content_type,
         "primary_keyword": keyword,
         "sections": sections,
         "evidence_refs": list(dict.fromkeys(str(ref) for ref in refs if str(ref).strip())),
-        "editorial_constraints": list(dict.fromkeys(
-            str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip()
-        )),
+        "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
-
     return {
         "draft_id": _draft_id(content_brief, payload),
         "brief_id": brief_id,
@@ -133,9 +100,5 @@ def build_article_draft(
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "draft_ready",
         **payload,
-        "audit": {
-            "method": "content_brief_to_evidence_grounded_article_draft",
-            "version": METHOD_VERSION,
-            "validation_status": "pending",
-        },
+        "audit": {"method": "content_brief_to_evidence_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"},
     }
