@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from .agent import run as run_research_agent
 from .article_draft_agent import run as run_article_draft_agent
+from .article_draft_quality import validate_article_draft_quality
 from .seo_strategy_agent import run_seo_strategy_agent
 from .seo_validation_agent import run_seo_validation_agent
 from .editorial_review import build_editorial_review
@@ -37,7 +38,22 @@ def build_content_research_to_wordpress_draft(
     This function performs no filesystem or network I/O. It composes existing
     engines and preserves their lineage; the final WordPress artifact is always
     draft-only.
+
+    Article Draft Quality is the first gate after draft generation. A failed
+    quality result stops the downstream SEO/editorial/publication/delivery path.
     """
+    article_draft_quality = validate_article_draft_quality(article_draft=article_draft)
+
+    result: dict[str, Any] = {
+        "research_report": research_report,
+        "content_brief": content_brief,
+        "article_draft": article_draft,
+        "article_draft_quality": article_draft_quality,
+    }
+
+    if article_draft_quality.get("outcome") != "passed":
+        return result
+
     seo_strategy = run_seo_strategy_agent(
         content_brief=content_brief,
         research_report=research_report,
@@ -53,15 +69,12 @@ def build_content_research_to_wordpress_draft(
         editorial_review=editorial_review,
     )
 
-    result: dict[str, Any] = {
-        "research_report": research_report,
-        "content_brief": content_brief,
-        "article_draft": article_draft,
+    result.update({
         "seo_strategy": seo_strategy,
         "seo_validation": seo_validation,
         "editorial_review": editorial_review,
         "publication": publication,
-    }
+    })
 
     if publication.get("gate_status") != "allowed":
         return result
@@ -103,6 +116,7 @@ def run_content_research_to_wordpress_draft(
     )
 
     artifact_files = {
+        "article_draft_quality": "article-draft-quality.json",
         "seo_strategy": "seo-strategy.json",
         "seo_validation": "seo-validation.json",
         "editorial_review": "editorial-review.json",
@@ -114,11 +128,16 @@ def run_content_research_to_wordpress_draft(
         if key in artifacts:
             _save_if_changed(project_name, filename, artifacts[key])
 
-    publication = artifacts["publication"]
     metadata_path = Path("research") / project_name / "metadata.json"
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     metadata["project_name"] = project_name
 
+    if artifacts["article_draft_quality"].get("outcome") != "passed":
+        metadata["status"] = "article_draft_quality_blocked"
+        metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
+        return artifacts
+
+    publication = artifacts["publication"]
     if publication.get("gate_status") != "allowed":
         metadata["status"] = "publication_blocked"
         metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
