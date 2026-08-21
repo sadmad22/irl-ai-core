@@ -29,22 +29,55 @@ def _title(brief: dict[str, Any]) -> str:
     return f"{prefixes[content_type]} {keyword.title()}"
 
 
-def _section_body(section: dict[str, str]) -> str:
-    # This v1 writer produces a controlled, reviewable draft scaffold rather
-    # than inventing factual claims. Claim generation belongs to a later
-    # evidence-grounded writing implementation.
+def _evidence_text(record: dict[str, Any]) -> str:
+    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
+    value = record.get("value") if isinstance(record.get("value"), dict) else {}
+    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
+    attribute = str(claim.get("attribute") or claim.get("type") or "observation").replace("_", " ")
+    data = value.get("data")
+    subject_id = str(subject.get("id") or "the research set")
+    if isinstance(data, bool):
+        observation = "is supported" if data else "is not supported"
+    elif data is None:
+        observation = "has been observed"
+    else:
+        observation = f"has a recorded value of {data}"
+    return f"The research evidence records {attribute} for {subject_id}: {observation}."
+
+
+def _section_body(section: dict[str, str], evidence_records: list[dict[str, Any]]) -> str:
+    """Render only observations present in supplied evidence records.
+
+    If no evidence is available, retain the controlled scaffold so the
+    Article Draft Quality Gate blocks downstream publication rather than
+    allowing unsupported prose through.
+    """
+    if not evidence_records:
+        return (
+            f"Draft this section to {section['purpose']} "
+            "Use the upstream evidence_refs for factual claims and mark any claim "
+            "that still requires editorial verification before publication."
+        )
+
+    observations = [_evidence_text(record) for record in evidence_records[:4]]
     return (
-        f"Draft this section to {section['purpose']} "
-        "Use the upstream evidence_refs for factual claims and mark any claim "
-        "that still requires editorial verification before publication."
+        f"{section['purpose'].strip()}. "
+        + " ".join(observations)
+        + " These observations require editorial verification before publication."
     )
 
 
-def build_article_draft(*, content_brief: dict[str, Any]) -> dict[str, Any]:
-    """Translate an approved Content Brief into a deterministic draft scaffold.
+def build_article_draft(
+    *,
+    content_brief: dict[str, Any],
+    evidence_records: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Translate an approved Content Brief into an evidence-grounded draft.
 
-    The Writer layer consumes the brief. It does not make decisions, change
-    strategy, create evidence, or claim that unverified facts are publishable.
+    The Writer consumes the brief plus explicitly supplied evidence records. It
+    never creates evidence, makes decisions, or claims unsupported facts are
+    publishable. When evidence is unavailable it emits a controlled scaffold
+    that the Article Draft Quality Gate will block.
     """
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
@@ -70,11 +103,12 @@ def build_article_draft(*, content_brief: dict[str, Any]) -> dict[str, Any]:
     if not keyword:
         raise ValueError("Content Brief.primary_keyword is required")
 
+    evidence_records = evidence_records or []
     sections = [
         {
             "heading": str(item["heading"]).strip(),
             "purpose": str(item["purpose"]).strip(),
-            "body": _section_body(item),
+            "body": _section_body(item, evidence_records),
         }
         for item in outline
     ]
@@ -100,7 +134,7 @@ def build_article_draft(*, content_brief: dict[str, Any]) -> dict[str, Any]:
         "lifecycle_stage": "draft_ready",
         **payload,
         "audit": {
-            "method": "content_brief_to_article_draft",
+            "method": "content_brief_to_evidence_grounded_article_draft",
             "version": METHOD_VERSION,
             "validation_status": "pending",
         },
