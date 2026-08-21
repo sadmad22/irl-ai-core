@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/claim-audit.schema.json",
+  "title": "IRL AI Core Claim Audit",
+  "type": "object",
+  "required": ["audit_id", "draft_id", "schema_version", "lifecycle_stage", "outcome", "counts", "claims", "audit"],
+  "properties": {
+    "audit_id": {"type": "string", "minLength": 1},
+    "draft_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "claim_audit_ready"},
+    "outcome": {"enum": ["passed", "needs_revision"]},
+    "counts": {
+      "type": "object",
+      "required": ["supported", "disputed", "insufficient"],
+      "properties": {
+        "supported": {"type": "integer", "minimum": 0},
+        "disputed": {"type": "integer", "minimum": 0},
+        "insufficient": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["audit_id", "claim_id", "result", "evidence_refs", "matched_tokens", "reason"],
+        "properties": {
+          "audit_id": {"type": "string", "minLength": 1},
+          "claim_id": {"type": "string", "minLength": 1},
+          "result": {"enum": ["supported", "disputed", "insufficient"]},
+          "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "matched_tokens": {"type": "array", "items": {"type": "string"}},
+          "reason": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"type": "string"},
+        "version": {"type": "string"},
+        "validation_status": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
