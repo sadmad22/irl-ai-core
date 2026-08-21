@@ -56,8 +56,7 @@ def _section_body(section: dict[str, str], evidence_records: list[dict[str, Any]
 
     observations = [_evidence_text(record) for record in evidence_records[:4]]
     return (
-        f"{section['purpose'].strip()}. "
-        + " ".join(observations)
+        " ".join(observations)
         + " These observations require editorial verification before publication."
     )
 
