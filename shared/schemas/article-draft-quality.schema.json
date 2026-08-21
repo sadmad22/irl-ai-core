@@ -37,6 +37,7 @@
         "lineage",
         "structure",
         "evidence_lineage",
+        "section_evidence_grounding",
         "placeholders",
         "decision_engine_leakage"
       ],
@@ -45,6 +46,7 @@
         "lineage": {"type": "boolean"},
         "structure": {"type": "boolean"},
         "evidence_lineage": {"type": "boolean"},
+        "section_evidence_grounding": {"type": "boolean"},
         "placeholders": {"type": "boolean"},
         "decision_engine_leakage": {"type": "boolean"}
       }
