@@ -44,7 +44,7 @@ def draft():
         "sections": [{
             "heading": "Coverage",
             "purpose": "Explain the core coverage considerations.",
-            "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile.",
+            "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile. Any factual claim requires editorial verification before publication.",
         }],
         "evidence_refs": ["e1"],
         "editorial_constraints": ["verify factual claims"],
