@@ -12,7 +12,7 @@ def draft():
         "draft_id":"draft_1","brief_id":"brief_1","report_id":"report_1","decision_id":"decision_1","strategy_id":"strategy_1",
         "schema_version":"1.0","lifecycle_stage":"draft_ready","title":"A Practical Guide to Accountant Insurance",
         "content_type":"guide","primary_keyword":"accountant insurance","evidence_refs":["e1","e2"],
-        "sections":[{"heading":"Coverage","purpose":"explain coverage","body":"Use evidence and mark any claim that still requires editorial verification before publication."}],
+        "sections":[{"heading":"Coverage","purpose":"explain coverage","body":"The research evidence records coverage for accountant insurance: has a recorded value of professional liability. These observations require editorial verification before publication."}],
         "editorial_constraints":[],
     }
 
@@ -54,6 +54,13 @@ def test_review_flags_unverified_claims():
     result = build_editorial_review(article_draft=bad)
     assert result["outcome"] == "needs_revision"
     assert any(f["category"] == "unsupported_claims" for f in result["findings"])
+
+
+def test_review_accepts_evidence_grounded_body_without_marker():
+    bad = draft()
+    bad["sections"][0]["body"] = "The research evidence records coverage for accountant insurance: has a recorded value of professional liability."
+    result = build_editorial_review(article_draft=bad)
+    assert result["outcome"] == "approved"
 
 
 def test_review_does_not_mutate_draft():
