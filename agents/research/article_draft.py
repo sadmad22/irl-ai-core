@@ -86,20 +86,23 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     for item, refs_for_section in zip(outline, section_refs):
         section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
         body = _section_body(section_records)
-        section = {
+        sections.append({
             "heading": str(item["heading"]).strip(),
             "purpose": str(item["purpose"]).strip(),
             "body": body,
             "evidence_refs": refs_for_section,
-        }
-        claims = ground_claims_by_section(
-            sections=[section],
-            evidence_records=section_records,
-            per_claim=1,
-            require_match=True,
-        )[0]
+        })
+
+    # Ground all sections in one call so section_index remains stable and
+    # claim IDs are globally unique within the Article Draft.
+    claims_by_section = ground_claims_by_section(
+        sections=sections,
+        evidence_records=list(grounded_records.values()),
+        per_claim=1,
+        require_match=True,
+    )
+    for section, claims in zip(sections, claims_by_section):
         section["claims"] = claims
-        sections.append(section)
 
     payload = {
         "title": _title(content_brief),
