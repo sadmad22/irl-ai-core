@@ -45,6 +45,7 @@ def draft():
             "heading": "Coverage",
             "purpose": "Explain the core coverage considerations.",
             "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile. Any factual claim requires editorial verification before publication.",
+            "evidence_refs": ["e1"],
         }],
         "evidence_refs": ["e1"],
         "editorial_constraints": ["verify factual claims"],
@@ -57,6 +58,7 @@ def test_content_research_pipeline_reaches_wordpress_draft_contract():
         research_report=report(), content_brief=brief(), article_draft=draft()
     )
     assert result["article_draft_quality"]["outcome"] == "passed"
+    assert result["article_draft_quality"]["checks"]["section_evidence_grounding"] is True
     assert result["seo_validation"]["outcome"] == "passed"
     assert result["editorial_review"]["outcome"] == "approved"
     assert result["publication"]["gate_status"] == "allowed"
