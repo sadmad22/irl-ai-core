@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from typing import Any
 
-SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
 
+METHOD_VERSION = "v1"
+_MIN_MEANINGFUL_OVERLAP = 2
+_STOPWORDS = {
+    "the", "and", "for", "from", "with", "that", "this", "can", "may",
+    "are", "is", "was", "were", "has", "have", "had", "will", "would",
+    "could", "should", "about", "into", "than", "their", "they", "them",
+    "your", "you", "its", "not", "but", "also", "based", "only", "such",
+}
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
@@ -41,14 +46,15 @@ def _record_text(record: dict[str, Any]) -> str:
 
 
 def _sentence_tokens(sentence: str) -> set[str]:
-    return {token for token in re.findall(r"[a-z0-9]{3,}", sentence.lower())}
+    return {
+        token
+        for token in re.findall(r"[a-z0-9]{3,}", sentence.lower())
+        if token not in _STOPWORDS
+    }
 
 
 def _score(sentence: str, record: dict[str, Any]) -> int:
-    sentence_tokens = _sentence_tokens(sentence)
-    record_tokens = _sentence_tokens(_record_text(record))
-    overlap = len(sentence_tokens & record_tokens)
-    return overlap
+    return len(_sentence_tokens(sentence) & _sentence_tokens(_record_text(record)))
 
 
 def ground_claims_by_section(
@@ -60,10 +66,10 @@ def ground_claims_by_section(
 ) -> list[list[dict[str, Any]]]:
     """Attach deterministic evidence refs to individual factual sentences.
 
-    Only evidence records already assigned to the section are eligible. Each
-    claim therefore remains inside both the section and top-level evidence
-    lineage. Claims without a meaningful evidence match are marked blocked
-    instead of receiving invented support.
+    Only evidence records already assigned to the section are eligible. A
+    claim needs meaningful lexical support from its eligible evidence before
+    it can be marked grounded. Weak overlap on generic words is insufficient.
+    Claims without support are blocked rather than assigned invented evidence.
     """
     if per_claim < 1:
         raise ValueError("per_claim must be at least 1")
@@ -86,7 +92,11 @@ def ground_claims_by_section(
                 ((record, _score(sentence, record)) for record in candidates),
                 key=lambda item: (-item[1], str(item[0].get("evidence_id", ""))),
             )
-            selected = [record for record, score in scored[:per_claim] if score > 0]
+            selected = [
+                record
+                for record, score in scored[:per_claim]
+                if score >= _MIN_MEANINGFUL_OVERLAP
+            ]
             status = "grounded" if selected else "blocked"
             if not selected and not require_match and candidates:
                 selected = candidates[:per_claim]
