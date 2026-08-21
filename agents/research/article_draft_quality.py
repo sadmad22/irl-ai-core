@@ -1,0 +1,191 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+from jsonschema import Draft202012Validator
+
+SCHEMA_VERSION = "1.0"
+METHOD_VERSION = "v1"
+_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "article-draft.schema.json"
+
+_PLACEHOLDER_PATTERNS = (
+    "draft this section",
+    "use the upstream evidence_refs",
+    "mark any claim",
+    "without introducing unsupported claims",
+    "requirement from the approved content strategy",
+)
+_FORBIDDEN_TOP_LEVEL_KEYS = {
+    "decision",
+    "recommendation",
+    "decision_result",
+    "recommendation_result",
+}
+
+
+def _quality_id(draft_id: str, payload: dict[str, Any]) -> str:
+    raw = json.dumps(
+        {"draft_id": draft_id, "payload": payload},
+        sort_keys=True,
+        ensure_ascii=False,
+    )
+    return f"article_draft_quality_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
+
+
+def _schema_validator() -> Draft202012Validator:
+    schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
+    return Draft202012Validator(schema)
+
+
+def _schema_check(article_draft: dict[str, Any]) -> tuple[bool, str | None]:
+    errors = sorted(_schema_validator().iter_errors(article_draft), key=lambda error: list(error.path))
+    if not errors:
+        return True, None
+    error = errors[0]
+    location = ".".join(str(part) for part in error.path) or "root"
+    return False, f"Article Draft contract violation at {location}: {error.message}"
+
+
+def _lineage_check(article_draft: dict[str, Any]) -> bool:
+    return all(
+        str(article_draft.get(key, "")).strip()
+        for key in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")
+    )
+
+
+def _structure_check(article_draft: dict[str, Any]) -> bool:
+    sections = article_draft.get("sections", [])
+    if not isinstance(sections, list) or not sections:
+        return False
+    for section in sections:
+        if not isinstance(section, dict):
+            return False
+        if not all(str(section.get(key, "")).strip() for key in ("heading", "purpose", "body")):
+            return False
+    return bool(str(article_draft.get("title", "")).strip()) and bool(
+        str(article_draft.get("primary_keyword", "")).strip()
+    )
+
+
+def _evidence_check(article_draft: dict[str, Any]) -> bool:
+    refs = article_draft.get("evidence_refs")
+    return (
+        isinstance(refs, list)
+        and bool(refs)
+        and len(refs) == len(set(str(ref).strip() for ref in refs))
+        and all(str(ref).strip() for ref in refs)
+    )
+
+
+def _placeholder_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
+    hits: list[str] = []
+    sections = article_draft.get("sections", [])
+    for index, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            continue
+        body = str(section.get("body", "")).strip().lower()
+        for pattern in _PLACEHOLDER_PATTERNS:
+            if pattern in body:
+                hits.append(f"section_{index}:{pattern}")
+    return not hits, hits
+
+
+def _decision_engine_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
+    leaked = sorted(_FORBIDDEN_TOP_LEVEL_KEYS.intersection(article_draft.keys()))
+    return not leaked, leaked
+
+
+def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str, Any]:
+    """Deterministically validate an Article Draft for review readiness.
+
+    This validator never rewrites the draft, creates evidence, makes a
+    recommendation, or changes publication state.
+    """
+    if article_draft.get("lifecycle_stage") != "draft_ready":
+        raise ValueError("Article Draft Quality requires a draft_ready Article Draft")
+
+    draft_id = str(article_draft.get("draft_id", "")).strip()
+    if not draft_id:
+        raise ValueError("Article Draft Quality requires draft_id")
+
+    lineage_ok = _lineage_check(article_draft)
+    contract_ok, contract_message = _schema_check(article_draft)
+    structure_ok = _structure_check(article_draft)
+    evidence_ok = _evidence_check(article_draft)
+    placeholders_ok, placeholder_hits = _placeholder_check(article_draft)
+    decision_ok, leaked_keys = _decision_engine_check(article_draft)
+
+    checks = {
+        "contract": contract_ok,
+        "lineage": lineage_ok,
+        "structure": structure_ok,
+        "evidence_lineage": evidence_ok,
+        "placeholders": placeholders_ok,
+        "decision_engine_leakage": decision_ok,
+    }
+
+    findings: list[dict[str, str]] = []
+    if not contract_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "contract",
+            "message": contract_message or "Article Draft does not satisfy its schema contract.",
+        })
+    if not lineage_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "lineage",
+            "message": "Article Draft lineage identifiers are incomplete.",
+        })
+    if not structure_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "structure",
+            "message": "Article Draft title, primary keyword, or section structure is incomplete.",
+        })
+    if not evidence_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "evidence_lineage",
+            "message": "Article Draft requires a non-empty, unique evidence_refs list.",
+        })
+    if not placeholders_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "placeholders",
+            "message": "Article Draft contains unresolved generation placeholders: " + ", ".join(placeholder_hits),
+        })
+    if not decision_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "decision_engine_leakage",
+            "message": "Article Draft contains forbidden decision/recommendation fields: " + ", ".join(leaked_keys),
+        })
+
+    evidence_refs = list(dict.fromkeys(str(ref).strip() for ref in article_draft.get("evidence_refs", []) if str(ref).strip()))
+    payload = {
+        "outcome": "passed" if all(checks.values()) else "needs_revision",
+        "checks": checks,
+        "findings": findings,
+        "evidence_refs": evidence_refs,
+    }
+
+    return {
+        "quality_id": _quality_id(draft_id, payload),
+        "draft_id": draft_id,
+        "brief_id": str(article_draft.get("brief_id", "")).strip(),
+        "report_id": str(article_draft.get("report_id", "")).strip(),
+        "decision_id": str(article_draft.get("decision_id", "")).strip(),
+        "strategy_id": str(article_draft.get("strategy_id", "")).strip(),
+        "schema_version": SCHEMA_VERSION,
+        "lifecycle_stage": "article_draft_quality_ready",
+        **payload,
+        "audit": {
+            "method": "article_draft_quality_validator",
+            "version": METHOD_VERSION,
+            "validation_status": "validated",
+        },
+    }
