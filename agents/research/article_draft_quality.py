@@ -8,7 +8,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v2"
+METHOD_VERSION = "v3"
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "article-draft.schema.json"
 
 _PLACEHOLDER_PATTERNS = (
@@ -19,6 +19,7 @@ _PLACEHOLDER_PATTERNS = (
     "requirement from the approved content strategy",
 )
 _FORBIDDEN_TOP_LEVEL_KEYS = {"decision", "recommendation", "decision_result", "recommendation_result"}
+_CLAIM_ID_PATTERN = r"^claim_(\d+)_(\d+)_([0-9a-f]+)$"
 
 
 def _quality_id(draft_id: str, payload: dict[str, Any]) -> str:
@@ -82,34 +83,58 @@ def _section_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[s
 def _claim_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
     top_refs = {str(ref).strip() for ref in article_draft.get("evidence_refs", []) if str(ref).strip()}
     errors: list[str] = []
+    global_claim_ids: set[str] = set()
+
     for section_index, section in enumerate(article_draft.get("sections", []), start=1):
         section_refs = {str(ref).strip() for ref in section.get("evidence_refs", []) if str(ref).strip()}
         claims = section.get("claims")
         if not isinstance(claims, list) or not claims:
             errors.append(f"section_{section_index}:missing_claims")
             continue
-        seen_ids: set[str] = set()
+
         for claim_index, claim in enumerate(claims, start=1):
             if not isinstance(claim, dict):
                 errors.append(f"section_{section_index}:claim_{claim_index}:not_an_object")
                 continue
+
             claim_id = str(claim.get("claim_id", "")).strip()
             text = str(claim.get("text", "")).strip()
             refs = [str(ref).strip() for ref in claim.get("evidence_refs", [])] if isinstance(claim.get("evidence_refs"), list) else []
             status = str(claim.get("grounding_status", "")).strip()
-            if not claim_id or claim_id in seen_ids:
-                errors.append(f"section_{section_index}:claim_{claim_index}:invalid_or_duplicate_claim_id")
-            seen_ids.add(claim_id)
+
+            if not claim_id:
+                errors.append(f"section_{section_index}:claim_{claim_index}:missing_claim_id")
+            else:
+                if claim_id in global_claim_ids:
+                    errors.append(f"section_{section_index}:claim_{claim_index}:duplicate_claim_id")
+                global_claim_ids.add(claim_id)
+                import re
+                match = re.fullmatch(_CLAIM_ID_PATTERN, claim_id)
+                if not match:
+                    errors.append(f"section_{section_index}:claim_{claim_index}:invalid_claim_id_format")
+                elif int(match.group(1)) != section_index or int(match.group(2)) != claim_index:
+                    errors.append(f"section_{section_index}:claim_{claim_index}:claim_id_lineage_mismatch")
+
             if not text:
                 errors.append(f"section_{section_index}:claim_{claim_index}:empty_text")
+            if len(refs) != len(set(refs)):
+                errors.append(f"section_{section_index}:claim_{claim_index}:duplicate_evidence_refs")
+            if any(not ref for ref in refs):
+                errors.append(f"section_{section_index}:claim_{claim_index}:empty_evidence_ref")
             if any(ref not in section_refs or ref not in top_refs for ref in refs):
                 errors.append(f"section_{section_index}:claim_{claim_index}:evidence_ref_outside_lineage")
-            if status == "grounded" and not refs:
-                errors.append(f"section_{section_index}:claim_{claim_index}:grounded_without_evidence")
-            if status not in {"grounded", "blocked", "provisional"}:
+
+            if status == "grounded":
+                if not refs:
+                    errors.append(f"section_{section_index}:claim_{claim_index}:grounded_without_evidence")
+            elif status == "blocked":
+                if refs:
+                    errors.append(f"section_{section_index}:claim_{claim_index}:blocked_with_evidence")
+            elif status == "provisional":
+                errors.append(f"section_{section_index}:claim_{claim_index}:provisional_not_publishable")
+            else:
                 errors.append(f"section_{section_index}:claim_{claim_index}:invalid_grounding_status")
-            if status != "grounded":
-                errors.append(f"section_{section_index}:claim_{claim_index}:not_grounded")
+
     return not errors, errors
 
 
@@ -131,7 +156,7 @@ def _decision_engine_check(article_draft: dict[str, Any]) -> tuple[bool, list[st
 
 
 def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str, Any]:
-    """Validate Article Draft contract, section grounding, and claim grounding."""
+    """Validate Article Draft contract, section grounding, and claim-level publishability."""
     if article_draft.get("lifecycle_stage") != "draft_ready":
         raise ValueError("Article Draft Quality requires a draft_ready Article Draft")
     draft_id = str(article_draft.get("draft_id", "")).strip()
