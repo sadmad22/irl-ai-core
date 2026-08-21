@@ -26,6 +26,7 @@ def draft():
                 "heading": "Coverage",
                 "purpose": "Explain the core coverage.",
                 "body": "Accountants may evaluate professional liability coverage based on their services and risk profile.",
+                "evidence_refs": ["e1", "e2"],
             }
         ],
         "evidence_refs": ["e1", "e2"],
@@ -105,6 +106,23 @@ def test_detects_missing_evidence_refs():
     assert result["outcome"] == "needs_revision"
     assert result["checks"]["evidence_lineage"] is False
     assert result["checks"]["contract"] is False
+
+
+def test_detects_missing_section_evidence_refs():
+    value = draft()
+    del value["sections"][0]["evidence_refs"]
+    result = validate_article_draft_quality(article_draft=value)
+    assert result["outcome"] == "needs_revision"
+    assert result["checks"]["section_evidence_grounding"] is False
+    assert result["checks"]["contract"] is False
+
+
+def test_detects_section_ref_outside_top_level_lineage():
+    value = draft()
+    value["sections"][0]["evidence_refs"] = ["outside"]
+    result = validate_article_draft_quality(article_draft=value)
+    assert result["outcome"] == "needs_revision"
+    assert result["checks"]["section_evidence_grounding"] is False
 
 
 def test_detects_incomplete_section():
