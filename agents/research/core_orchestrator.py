@@ -56,15 +56,9 @@ def _decision_action(*, result: dict[str, Any], decision: dict[str, Any]) -> tup
     return "deliver_wordpress_draft", "Content is approved and ready for WordPress draft delivery."
 
 
-def build_orchestration_result(
-    *,
-    project_name: str,
-    result: dict[str, Any],
-    decision: dict[str, Any],
-) -> dict[str, Any]:
+def build_orchestration_result(*, project_name: str, result: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
     """Convert pipeline state into one explicit orchestration decision."""
     next_action, rationale = _decision_action(result=result, decision=decision)
-
     gates = {
         "article_draft_quality": result.get("article_draft_quality", {}).get("outcome"),
         "claim_audit": result.get("claim_audit", {}).get("outcome"),
@@ -73,21 +67,13 @@ def build_orchestration_result(
         "publication": result.get("publication", {}).get("gate_status"),
         "wordpress_delivery": result.get("wordpress_draft_delivery_result", {}).get("remote_status"),
     }
-
-    if next_action == "complete":
-        lifecycle_stage = "completed"
-    elif next_action == "stop":
-        lifecycle_stage = "blocked"
-    else:
-        lifecycle_stage = "action_required"
-
+    lifecycle_stage = "completed" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required"
     state = {
         "lifecycle_stage": lifecycle_stage,
         "next_action": next_action,
         "gates": gates,
         "decision_outcome": decision.get("outcome"),
     }
-
     return {
         "orchestration_id": _orchestration_id(project_name, state),
         "project_name": project_name,
@@ -101,78 +87,27 @@ def build_orchestration_result(
         "reason": rationale,
         "rationale": [rationale],
         "gates": gates,
-        "audit": {
-            "method": "irl_core_decision_orchestrator",
-            "version": METHOD_VERSION,
-            "validation_status": "validated",
-        },
+        "audit": {"method": "irl_core_decision_orchestrator", "version": METHOD_VERSION, "validation_status": "validated"},
     }
 
 
-def run_irl_core(
-    project_name: str,
-    *,
-    deliver: bool = False,
-    connection: WordPressConnection | None = None,
-    transport: Callable[..., Any] | None = None,
-) -> dict[str, Any]:
+def run_irl_core(project_name: str, *, deliver: bool = False, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
     """Run the complete IRL Core and expose one authoritative orchestration state."""
-    result = run_content_research_to_wordpress_draft(
-        project_name,
-        deliver=deliver,
-        connection=connection,
-        transport=transport,
-    )
+    result = run_content_research_to_wordpress_draft(project_name, deliver=deliver, connection=connection, transport=transport)
     decision = _load(project_name, "decision.json")
-    orchestration = build_orchestration_result(
-        project_name=project_name,
-        result=result,
-        decision=decision,
-    )
+    orchestration = build_orchestration_result(project_name=project_name, result=result, decision=decision)
     result["core_orchestration"] = orchestration
     return result
 
 
-def run_core_orchestration(
-    project_name: str,
-    *,
-    deliver: bool = True,
-    connection: WordPressConnection | None = None,
-    transport: Callable[..., Any] | None = None,
-) -> dict[str, Any]:
-    """Run the IRL Core and return its authoritative orchestration state.
-
-    Delivery defaults to a WordPress *draft* only; the underlying pipeline never
-    publishes content. Callers that only want to inspect routing can pass
-    ``deliver=False``.
-    """
-    result = run_irl_core(
-        project_name,
-        deliver=deliver,
-        connection=connection,
-        transport=transport,
-    )
+def run_core_orchestration(project_name: str, *, deliver: bool = True, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
+    """Run the IRL Core and return its authoritative orchestration state."""
+    result = run_irl_core(project_name, deliver=deliver, connection=connection, transport=transport)
     return result["core_orchestration"]
 
 
-def run_revision_loop(
-    project_name: str,
-    *,
-    deliver: bool = True,
-    connection: WordPressConnection | None = None,
-    transport: Callable[..., Any] | None = None,
-    pipeline_runner: PipelineRunner | None = None,
-    revision_handler: RevisionHandler | None = None,
-    max_iterations: int = 3,
-) -> dict[str, Any]:
-    """Run the Core until completion, a blocking state, or a bounded revision limit.
-
-    A revision handler is invoked only when the orchestrator explicitly routes to a
-    revision action. The handler owns the targeted mutation; the Core then reruns the
-    authoritative pipeline and evaluates every gate again. Without a handler, the
-    loop fails closed after the first required revision rather than pretending a
-    revision occurred.
-    """
+def run_revision_loop(project_name: str, *, deliver: bool = True, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None, pipeline_runner: PipelineRunner | None = None, revision_handler: RevisionHandler | None = None, max_iterations: int = 3) -> dict[str, Any]:
+    """Run the Core until completion, a blocking state, or a bounded revision limit."""
     if max_iterations < 1:
         raise ValueError("max_iterations must be at least 1")
 
@@ -181,36 +116,25 @@ def run_revision_loop(
     result: dict[str, Any] | None = None
 
     for iteration in range(1, max_iterations + 1):
-        result = runner(
-            project_name,
-            deliver=deliver,
-            connection=connection,
-            transport=transport,
-        )
+        result = runner(project_name, deliver=deliver, connection=connection, transport=transport)
         decision = _load(project_name, "decision.json")
-        orchestration = build_orchestration_result(
-            project_name=project_name,
-            result=result,
-            decision=decision,
-        )
-
+        orchestration = build_orchestration_result(project_name=project_name, result=result, decision=decision)
         action = orchestration["next_action"]
         revision_count = iteration - 1
         orchestration["iterations"] = revision_count
-        history.append(
-            {
-                "iteration": iteration,
-                "action": action,
-                "outcome": orchestration["outcome"],
-                "reason": orchestration["reason"],
-                "gates": orchestration["gates"],
-            }
-        )
+        history.append({
+            "iteration": iteration,
+            "action": action,
+            "outcome": orchestration["outcome"],
+            "reason": orchestration["reason"],
+            "gates": orchestration["gates"],
+        })
 
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {
                 "status": "completed" if action == "complete" else "stopped",
-                "iterations": revision_count,
+                "iterations": iteration,
+                "revision_count": revision_count,
                 "max_iterations": max_iterations,
                 "history": history,
             }
@@ -221,7 +145,8 @@ def run_revision_loop(
             if not deliver:
                 orchestration["revision_loop"] = {
                     "status": "stopped",
-                    "iterations": revision_count,
+                    "iterations": iteration,
+                    "revision_count": revision_count,
                     "max_iterations": max_iterations,
                     "history": history,
                 }
@@ -230,7 +155,8 @@ def run_revision_loop(
             if iteration == max_iterations:
                 orchestration["revision_loop"] = {
                     "status": "revision_limit_reached",
-                    "iterations": revision_count,
+                    "iterations": iteration,
+                    "revision_count": revision_count,
                     "max_iterations": max_iterations,
                     "history": history,
                 }
@@ -241,7 +167,8 @@ def run_revision_loop(
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {
                 "status": "revision_limit_reached" if iteration == max_iterations else "handler_required",
-                "iterations": revision_count,
+                "iterations": iteration,
+                "revision_count": revision_count,
                 "max_iterations": max_iterations,
                 "history": history,
             }
