@@ -95,12 +95,19 @@ def audit_article_claims(*, article_draft: dict[str, Any], evidence_records: lis
 
     counts = {status: sum(1 for item in audits if item["result"] == status) for status in ("supported", "disputed", "insufficient")}
     outcome = "passed" if audits and counts["supported"] == len(audits) else "needs_revision"
+    summary = {
+        "total_claims": len(audits),
+        "supported": counts["supported"],
+        "disputed": counts["disputed"],
+        "insufficient": counts["insufficient"],
+    }
     return {
         "audit_id": _audit_id(str(article_draft.get("draft_id", "")), outcome, [item["audit_id"] for item in audits]),
         "draft_id": str(article_draft.get("draft_id", "")).strip(),
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "claim_audit_ready",
         "outcome": outcome,
+        "summary": summary,
         "counts": counts,
         "claims": audits,
         "audit": {"method": "claim_audit_validator", "version": METHOD_VERSION, "validation_status": "validated"},
