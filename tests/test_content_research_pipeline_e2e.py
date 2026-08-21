@@ -57,10 +57,22 @@ def draft():
     }
 
 
+def evidence_records():
+    return [{
+        "evidence_id": "e1",
+        "domain": "professional_liability",
+        "claim": {"type": "coverage", "attribute": "professional liability services risk"},
+        "value": {"type": "text", "data": "Accountants professional liability coverage services risk profile factual claim editorial verification publication"},
+        "subject": {"type": "profession", "id": "accountants"},
+        "relation": "supports",
+    }]
+
+
 def test_content_research_pipeline_reaches_wordpress_draft_contract():
-    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft())
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft(), evidence_records=evidence_records())
     assert result["article_draft_quality"]["outcome"] == "passed"
     assert result["article_draft_quality"]["checks"]["claim_evidence_grounding"] is True
+    assert result["claim_audit"]["outcome"] == "passed"
     assert result["seo_validation"]["outcome"] == "passed"
     assert result["editorial_review"]["outcome"] == "approved"
     assert result["publication"]["gate_status"] == "allowed"
@@ -70,7 +82,7 @@ def test_content_research_pipeline_reaches_wordpress_draft_contract():
 
 
 def test_content_research_pipeline_does_not_publish():
-    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft())
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=draft(), evidence_records=evidence_records())
     payload = result["wordpress_draft_delivery"]["request_payload"]
     assert payload["status"] == "draft"
     assert "publish" not in payload["status"]
@@ -79,7 +91,7 @@ def test_content_research_pipeline_does_not_publish():
 def test_content_research_pipeline_stops_on_article_draft_quality_failure():
     value = draft()
     value["sections"][0]["body"] = "Draft this section to Address the requirement from the approved content strategy."
-    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=value)
+    result = build_content_research_to_wordpress_draft(research_report=report(), content_brief=brief(), article_draft=value, evidence_records=evidence_records())
     assert result["article_draft_quality"]["outcome"] == "needs_revision"
     assert result["article_draft_quality"]["checks"]["placeholders"] is False
     assert "seo_validation" not in result
