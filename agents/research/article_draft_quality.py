@@ -8,7 +8,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v2"
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "article-draft.schema.json"
 
 _PLACEHOLDER_PATTERNS = (
@@ -18,26 +18,16 @@ _PLACEHOLDER_PATTERNS = (
     "without introducing unsupported claims",
     "requirement from the approved content strategy",
 )
-_FORBIDDEN_TOP_LEVEL_KEYS = {
-    "decision",
-    "recommendation",
-    "decision_result",
-    "recommendation_result",
-}
+_FORBIDDEN_TOP_LEVEL_KEYS = {"decision", "recommendation", "decision_result", "recommendation_result"}
 
 
 def _quality_id(draft_id: str, payload: dict[str, Any]) -> str:
-    raw = json.dumps(
-        {"draft_id": draft_id, "payload": payload},
-        sort_keys=True,
-        ensure_ascii=False,
-    )
+    raw = json.dumps({"draft_id": draft_id, "payload": payload}, sort_keys=True, ensure_ascii=False)
     return f"article_draft_quality_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
 def _schema_validator() -> Draft202012Validator:
-    schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
-    return Draft202012Validator(schema)
+    return Draft202012Validator(json.loads(_SCHEMA_PATH.read_text(encoding="utf-8")))
 
 
 def _schema_check(article_draft: dict[str, Any]) -> tuple[bool, str | None]:
@@ -50,10 +40,7 @@ def _schema_check(article_draft: dict[str, Any]) -> tuple[bool, str | None]:
 
 
 def _lineage_check(article_draft: dict[str, Any]) -> bool:
-    return all(
-        str(article_draft.get(key, "")).strip()
-        for key in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")
-    )
+    return all(str(article_draft.get(key, "")).strip() for key in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id"))
 
 
 def _structure_check(article_draft: dict[str, Any]) -> bool:
@@ -61,23 +48,14 @@ def _structure_check(article_draft: dict[str, Any]) -> bool:
     if not isinstance(sections, list) or not sections:
         return False
     for section in sections:
-        if not isinstance(section, dict):
+        if not isinstance(section, dict) or not all(str(section.get(key, "")).strip() for key in ("heading", "purpose", "body")):
             return False
-        if not all(str(section.get(key, "")).strip() for key in ("heading", "purpose", "body")):
-            return False
-    return bool(str(article_draft.get("title", "")).strip()) and bool(
-        str(article_draft.get("primary_keyword", "")).strip()
-    )
+    return bool(str(article_draft.get("title", "")).strip()) and bool(str(article_draft.get("primary_keyword", "")).strip())
 
 
 def _evidence_check(article_draft: dict[str, Any]) -> bool:
     refs = article_draft.get("evidence_refs")
-    return (
-        isinstance(refs, list)
-        and bool(refs)
-        and len(refs) == len(set(str(ref).strip() for ref in refs))
-        and all(str(ref).strip() for ref in refs)
-    )
+    return isinstance(refs, list) and bool(refs) and len(refs) == len(set(str(ref).strip() for ref in refs)) and all(str(ref).strip() for ref in refs)
 
 
 def _section_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
@@ -101,10 +79,43 @@ def _section_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[s
     return not errors, errors
 
 
+def _claim_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
+    top_refs = {str(ref).strip() for ref in article_draft.get("evidence_refs", []) if str(ref).strip()}
+    errors: list[str] = []
+    for section_index, section in enumerate(article_draft.get("sections", []), start=1):
+        section_refs = {str(ref).strip() for ref in section.get("evidence_refs", []) if str(ref).strip()}
+        claims = section.get("claims")
+        if not isinstance(claims, list) or not claims:
+            errors.append(f"section_{section_index}:missing_claims")
+            continue
+        seen_ids: set[str] = set()
+        for claim_index, claim in enumerate(claims, start=1):
+            if not isinstance(claim, dict):
+                errors.append(f"section_{section_index}:claim_{claim_index}:not_an_object")
+                continue
+            claim_id = str(claim.get("claim_id", "")).strip()
+            text = str(claim.get("text", "")).strip()
+            refs = [str(ref).strip() for ref in claim.get("evidence_refs", [])] if isinstance(claim.get("evidence_refs"), list) else []
+            status = str(claim.get("grounding_status", "")).strip()
+            if not claim_id or claim_id in seen_ids:
+                errors.append(f"section_{section_index}:claim_{claim_index}:invalid_or_duplicate_claim_id")
+            seen_ids.add(claim_id)
+            if not text:
+                errors.append(f"section_{section_index}:claim_{claim_index}:empty_text")
+            if any(ref not in section_refs or ref not in top_refs for ref in refs):
+                errors.append(f"section_{section_index}:claim_{claim_index}:evidence_ref_outside_lineage")
+            if status == "grounded" and not refs:
+                errors.append(f"section_{section_index}:claim_{claim_index}:grounded_without_evidence")
+            if status not in {"grounded", "blocked", "provisional"}:
+                errors.append(f"section_{section_index}:claim_{claim_index}:invalid_grounding_status")
+            if status != "grounded":
+                errors.append(f"section_{section_index}:claim_{claim_index}:not_grounded")
+    return not errors, errors
+
+
 def _placeholder_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
     hits: list[str] = []
-    sections = article_draft.get("sections", [])
-    for index, section in enumerate(sections, start=1):
+    for index, section in enumerate(article_draft.get("sections", []), start=1):
         if not isinstance(section, dict):
             continue
         body = str(section.get("body", "")).strip().lower()
@@ -120,14 +131,9 @@ def _decision_engine_check(article_draft: dict[str, Any]) -> tuple[bool, list[st
 
 
 def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str, Any]:
-    """Deterministically validate an Article Draft for review readiness.
-
-    This validator never rewrites the draft, creates evidence, makes a
-    recommendation, or changes publication state.
-    """
+    """Validate Article Draft contract, section grounding, and claim grounding."""
     if article_draft.get("lifecycle_stage") != "draft_ready":
         raise ValueError("Article Draft Quality requires a draft_ready Article Draft")
-
     draft_id = str(article_draft.get("draft_id", "")).strip()
     if not draft_id:
         raise ValueError("Article Draft Quality requires draft_id")
@@ -137,6 +143,7 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
     structure_ok = _structure_check(article_draft)
     evidence_ok = _evidence_check(article_draft)
     section_evidence_ok, section_evidence_errors = _section_evidence_check(article_draft)
+    claim_evidence_ok, claim_evidence_errors = _claim_evidence_check(article_draft)
     placeholders_ok, placeholder_hits = _placeholder_check(article_draft)
     decision_ok, leaked_keys = _decision_engine_check(article_draft)
 
@@ -146,62 +153,31 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
         "structure": structure_ok,
         "evidence_lineage": evidence_ok,
         "section_evidence_grounding": section_evidence_ok,
+        "claim_evidence_grounding": claim_evidence_ok,
         "placeholders": placeholders_ok,
         "decision_engine_leakage": decision_ok,
     }
 
     findings: list[dict[str, str]] = []
     if not contract_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "contract",
-            "message": contract_message or "Article Draft does not satisfy its schema contract.",
-        })
+        findings.append({"severity": "critical", "category": "contract", "message": contract_message or "Article Draft does not satisfy its schema contract."})
     if not lineage_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "lineage",
-            "message": "Article Draft lineage identifiers are incomplete.",
-        })
+        findings.append({"severity": "critical", "category": "lineage", "message": "Article Draft lineage identifiers are incomplete."})
     if not structure_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "structure",
-            "message": "Article Draft title, primary keyword, or section structure is incomplete.",
-        })
+        findings.append({"severity": "critical", "category": "structure", "message": "Article Draft title, primary keyword, or section structure is incomplete."})
     if not evidence_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "evidence_lineage",
-            "message": "Article Draft requires a non-empty, unique evidence_refs list.",
-        })
+        findings.append({"severity": "critical", "category": "evidence_lineage", "message": "Article Draft requires a non-empty, unique evidence_refs list."})
     if not section_evidence_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "section_evidence_grounding",
-            "message": "Article Draft sections have invalid evidence grounding: " + ", ".join(section_evidence_errors),
-        })
+        findings.append({"severity": "critical", "category": "section_evidence_grounding", "message": "Invalid section evidence grounding: " + ", ".join(section_evidence_errors)})
+    if not claim_evidence_ok:
+        findings.append({"severity": "critical", "category": "claim_evidence_grounding", "message": "Invalid claim evidence grounding: " + ", ".join(claim_evidence_errors)})
     if not placeholders_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "placeholders",
-            "message": "Article Draft contains unresolved generation placeholders: " + ", ".join(placeholder_hits),
-        })
+        findings.append({"severity": "critical", "category": "placeholders", "message": "Article Draft contains unresolved generation placeholders: " + ", ".join(placeholder_hits)})
     if not decision_ok:
-        findings.append({
-            "severity": "critical",
-            "category": "decision_engine_leakage",
-            "message": "Article Draft contains forbidden decision/recommendation fields: " + ", ".join(leaked_keys),
-        })
+        findings.append({"severity": "critical", "category": "decision_engine_leakage", "message": "Article Draft contains forbidden decision/recommendation fields: " + ", ".join(leaked_keys)})
 
     evidence_refs = list(dict.fromkeys(str(ref).strip() for ref in article_draft.get("evidence_refs", []) if str(ref).strip()))
-    payload = {
-        "outcome": "passed" if all(checks.values()) else "needs_revision",
-        "checks": checks,
-        "findings": findings,
-        "evidence_refs": evidence_refs,
-    }
-
+    payload = {"outcome": "passed" if all(checks.values()) else "needs_revision", "checks": checks, "findings": findings, "evidence_refs": evidence_refs}
     return {
         "quality_id": _quality_id(draft_id, payload),
         "draft_id": draft_id,
@@ -212,9 +188,5 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "article_draft_quality_ready",
         **payload,
-        "audit": {
-            "method": "article_draft_quality_validator",
-            "version": METHOD_VERSION,
-            "validation_status": "validated",
-        },
+        "audit": {"method": "article_draft_quality_validator", "version": METHOD_VERSION, "validation_status": "validated"},
     }
