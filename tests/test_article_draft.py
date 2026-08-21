@@ -31,6 +31,23 @@ def _brief():
     }
 
 
+def _evidence_records():
+    return [
+        {
+            "evidence_id": "ev_1",
+            "subject": {"type": "keyword", "id": "expat health insurance"},
+            "claim": {"type": "observation", "attribute": "coverage"},
+            "value": {"type": "categorical", "data": "international"},
+        },
+        {
+            "evidence_id": "ev_2",
+            "subject": {"type": "keyword", "id": "expat health insurance"},
+            "claim": {"type": "observation", "attribute": "market"},
+            "value": {"type": "categorical", "data": "commercial"},
+        },
+    ]
+
+
 def test_article_draft_contract_shape():
     draft = build_article_draft(content_brief=_brief())
     assert draft["lifecycle_stage"] == "draft_ready"
@@ -81,3 +98,16 @@ def test_article_draft_is_not_a_decision_engine():
     draft = build_article_draft(content_brief=_brief())
     assert "decision" not in draft
     assert "recommendation" not in draft
+
+
+def test_evidence_grounded_body_does_not_leak_section_purpose():
+    draft = build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+    )
+
+    for section in draft["sections"]:
+        assert section["purpose"] not in section["body"]
+        assert "define the topic" not in section["body"]
+        assert "explain selection criteria" not in section["body"]
+        assert "requires editorial verification" in section["body"]
