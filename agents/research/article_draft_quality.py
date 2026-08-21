@@ -80,6 +80,27 @@ def _evidence_check(article_draft: dict[str, Any]) -> bool:
     )
 
 
+def _section_evidence_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
+    top_refs = {str(ref).strip() for ref in article_draft.get("evidence_refs", []) if str(ref).strip()}
+    errors: list[str] = []
+    for index, section in enumerate(article_draft.get("sections", []), start=1):
+        if not isinstance(section, dict):
+            errors.append(f"section_{index}:not_an_object")
+            continue
+        refs = section.get("evidence_refs")
+        normalized = [str(ref).strip() for ref in refs] if isinstance(refs, list) else []
+        if not normalized:
+            errors.append(f"section_{index}:missing_evidence_refs")
+            continue
+        if len(normalized) != len(set(normalized)):
+            errors.append(f"section_{index}:duplicate_evidence_refs")
+        if any(ref not in top_refs for ref in normalized):
+            errors.append(f"section_{index}:evidence_ref_not_in_top_level_lineage")
+        if not str(section.get("body", "")).strip():
+            errors.append(f"section_{index}:empty_body")
+    return not errors, errors
+
+
 def _placeholder_check(article_draft: dict[str, Any]) -> tuple[bool, list[str]]:
     hits: list[str] = []
     sections = article_draft.get("sections", [])
@@ -115,6 +136,7 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
     contract_ok, contract_message = _schema_check(article_draft)
     structure_ok = _structure_check(article_draft)
     evidence_ok = _evidence_check(article_draft)
+    section_evidence_ok, section_evidence_errors = _section_evidence_check(article_draft)
     placeholders_ok, placeholder_hits = _placeholder_check(article_draft)
     decision_ok, leaked_keys = _decision_engine_check(article_draft)
 
@@ -123,6 +145,7 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
         "lineage": lineage_ok,
         "structure": structure_ok,
         "evidence_lineage": evidence_ok,
+        "section_evidence_grounding": section_evidence_ok,
         "placeholders": placeholders_ok,
         "decision_engine_leakage": decision_ok,
     }
@@ -151,6 +174,12 @@ def validate_article_draft_quality(*, article_draft: dict[str, Any]) -> dict[str
             "severity": "critical",
             "category": "evidence_lineage",
             "message": "Article Draft requires a non-empty, unique evidence_refs list.",
+        })
+    if not section_evidence_ok:
+        findings.append({
+            "severity": "critical",
+            "category": "section_evidence_grounding",
+            "message": "Article Draft sections have invalid evidence grounding: " + ", ".join(section_evidence_errors),
         })
     if not placeholders_ok:
         findings.append({
