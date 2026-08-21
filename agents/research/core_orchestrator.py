@@ -12,8 +12,11 @@ from .content_research_pipeline import (
 from .wordpress_draft_delivery_client import WordPressConnection
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v2"
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "core-orchestration.schema.json"
+
+RevisionHandler = Callable[[str, str, dict[str, Any], dict[str, Any], int], Any]
+PipelineRunner = Callable[..., dict[str, Any]]
 
 
 def _orchestration_id(project_name: str, state: dict[str, Any]) -> str:
@@ -150,3 +153,78 @@ def run_core_orchestration(
         transport=transport,
     )
     return result["core_orchestration"]
+
+
+def run_revision_loop(
+    project_name: str,
+    *,
+    deliver: bool = True,
+    connection: WordPressConnection | None = None,
+    transport: Callable[..., Any] | None = None,
+    pipeline_runner: PipelineRunner | None = None,
+    revision_handler: RevisionHandler | None = None,
+    max_iterations: int = 3,
+) -> dict[str, Any]:
+    """Run the Core until completion, a blocking state, or a bounded revision limit.
+
+    A revision handler is invoked only when the orchestrator explicitly routes to a
+    revision action. The handler owns the targeted mutation; the Core then reruns the
+    authoritative pipeline and evaluates every gate again. Without a handler, the
+    loop fails closed after the first required revision rather than pretending a
+    revision occurred.
+    """
+    if max_iterations < 1:
+        raise ValueError("max_iterations must be at least 1")
+
+    runner = pipeline_runner or run_content_research_to_wordpress_draft
+    history: list[dict[str, Any]] = []
+    result: dict[str, Any] | None = None
+
+    for iteration in range(1, max_iterations + 1):
+        result = runner(
+            project_name,
+            deliver=deliver,
+            connection=connection,
+            transport=transport,
+        )
+        decision = _load(project_name, "decision.json")
+        orchestration = build_orchestration_result(
+            project_name=project_name,
+            result=result,
+            decision=decision,
+        )
+
+        action = orchestration["next_action"]
+        history.append(
+            {
+                "iteration": iteration,
+                "action": action,
+                "outcome": orchestration["outcome"],
+                "reason": orchestration["reason"],
+                "gates": orchestration["gates"],
+            }
+        )
+
+        if action in {"complete", "stop", "deliver_wordpress_draft"}:
+            orchestration["revision_loop"] = {
+                "status": "completed" if action == "complete" else "stopped",
+                "iterations": iteration,
+                "max_iterations": max_iterations,
+                "history": history,
+            }
+            result["core_orchestration"] = orchestration
+            return orchestration
+
+        if iteration == max_iterations or revision_handler is None:
+            orchestration["revision_loop"] = {
+                "status": "revision_limit_reached" if iteration == max_iterations else "handler_required",
+                "iterations": iteration,
+                "max_iterations": max_iterations,
+                "history": history,
+            }
+            result["core_orchestration"] = orchestration
+            return orchestration
+
+        revision_handler(project_name, action, result, orchestration, iteration)
+
+    raise RuntimeError("Revision loop terminated without a result")
