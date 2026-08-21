@@ -195,6 +195,8 @@ def run_revision_loop(
         )
 
         action = orchestration["next_action"]
+        revision_count = iteration - 1
+        orchestration["iterations"] = revision_count
         history.append(
             {
                 "iteration": iteration,
@@ -208,7 +210,7 @@ def run_revision_loop(
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {
                 "status": "completed" if action == "complete" else "stopped",
-                "iterations": iteration,
+                "iterations": revision_count,
                 "max_iterations": max_iterations,
                 "history": history,
             }
@@ -219,7 +221,7 @@ def run_revision_loop(
             if not deliver:
                 orchestration["revision_loop"] = {
                     "status": "stopped",
-                    "iterations": iteration,
+                    "iterations": revision_count,
                     "max_iterations": max_iterations,
                     "history": history,
                 }
@@ -228,7 +230,7 @@ def run_revision_loop(
             if iteration == max_iterations:
                 orchestration["revision_loop"] = {
                     "status": "revision_limit_reached",
-                    "iterations": iteration,
+                    "iterations": revision_count,
                     "max_iterations": max_iterations,
                     "history": history,
                 }
@@ -239,7 +241,7 @@ def run_revision_loop(
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {
                 "status": "revision_limit_reached" if iteration == max_iterations else "handler_required",
-                "iterations": iteration,
+                "iterations": revision_count,
                 "max_iterations": max_iterations,
                 "history": history,
             }
