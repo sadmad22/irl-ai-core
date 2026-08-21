@@ -205,7 +205,7 @@ def run_revision_loop(
             }
         )
 
-        if action in {"complete", "stop", "deliver_wordpress_draft"}:
+        if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {
                 "status": "completed" if action == "complete" else "stopped",
                 "iterations": iteration,
@@ -214,6 +214,27 @@ def run_revision_loop(
             }
             result["core_orchestration"] = orchestration
             return orchestration
+
+        if action == "deliver_wordpress_draft":
+            if not deliver:
+                orchestration["revision_loop"] = {
+                    "status": "stopped",
+                    "iterations": iteration,
+                    "max_iterations": max_iterations,
+                    "history": history,
+                }
+                result["core_orchestration"] = orchestration
+                return orchestration
+            if iteration == max_iterations:
+                orchestration["revision_loop"] = {
+                    "status": "revision_limit_reached",
+                    "iterations": iteration,
+                    "max_iterations": max_iterations,
+                    "history": history,
+                }
+                result["core_orchestration"] = orchestration
+                return orchestration
+            continue
 
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {
