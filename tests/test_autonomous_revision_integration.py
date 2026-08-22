@@ -97,21 +97,30 @@ def test_autonomous_revision_plan_drives_real_revision_loop():
         iteration,
     ):
         plan = orchestration["revision_plan"]
+        recovery = orchestration["adaptive_recovery"]
 
         assert plan["outcome"] == "planned"
         assert plan["summary"]["total"] == 1
 
         item = plan["plans"][0]
+        recovery_item = recovery["plans"][0]
 
         assert item["gate"] == "claim_audit"
         assert item["action"] == "revise_claim"
         assert item["target"]["claim_id"] == "claim_1_1_abc"
         assert item["target"]["section_index"] == 1
 
+        assert recovery["outcome"] == "planned"
+        assert recovery["summary"]["total"] == 1
+        assert recovery_item["strategy"] == "acquire_evidence"
+        assert recovery_item["target"] == "claim_1_1_abc"
+        assert recovery_item["rerun_gates"] == ["claim_audit"]
+
         calls.append(
             (
                 "revision",
                 action,
+                recovery_item["strategy"],
                 item["target"]["section_index"],
                 item["target"]["claim_id"],
             )
@@ -135,6 +144,6 @@ def test_autonomous_revision_plan_drives_real_revision_loop():
 
     assert calls == [
         "runner",
-        ("revision", "revise_claims", 1, "claim_1_1_abc"),
+        ("revision", "acquire_evidence", "acquire_evidence", 1, "claim_1_1_abc"),
         "runner",
     ]
