@@ -24,10 +24,16 @@ def _orchestration_id(project_name: str, state: dict[str, Any]) -> str:
 
 
 def _recovery_results(result: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return {
-        gate: result.get(gate, {}) if isinstance(result.get(gate, {}), dict) else {}
-        for gate in ("claim_audit", "article_draft_quality", "seo_validation", "editorial_review")
-    }
+    structured: dict[str, dict[str, Any]] = {}
+    for gate in ("claim_audit", "article_draft_quality", "seo_validation", "editorial_review"):
+        gate_result = result.get(gate)
+        if not isinstance(gate_result, dict):
+            continue
+        if gate == "claim_audit" and isinstance(gate_result.get("claims"), list):
+            structured[gate] = gate_result
+        elif gate != "claim_audit" and isinstance(gate_result.get("findings"), list) and gate_result.get("findings"):
+            structured[gate] = gate_result
+    return structured
 
 
 def _decision_action(*, result: dict[str, Any], decision: dict[str, Any]) -> tuple[str, str]:
