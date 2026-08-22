@@ -31,6 +31,7 @@ def test_revision_loop_retries_after_article_revision(monkeypatch):
         assert project == "test"
         assert action == "revise_article_draft"
         assert iteration == 1
+        assert orchestration["adaptive_recovery"]["outcome"] == "not_required"
 
     final = orchestrator.run_revision_loop(
         "test",
@@ -50,17 +51,24 @@ def test_revision_loop_retries_after_article_revision(monkeypatch):
     assert len(calls) == 2
 
 
-def test_revision_loop_routes_claim_failure_to_handler(monkeypatch):
+def test_revision_loop_routes_claim_failure_to_adaptive_recovery(monkeypatch):
     states = iter([_result(claim_audit="needs_revision"), _result(delivered=True)])
     actions = []
 
     monkeypatch.setattr(orchestrator, "_load", lambda *_: {"outcome": "approved"})
 
     def runner(*args, **kwargs):
-        return next(states)
+        result = next(states)
+        if result["claim_audit"]["outcome"] != "passed":
+            result["claim_audit"]["claims"] = [{
+                "claim_id": "claim_1",
+                "result": "insufficient",
+                "evidence_refs": ["e1"],
+            }]
+        return result
 
     def revise(project, action, result, orchestration, iteration):
-        actions.append((action, iteration))
+        actions.append((action, iteration, orchestration["adaptive_recovery"]["plans"][0]["strategy"]))
 
     final = orchestrator.run_revision_loop(
         "test",
@@ -68,8 +76,29 @@ def test_revision_loop_routes_claim_failure_to_handler(monkeypatch):
         revision_handler=revise,
     )
 
-    assert actions == [("revise_claims", 1)]
+    assert actions == [("acquire_evidence", 1, "acquire_evidence")]
     assert final["outcome"] == "complete"
+
+
+def test_revision_loop_fails_closed_on_unrecoverable_structured_failure(monkeypatch):
+    monkeypatch.setattr(orchestrator, "_load", lambda *_: {"outcome": "approved"})
+
+    final = orchestrator.run_revision_loop(
+        "test",
+        pipeline_runner=lambda *args, **kwargs: {
+            **_result(quality="passed", claim_audit="needs_revision"),
+            "claim_audit": {
+                "outcome": "needs_revision",
+                "claims": [{"claim_id": "claim_1", "result": "unsupported"}],
+            },
+        },
+        revision_handler=lambda *args: (_ for _ in ()).throw(AssertionError("handler must not run")),
+    )
+
+    assert final["outcome"] == "blocked"
+    assert final["next_action"] == "stop"
+    assert final["adaptive_recovery"]["outcome"] == "stopped"
+    assert final["revision_loop"]["status"] == "stopped"
 
 
 def test_revision_loop_fails_closed_without_handler(monkeypatch):
@@ -82,6 +111,7 @@ def test_revision_loop_fails_closed_without_handler(monkeypatch):
 
     assert final["outcome"] == "action_required"
     assert final["next_action"] == "revise_seo"
+    assert final["adaptive_recovery"]["outcome"] == "not_required"
     assert final["revision_loop"]["status"] == "handler_required"
     assert final["revision_loop"]["iterations"] == 1
 
@@ -103,6 +133,7 @@ def test_revision_loop_stops_at_bounded_limit(monkeypatch):
 
     assert final["outcome"] == "action_required"
     assert final["next_action"] == "revise_editorial"
+    assert final["adaptive_recovery"]["outcome"] == "not_required"
     assert final["revision_loop"]["status"] == "revision_limit_reached"
     assert final["revision_loop"]["iterations"] == 2
     assert len(calls) == 2
