@@ -11,7 +11,7 @@
     "schema_version": {"const": "1.0"},
     "lifecycle_stage": {"enum": ["completed", "blocked", "action_required"]},
     "current_stage": {"type": "string", "minLength": 1},
-    "next_action": {"enum": ["complete", "stop", "revise_article_draft", "revise_claims", "revise_seo", "revise_editorial", "deliver_wordpress_draft"]},
+    "next_action": {"enum": ["complete", "stop", "acquire_evidence", "revise_claim", "revise_section", "revise_seo", "revise_editorial", "revise_article_draft", "revise_claims", "deliver_wordpress_draft"]},
     "decision_outcome": {"enum": ["approved", "rejected", "deferred"]},
     "rationale": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
     "gates": {
@@ -27,6 +27,25 @@
         "wordpress_delivery": {"type": ["string", "null"]}
       }
     },
+    "adaptive_recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "plans", "summary"],
+      "properties": {
+        "outcome": {"enum": ["not_required", "planned", "stopped"]},
+        "plans": {"type": "array"},
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total", "stopped", "planned"],
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "stopped": {"type": "integer", "minimum": 0},
+            "planned": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
     "revision_loop": {
       "type": "object",
       "additionalProperties": false,
@@ -35,7 +54,21 @@
         "status": {"enum": ["completed", "stopped", "handler_required", "revision_limit_reached"]},
         "iterations": {"type": "integer", "minimum": 1},
         "max_iterations": {"type": "integer", "minimum": 1},
-        "history": {"type": "array", "items": {"type": "object", "required": ["iteration", "action", "outcome", "reason", "gates"], "properties": {"iteration": {"type": "integer", "minimum": 1}, "action": {"type": "string", "minLength": 1}, "outcome": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}, "gates": {"type": "object"}}}}
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["iteration", "action", "outcome", "reason", "gates"],
+            "properties": {
+              "iteration": {"type": "integer", "minimum": 1},
+              "action": {"type": "string", "minLength": 1},
+              "outcome": {"type": "string", "minLength": 1},
+              "reason": {"type": "string", "minLength": 1},
+              "gates": {"type": "object"},
+              "adaptive_recovery": {"type": "object"}
+            }
+          }
+        }
       }
     },
     "audit": {
