@@ -5,12 +5,13 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
+from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v3"
+METHOD_VERSION = "v4"
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "core-orchestration.schema.json"
 
 RevisionHandler = Callable[[str, str, dict[str, Any], dict[str, Any], int], Any]
@@ -20,6 +21,13 @@ PipelineRunner = Callable[..., dict[str, Any]]
 def _orchestration_id(project_name: str, state: dict[str, Any]) -> str:
     raw = json.dumps({"project_name": project_name, "state": state}, sort_keys=True, ensure_ascii=False)
     return f"core_orchestration_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
+
+
+def _recovery_results(result: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        gate: result.get(gate, {}) if isinstance(result.get(gate, {}), dict) else {}
+        for gate in ("claim_audit", "article_draft_quality", "seo_validation", "editorial_review")
+    }
 
 
 def _decision_action(*, result: dict[str, Any], decision: dict[str, Any]) -> tuple[str, str]:
@@ -52,8 +60,25 @@ def build_orchestration_result(*, project_name: str, result: dict[str, Any], dec
         "wordpress_delivery": result.get("wordpress_draft_delivery_result", {}).get("remote_status"),
     }
     revision_plan = build_revision_plan(result=result)
+    adaptive_recovery = plan_recoveries(results=_recovery_results(result))
+    stopped_recoveries = [plan for plan in adaptive_recovery if plan["status"] == "stopped"]
+    if stopped_recoveries:
+        first = stopped_recoveries[0]
+        next_action = "stop"
+        rationale = first["rationale"]
+    elif adaptive_recovery and next_action not in {"stop", "complete"}:
+        first = adaptive_recovery[0]
+        next_action = first["strategy"]
+        rationale = first["rationale"]
     lifecycle_stage = "completed" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required"
-    state = {"lifecycle_stage": lifecycle_stage, "next_action": next_action, "gates": gates, "decision_outcome": decision.get("outcome"), "revision_plan_outcome": revision_plan["outcome"]}
+    state = {
+        "lifecycle_stage": lifecycle_stage,
+        "next_action": next_action,
+        "gates": gates,
+        "decision_outcome": decision.get("outcome"),
+        "revision_plan_outcome": revision_plan["outcome"],
+        "adaptive_recovery_count": len(adaptive_recovery),
+    }
     return {
         "orchestration_id": _orchestration_id(project_name, state),
         "project_name": project_name,
@@ -68,6 +93,15 @@ def build_orchestration_result(*, project_name: str, result: dict[str, Any], dec
         "rationale": [rationale],
         "gates": gates,
         "revision_plan": revision_plan,
+        "adaptive_recovery": {
+            "outcome": "stopped" if stopped_recoveries else "planned" if adaptive_recovery else "not_required",
+            "plans": adaptive_recovery,
+            "summary": {
+                "total": len(adaptive_recovery),
+                "stopped": len(stopped_recoveries),
+                "planned": sum(plan["status"] == "planned" for plan in adaptive_recovery),
+            },
+        },
         "audit": {"method": "irl_core_decision_orchestrator", "version": METHOD_VERSION, "validation_status": "validated"},
     }
 
@@ -96,7 +130,15 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
         action = orchestration["next_action"]
         revision_count = iteration - 1
         orchestration["iterations"] = revision_count
-        history.append({"iteration": iteration, "action": action, "outcome": orchestration["outcome"], "reason": orchestration["reason"], "gates": orchestration["gates"], "revision_plan": orchestration["revision_plan"]})
+        history.append({
+            "iteration": iteration,
+            "action": action,
+            "outcome": orchestration["outcome"],
+            "reason": orchestration["reason"],
+            "gates": orchestration["gates"],
+            "revision_plan": orchestration["revision_plan"],
+            "adaptive_recovery": orchestration["adaptive_recovery"],
+        })
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {"status": "completed" if action == "complete" else "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
