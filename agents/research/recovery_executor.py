@@ -13,6 +13,7 @@ from typing import Any, Protocol
 
 EvidenceAcquirer = Callable[[str, str, list[str], Mapping[str, Any]], Any]
 ClaimReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
+SectionReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
 
 
 class RecoveryExecutionError(RuntimeError):
@@ -58,6 +59,22 @@ def _find_claim(article_draft: Mapping[str, Any], claim_id: str) -> dict[str, An
     return None
 
 
+def _find_section(article_draft: Mapping[str, Any], target: str) -> dict[str, Any] | None:
+    normalized = target.strip().casefold()
+    for section in article_draft.get("sections", []):
+        if not isinstance(section, dict):
+            continue
+        candidates = (
+            section.get("section_id"),
+            section.get("id"),
+            section.get("title"),
+            section.get("heading"),
+        )
+        if any(str(candidate or "").strip().casefold() == normalized for candidate in candidates):
+            return section
+    return None
+
+
 class EvidenceRecoveryExecutor:
     """Executor for the ``acquire_evidence`` recovery strategy."""
 
@@ -89,6 +106,23 @@ class ClaimRecoveryExecutor:
             result=context.result,
             plan=context.plan,
             claim_reviser=self._claim_reviser,
+        )
+
+
+class SectionRecoveryExecutor:
+    """Executor for the ``revise_section`` recovery strategy."""
+
+    strategy = "revise_section"
+
+    def __init__(self, section_reviser: SectionReviser):
+        self._section_reviser = section_reviser
+
+    def execute(self, context: RecoveryExecutionContext) -> dict[str, Any]:
+        return execute_revise_section(
+            project_name=context.project_name,
+            result=context.result,
+            plan=context.plan,
+            section_reviser=self._section_reviser,
         )
 
 
@@ -124,6 +158,7 @@ def build_recovery_executor_registry(
     *,
     evidence_acquirer: EvidenceAcquirer | None = None,
     claim_reviser: ClaimReviser | None = None,
+    section_reviser: SectionReviser | None = None,
 ) -> RecoveryExecutorRegistry:
     """Build the default registry without registering unsafe placeholders."""
     executors: list[RecoveryExecutor] = []
@@ -131,127 +166,89 @@ def build_recovery_executor_registry(
         executors.append(EvidenceRecoveryExecutor(evidence_acquirer))
     if claim_reviser is not None:
         executors.append(ClaimRecoveryExecutor(claim_reviser))
+    if section_reviser is not None:
+        executors.append(SectionRecoveryExecutor(section_reviser))
     return RecoveryExecutorRegistry(executors)
 
 
-def execute_acquire_evidence(
-    *,
-    project_name: str,
-    result: dict[str, Any],
-    plan: Mapping[str, Any],
-    evidence_acquirer: EvidenceAcquirer,
-) -> dict[str, Any]:
-    """Acquire evidence and attach only new references to the targeted claim."""
+def execute_acquire_evidence(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], evidence_acquirer: EvidenceAcquirer) -> dict[str, Any]:
     if plan.get("strategy") != "acquire_evidence":
-        raise RecoveryExecutionError(
-            "execute_acquire_evidence received a non-evidence recovery plan"
-        )
-
+        raise RecoveryExecutionError("execute_acquire_evidence received a non-evidence recovery plan")
     claim_id = str(plan.get("target", "")).strip()
     if not claim_id:
         raise RecoveryExecutionError("acquire_evidence requires a claim target")
-
     draft = result.get("article_draft")
     if not isinstance(draft, dict):
         raise RecoveryExecutionError("acquire_evidence requires an article_draft artifact")
-
     claim = _find_claim(draft, claim_id)
     if claim is None:
         raise RecoveryExecutionError(f"claim target not found: {claim_id}")
-
     existing_refs = _normalise_refs(claim.get("evidence_refs"))
     acquired = _normalise_refs(evidence_acquirer(project_name, claim_id, existing_refs, plan))
     new_refs = [ref for ref in acquired if ref not in existing_refs]
     if not new_refs:
-        raise RecoveryExecutionError(
-            "evidence acquisition returned no new evidence references"
-        )
-
+        raise RecoveryExecutionError("evidence acquisition returned no new evidence references")
     claim["evidence_refs"] = existing_refs + new_refs
-    return {
-        "strategy": "acquire_evidence",
-        "status": "executed",
-        "target": claim_id,
-        "changed": True,
-        "previous_evidence_refs": existing_refs,
-        "acquired_evidence_refs": new_refs,
-        "evidence_refs": claim["evidence_refs"],
-    }
+    return {"strategy": "acquire_evidence", "status": "executed", "target": claim_id, "changed": True, "previous_evidence_refs": existing_refs, "acquired_evidence_refs": new_refs, "evidence_refs": claim["evidence_refs"]}
 
 
-def execute_revise_claim(
-    *,
-    project_name: str,
-    result: dict[str, Any],
-    plan: Mapping[str, Any],
-    claim_reviser: ClaimReviser,
-) -> dict[str, Any]:
-    """Revise one targeted claim through a bounded claim-reviser callback."""
+def execute_revise_claim(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], claim_reviser: ClaimReviser) -> dict[str, Any]:
     if plan.get("strategy") != "revise_claim":
-        raise RecoveryExecutionError(
-            "execute_revise_claim received a non-claim recovery plan"
-        )
-
+        raise RecoveryExecutionError("execute_revise_claim received a non-claim recovery plan")
     claim_id = str(plan.get("target", "")).strip()
     if not claim_id:
         raise RecoveryExecutionError("revise_claim requires a claim target")
-
     draft = result.get("article_draft")
     if not isinstance(draft, dict):
         raise RecoveryExecutionError("revise_claim requires an article_draft artifact")
-
     claim = _find_claim(draft, claim_id)
     if claim is None:
         raise RecoveryExecutionError(f"claim target not found: {claim_id}")
-
     previous_text = str(claim.get("text", "")).strip()
     if not previous_text:
         raise RecoveryExecutionError("revise_claim requires existing claim text")
-
     revised = claim_reviser(project_name, claim_id, previous_text, plan)
-    if isinstance(revised, Mapping):
-        revised_text = str(revised.get("text", "")).strip()
-    else:
-        revised_text = str(revised).strip()
-
+    revised_text = str(revised.get("text", "")).strip() if isinstance(revised, Mapping) else str(revised).strip()
     if not revised_text:
         raise RecoveryExecutionError("claim revision returned empty text")
     if revised_text == previous_text:
         raise RecoveryExecutionError("claim revision returned unchanged text")
-
     claim["text"] = revised_text
-    return {
-        "strategy": "revise_claim",
-        "status": "executed",
-        "target": claim_id,
-        "changed": True,
-        "previous_text": previous_text,
-        "revised_text": revised_text,
-    }
+    return {"strategy": "revise_claim", "status": "executed", "target": claim_id, "changed": True, "previous_text": previous_text, "revised_text": revised_text}
 
 
-def execute_recovery(
-    *,
-    project_name: str,
-    result: dict[str, Any],
-    plan: Mapping[str, Any],
-    evidence_acquirer: EvidenceAcquirer | None = None,
-    claim_reviser: ClaimReviser | None = None,
-    registry: RecoveryExecutorRegistry | None = None,
-) -> dict[str, Any]:
+def execute_revise_section(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], section_reviser: SectionReviser) -> dict[str, Any]:
+    """Revise exactly one targeted section while preserving its metadata."""
+    if plan.get("strategy") != "revise_section":
+        raise RecoveryExecutionError("execute_revise_section received a non-section recovery plan")
+    target = str(plan.get("target", "")).strip()
+    if not target:
+        raise RecoveryExecutionError("revise_section requires a section target")
+    draft = result.get("article_draft")
+    if not isinstance(draft, dict):
+        raise RecoveryExecutionError("revise_section requires an article_draft artifact")
+    section = _find_section(draft, target)
+    if section is None:
+        raise RecoveryExecutionError(f"section target not found: {target}")
+    field = next((name for name in ("content", "text", "body") if name in section), None)
+    previous_text = str(section.get(field, "")).strip() if field else ""
+    if not previous_text:
+        raise RecoveryExecutionError("revise_section requires existing section content")
+    revised = section_reviser(project_name, target, previous_text, plan)
+    revised_text = str(revised.get("content", revised.get("text", revised.get("body", "")))).strip() if isinstance(revised, Mapping) else str(revised).strip()
+    if not revised_text:
+        raise RecoveryExecutionError("section revision returned empty content")
+    if revised_text == previous_text:
+        raise RecoveryExecutionError("section revision returned unchanged content")
+    section[field or "content"] = revised_text
+    return {"strategy": "revise_section", "status": "executed", "target": target, "changed": True, "field": field or "content", "previous_text": previous_text, "revised_text": revised_text}
+
+
+def execute_recovery(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], evidence_acquirer: EvidenceAcquirer | None = None, claim_reviser: ClaimReviser | None = None, section_reviser: SectionReviser | None = None, registry: RecoveryExecutorRegistry | None = None) -> dict[str, Any]:
     """Execute a recovery plan through the unified executor contract."""
-    active_registry = registry or build_recovery_executor_registry(
-        evidence_acquirer=evidence_acquirer,
-        claim_reviser=claim_reviser,
-    )
+    active_registry = registry or build_recovery_executor_registry(evidence_acquirer=evidence_acquirer, claim_reviser=claim_reviser, section_reviser=section_reviser)
     strategy = str(plan.get("strategy", "")).strip()
     if not strategy:
         raise RecoveryExecutionError("recovery plan is missing a strategy")
     executor = active_registry.get(strategy)
-    return executor.execute(
-        RecoveryExecutionContext(
-            project_name=project_name,
-            result=result,
-            plan=plan,
-        )
-    )
+    return executor.execute(RecoveryExecutionContext(project_name=project_name, result=result, plan=plan))
