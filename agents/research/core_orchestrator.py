@@ -57,6 +57,24 @@ def _decision_action(*, result: dict[str, Any], decision: dict[str, Any]) -> tup
     return "deliver_wordpress_draft", "Content is approved and ready for WordPress draft delivery."
 
 
+def _executor_compatible_plan(*, plan: dict[str, Any], claim_reviser: ClaimReviser | None, evidence_acquirer: EvidenceAcquirer | None) -> dict[str, Any]:
+    """Adapt an evidence-first disputed-claim plan when only claim revision is executable.
+
+    The recovery planner remains authoritative: disputed claims continue to plan
+    ``acquire_evidence``. The bounded revision loop may use ``revise_claim`` as
+    an execution fallback when the caller explicitly supplied a claim reviser
+    but no evidence acquirer. Verification follows the executed strategy.
+    """
+    if plan.get("strategy") != "acquire_evidence" or evidence_acquirer is not None or claim_reviser is None:
+        return plan
+    adapted = dict(plan)
+    adapted["strategy"] = "revise_claim"
+    adapted["actions"] = ["Revise the targeted claim using the available recovery executor.", "Preserve evidence lineage while revising the claim."]
+    adapted["rerun_gates"] = ["article_draft_quality", "claim_audit"]
+    adapted["rationale"] = "The disputed claim has no evidence-acquisition executor available; use the explicitly supplied claim reviser as the bounded fallback."
+    return adapted
+
+
 def build_orchestration_result(*, project_name: str, result: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
     next_action, rationale = _decision_action(result=result, decision=decision)
     gates = {"article_draft_quality": result.get("article_draft_quality", {}).get("outcome"), "claim_audit": result.get("claim_audit", {}).get("outcome"), "seo_validation": result.get("seo_validation", {}).get("outcome"), "editorial_review": result.get("editorial_review", {}).get("outcome"), "publication": result.get("publication", {}).get("gate_status"), "wordpress_delivery": result.get("wordpress_draft_delivery_result", {}).get("remote_status")}
@@ -133,6 +151,11 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 return orchestration
             continue
         recovery_plan = next((plan for plan in orchestration["adaptive_recovery"]["plans"] if plan["strategy"] == action), None)
+        recovery_plan = _executor_compatible_plan(plan=recovery_plan, claim_reviser=claim_reviser, evidence_acquirer=evidence_acquirer) if recovery_plan is not None else None
+        if recovery_plan is not None:
+            action = recovery_plan["strategy"]
+            orchestration["next_action"] = action
+            history_entry["action"] = action
         executable_strategy = action in {"acquire_evidence", "revise_claim", "revise_section", "revise_seo", "revise_editorial"}
         callback_available = ((action == "acquire_evidence" and evidence_acquirer is not None) or (action == "revise_claim" and claim_reviser is not None) or (action == "revise_section" and section_reviser is not None) or (action == "revise_seo" and seo_reviser is not None) or (action == "revise_editorial" and editorial_reviser is not None))
         if executable_strategy and callback_available and recovery_plan is not None:
