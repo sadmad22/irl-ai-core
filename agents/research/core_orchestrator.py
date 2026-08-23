@@ -141,6 +141,11 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
             history_entry["outcome"] = orchestration["outcome"]
             history_entry["reason"] = orchestration["reason"]
         if action in {"complete", "stop"}:
+            if verification is not None and history:
+                for entry in reversed(history):
+                    if "recovery_execution" in entry:
+                        entry["recovery_verification"] = verification
+                        break
             orchestration["revision_loop"] = {"status": "completed" if action == "complete" else "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
             return orchestration

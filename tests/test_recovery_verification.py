@@ -87,7 +87,17 @@ def test_revision_loop_records_successful_recovery_verification(monkeypatch):
         max_iterations=3,
     )
 
-    verification = final["revision_loop"]["history"][0]["recovery_verification"]
+    history = final["revision_loop"]["history"]
+
+    verification_entries = [
+        entry["recovery_verification"]
+        for entry in history
+        if "recovery_verification" in entry
+    ]
+
+    assert verification_entries, "successful recovery verification was not recorded"
+
+    verification = verification_entries[0]
     assert verification["strategy"] == "revise_claim"
     assert verification["passed"] is True
     assert verification["failed_gates"] == []
