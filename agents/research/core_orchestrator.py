@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
-from .recovery_executor import ClaimReviser, EvidenceAcquirer, RecoveryExecutionError, SectionReviser, SeoReviser, execute_recovery
+from .recovery_executor import ClaimReviser, EditorialReviser, EvidenceAcquirer, RecoveryExecutionError, SectionReviser, SeoReviser, execute_recovery
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
@@ -58,14 +58,7 @@ def _decision_action(*, result: dict[str, Any], decision: dict[str, Any]) -> tup
 
 def build_orchestration_result(*, project_name: str, result: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
     next_action, rationale = _decision_action(result=result, decision=decision)
-    gates = {
-        "article_draft_quality": result.get("article_draft_quality", {}).get("outcome"),
-        "claim_audit": result.get("claim_audit", {}).get("outcome"),
-        "seo_validation": result.get("seo_validation", {}).get("outcome"),
-        "editorial_review": result.get("editorial_review", {}).get("outcome"),
-        "publication": result.get("publication", {}).get("gate_status"),
-        "wordpress_delivery": result.get("wordpress_draft_delivery_result", {}).get("remote_status"),
-    }
+    gates = {"article_draft_quality": result.get("article_draft_quality", {}).get("outcome"), "claim_audit": result.get("claim_audit", {}).get("outcome"), "seo_validation": result.get("seo_validation", {}).get("outcome"), "editorial_review": result.get("editorial_review", {}).get("outcome"), "publication": result.get("publication", {}).get("gate_status"), "wordpress_delivery": result.get("wordpress_draft_delivery_result", {}).get("remote_status")}
     revision_plan = build_revision_plan(result=result)
     adaptive_recovery = plan_recoveries(results=_recovery_results(result))
     stopped_recoveries = [plan for plan in adaptive_recovery if plan["status"] == "stopped"]
@@ -78,39 +71,8 @@ def build_orchestration_result(*, project_name: str, result: dict[str, Any], dec
         next_action = first["strategy"]
         rationale = first["rationale"]
     lifecycle_stage = "completed" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required"
-    state = {
-        "lifecycle_stage": lifecycle_stage,
-        "next_action": next_action,
-        "gates": gates,
-        "decision_outcome": decision.get("outcome"),
-        "revision_plan_outcome": revision_plan["outcome"],
-        "adaptive_recovery_count": len(adaptive_recovery),
-    }
-    return {
-        "orchestration_id": _orchestration_id(project_name, state),
-        "project_name": project_name,
-        "schema_version": SCHEMA_VERSION,
-        "lifecycle_stage": lifecycle_stage,
-        "current_stage": next_action,
-        "stage": next_action,
-        "next_action": next_action,
-        "decision_outcome": decision.get("outcome"),
-        "outcome": "complete" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required",
-        "reason": rationale,
-        "rationale": [rationale],
-        "gates": gates,
-        "revision_plan": revision_plan,
-        "adaptive_recovery": {
-            "outcome": "stopped" if stopped_recoveries else "planned" if adaptive_recovery else "not_required",
-            "plans": adaptive_recovery,
-            "summary": {
-                "total": len(adaptive_recovery),
-                "stopped": len(stopped_recoveries),
-                "planned": sum(plan["status"] == "planned" for plan in adaptive_recovery),
-            },
-        },
-        "audit": {"method": "irl_core_decision_orchestrator", "version": METHOD_VERSION, "validation_status": "validated"},
-    }
+    state = {"lifecycle_stage": lifecycle_stage, "next_action": next_action, "gates": gates, "decision_outcome": decision.get("outcome"), "revision_plan_outcome": revision_plan["outcome"], "adaptive_recovery_count": len(adaptive_recovery)}
+    return {"orchestration_id": _orchestration_id(project_name, state), "project_name": project_name, "schema_version": SCHEMA_VERSION, "lifecycle_stage": lifecycle_stage, "current_stage": next_action, "stage": next_action, "next_action": next_action, "decision_outcome": decision.get("outcome"), "outcome": "complete" if next_action == "complete" else "blocked" if next_action == "stop" else "action_required", "reason": rationale, "rationale": [rationale], "gates": gates, "revision_plan": revision_plan, "adaptive_recovery": {"outcome": "stopped" if stopped_recoveries else "planned" if adaptive_recovery else "not_required", "plans": adaptive_recovery, "summary": {"total": len(adaptive_recovery), "stopped": len(stopped_recoveries), "planned": sum(plan["status"] == "planned" for plan in adaptive_recovery)}}, "audit": {"method": "irl_core_decision_orchestrator", "version": METHOD_VERSION, "validation_status": "validated"}}
 
 
 def run_irl_core(project_name: str, *, deliver: bool = False, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
@@ -124,20 +86,7 @@ def run_core_orchestration(project_name: str, *, deliver: bool = True, connectio
     return run_irl_core(project_name, deliver=deliver, connection=connection, transport=transport)["core_orchestration"]
 
 
-def run_revision_loop(
-    project_name: str,
-    *,
-    deliver: bool = True,
-    connection: WordPressConnection | None = None,
-    transport: Callable[..., Any] | None = None,
-    pipeline_runner: PipelineRunner | None = None,
-    revision_handler: RevisionHandler | None = None,
-    max_iterations: int = 3,
-    evidence_acquirer: EvidenceAcquirer | None = None,
-    claim_reviser: ClaimReviser | None = None,
-    section_reviser: SectionReviser | None = None,
-    seo_reviser: SeoReviser | None = None,
-) -> dict[str, Any]:
+def run_revision_loop(project_name: str, *, deliver: bool = True, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None, pipeline_runner: PipelineRunner | None = None, revision_handler: RevisionHandler | None = None, max_iterations: int = 3, evidence_acquirer: EvidenceAcquirer | None = None, claim_reviser: ClaimReviser | None = None, section_reviser: SectionReviser | None = None, seo_reviser: SeoReviser | None = None, editorial_reviser: EditorialReviser | None = None) -> dict[str, Any]:
     """Run bounded autonomous revision with executable recovery strategies."""
     if max_iterations < 1:
         raise ValueError("max_iterations must be at least 1")
@@ -151,15 +100,7 @@ def run_revision_loop(
         action = orchestration["next_action"]
         revision_count = iteration - 1
         orchestration["iterations"] = revision_count
-        history_entry = {
-            "iteration": iteration,
-            "action": action,
-            "outcome": orchestration["outcome"],
-            "reason": orchestration["reason"],
-            "gates": orchestration["gates"],
-            "revision_plan": orchestration["revision_plan"],
-            "adaptive_recovery": orchestration["adaptive_recovery"],
-        }
+        history_entry = {"iteration": iteration, "action": action, "outcome": orchestration["outcome"], "reason": orchestration["reason"], "gates": orchestration["gates"], "revision_plan": orchestration["revision_plan"], "adaptive_recovery": orchestration["adaptive_recovery"]}
         history.append(history_entry)
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {"status": "completed" if action == "complete" else "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
@@ -171,29 +112,12 @@ def run_revision_loop(
                 result["core_orchestration"] = orchestration
                 return orchestration
             continue
-
         recovery_plan = next((plan for plan in orchestration["adaptive_recovery"]["plans"] if plan["strategy"] == action), None)
-        executable_strategy = action in {"acquire_evidence", "revise_claim", "revise_section", "revise_seo"}
-        callback_available = (
-            action == "acquire_evidence" and evidence_acquirer is not None
-        ) or (
-            action == "revise_claim" and claim_reviser is not None
-        ) or (
-            action == "revise_section" and section_reviser is not None
-        ) or (
-            action == "revise_seo" and seo_reviser is not None
-        )
+        executable_strategy = action in {"acquire_evidence", "revise_claim", "revise_section", "revise_seo", "revise_editorial"}
+        callback_available = ((action == "acquire_evidence" and evidence_acquirer is not None) or (action == "revise_claim" and claim_reviser is not None) or (action == "revise_section" and section_reviser is not None) or (action == "revise_seo" and seo_reviser is not None) or (action == "revise_editorial" and editorial_reviser is not None))
         if executable_strategy and callback_available and recovery_plan is not None:
             try:
-                execution = execute_recovery(
-                    project_name=project_name,
-                    result=result,
-                    plan=recovery_plan,
-                    evidence_acquirer=evidence_acquirer,
-                    claim_reviser=claim_reviser,
-                    section_reviser=section_reviser,
-                    seo_reviser=seo_reviser,
-                )
+                execution = execute_recovery(project_name=project_name, result=result, plan=recovery_plan, evidence_acquirer=evidence_acquirer, claim_reviser=claim_reviser, section_reviser=section_reviser, seo_reviser=seo_reviser, editorial_reviser=editorial_reviser)
             except RecoveryExecutionError as exc:
                 history_entry["recovery_execution"] = {"strategy": action, "status": "failed", "error": str(exc)}
                 orchestration["revision_loop"] = {"status": "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
@@ -201,7 +125,6 @@ def run_revision_loop(
                 return orchestration
             history_entry["recovery_execution"] = execution
             continue
-
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {"status": "revision_limit_reached" if iteration == max_iterations else "handler_required", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
