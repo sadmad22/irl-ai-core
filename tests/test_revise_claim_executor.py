@@ -10,7 +10,10 @@ def _result(*, revised=False, delivered=False):
             "draft_id": "draft_1",
             "sections": [{"heading": "Coverage", "claims": [claim]}],
         },
-        "article_draft_quality": {"outcome": "passed", "findings": []},
+        "article_draft_quality": {
+            "outcome": "passed" if revised else "needs_revision",
+            "findings": [] if revised else [{"category": "claim_grounding", "claim_id": "claim_1"}],
+        },
         "claim_audit": {
             "outcome": "passed" if revised else "needs_revision",
             "claims": [{**claim, "result": "supported" if revised else "insufficient"}],
