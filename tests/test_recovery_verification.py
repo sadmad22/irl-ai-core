@@ -53,10 +53,15 @@ def test_verify_recovery_requires_declared_rerun_gates():
 def test_revision_loop_records_successful_recovery_verification(monkeypatch):
     states = iter([
         {
-            "article_draft_quality": {"outcome": "needs_revision"},
+            "article_draft_quality": {"outcome": "passed"},
             "claim_audit": {
                 "outcome": "needs_revision",
-                "claims": [{"claim_id": "claim_1", "result": "insufficient", "evidence_refs": ["e1"]}],
+                "claims": [{
+                    "claim_id": "claim_1",
+                    "category": "claim_grounding",
+                    "result": "insufficient",
+                    "evidence_refs": ["e1"],
+                }],
             },
             "seo_validation": {"outcome": "passed"},
             "editorial_review": {"outcome": "approved"},
