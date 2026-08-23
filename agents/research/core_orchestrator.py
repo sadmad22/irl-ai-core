@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
-from .recovery_executor import EvidenceAcquirer, RecoveryExecutionError, execute_recovery
+from .recovery_executor import ClaimReviser, EvidenceAcquirer, RecoveryExecutionError, execute_recovery
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
@@ -134,13 +134,13 @@ def run_revision_loop(
     revision_handler: RevisionHandler | None = None,
     max_iterations: int = 3,
     evidence_acquirer: EvidenceAcquirer | None = None,
+    claim_reviser: ClaimReviser | None = None,
 ) -> dict[str, Any]:
-    """Run bounded autonomous revision with executable evidence recovery.
+    """Run bounded autonomous revision with executable recovery strategies.
 
-    When ``evidence_acquirer`` is supplied, an ``acquire_evidence`` recovery
-    plan is executed directly before falling back to the legacy revision
-    handler. Other strategies retain the existing handler contract until their
-    dedicated executors are implemented.
+    Registered executable strategies are dispatched through the unified
+    RecoveryExecutor contract. Legacy revision_handler fallback remains for
+    strategies without dedicated executors.
     """
     if max_iterations < 1:
         raise ValueError("max_iterations must be at least 1")
@@ -176,13 +176,20 @@ def run_revision_loop(
             continue
 
         recovery_plan = next((plan for plan in orchestration["adaptive_recovery"]["plans"] if plan["strategy"] == action), None)
-        if action == "acquire_evidence" and evidence_acquirer is not None and recovery_plan is not None:
+        executable_strategy = action in {"acquire_evidence", "revise_claim"}
+        callback_available = (
+            action == "acquire_evidence" and evidence_acquirer is not None
+        ) or (
+            action == "revise_claim" and claim_reviser is not None
+        )
+        if executable_strategy and callback_available and recovery_plan is not None:
             try:
                 execution = execute_recovery(
                     project_name=project_name,
                     result=result,
                     plan=recovery_plan,
                     evidence_acquirer=evidence_acquirer,
+                    claim_reviser=claim_reviser,
                 )
             except RecoveryExecutionError as exc:
                 history_entry["recovery_execution"] = {"strategy": action, "status": "failed", "error": str(exc)}
