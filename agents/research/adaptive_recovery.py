@@ -144,9 +144,8 @@ def _claim_plan(gate: str, failure_type: str, claim: Mapping[str, Any], audit: M
     refs = _refs(claim.get("evidence_refs") or audit.get("evidence_refs"))
     if not claim_id:
         return _stop(gate, failure_type, "Recovery requires a claim_id target.")
-    if failure_type in {"insufficient_evidence", "missing_evidence_refs", "disputed_claim"}:
+    if failure_type in {"insufficient_evidence", "missing_evidence_refs"}:
         rationale = {
-            "disputed_claim": "The claim has contradictory assigned evidence; new or clarifying evidence is required.",
             "missing_evidence_refs": "The claim has no usable evidence references.",
             "insufficient_evidence": "The assigned evidence does not sufficiently support the claim.",
         }[failure_type]
