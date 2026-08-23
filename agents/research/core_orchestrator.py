@@ -7,6 +7,7 @@ from typing import Any, Callable
 
 from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
+from .recovery_executor import EvidenceAcquirer, RecoveryExecutionError, execute_recovery
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
@@ -123,7 +124,24 @@ def run_core_orchestration(project_name: str, *, deliver: bool = True, connectio
     return run_irl_core(project_name, deliver=deliver, connection=connection, transport=transport)["core_orchestration"]
 
 
-def run_revision_loop(project_name: str, *, deliver: bool = True, connection: WordPressConnection | None = None, transport: Callable[..., Any] | None = None, pipeline_runner: PipelineRunner | None = None, revision_handler: RevisionHandler | None = None, max_iterations: int = 3) -> dict[str, Any]:
+def run_revision_loop(
+    project_name: str,
+    *,
+    deliver: bool = True,
+    connection: WordPressConnection | None = None,
+    transport: Callable[..., Any] | None = None,
+    pipeline_runner: PipelineRunner | None = None,
+    revision_handler: RevisionHandler | None = None,
+    max_iterations: int = 3,
+    evidence_acquirer: EvidenceAcquirer | None = None,
+) -> dict[str, Any]:
+    """Run bounded autonomous revision with executable evidence recovery.
+
+    When ``evidence_acquirer`` is supplied, an ``acquire_evidence`` recovery
+    plan is executed directly before falling back to the legacy revision
+    handler. Other strategies retain the existing handler contract until their
+    dedicated executors are implemented.
+    """
     if max_iterations < 1:
         raise ValueError("max_iterations must be at least 1")
     runner = pipeline_runner or run_content_research_to_wordpress_draft
@@ -136,7 +154,7 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
         action = orchestration["next_action"]
         revision_count = iteration - 1
         orchestration["iterations"] = revision_count
-        history.append({
+        history_entry = {
             "iteration": iteration,
             "action": action,
             "outcome": orchestration["outcome"],
@@ -144,7 +162,8 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
             "gates": orchestration["gates"],
             "revision_plan": orchestration["revision_plan"],
             "adaptive_recovery": orchestration["adaptive_recovery"],
-        })
+        }
+        history.append(history_entry)
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {"status": "completed" if action == "complete" else "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
@@ -155,6 +174,24 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 result["core_orchestration"] = orchestration
                 return orchestration
             continue
+
+        recovery_plan = next((plan for plan in orchestration["adaptive_recovery"]["plans"] if plan["strategy"] == action), None)
+        if action == "acquire_evidence" and evidence_acquirer is not None and recovery_plan is not None:
+            try:
+                execution = execute_recovery(
+                    project_name=project_name,
+                    result=result,
+                    plan=recovery_plan,
+                    evidence_acquirer=evidence_acquirer,
+                )
+            except RecoveryExecutionError as exc:
+                history_entry["recovery_execution"] = {"strategy": action, "status": "failed", "error": str(exc)}
+                orchestration["revision_loop"] = {"status": "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
+                result["core_orchestration"] = orchestration
+                return orchestration
+            history_entry["recovery_execution"] = execution
+            continue
+
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {"status": "revision_limit_reached" if iteration == max_iterations else "handler_required", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
