@@ -11,10 +11,13 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from .editorial_execution_contract import validate_editorial_revision
+
 EvidenceAcquirer = Callable[[str, str, list[str], Mapping[str, Any]], Any]
 ClaimReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
 SectionReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
 SeoReviser = Callable[[str, str, Mapping[str, Any], Mapping[str, Any]], Any]
+EditorialReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
 
 
 class RecoveryExecutionError(RuntimeError):
@@ -65,20 +68,13 @@ def _find_section(article_draft: Mapping[str, Any], target: str) -> dict[str, An
     for section in article_draft.get("sections", []):
         if not isinstance(section, dict):
             continue
-        candidates = (
-            section.get("section_id"),
-            section.get("id"),
-            section.get("title"),
-            section.get("heading"),
-        )
+        candidates = (section.get("section_id"), section.get("id"), section.get("title"), section.get("heading"))
         if any(str(candidate or "").strip().casefold() == normalized for candidate in candidates):
             return section
     return None
 
 
 class EvidenceRecoveryExecutor:
-    """Executor for the ``acquire_evidence`` recovery strategy."""
-
     strategy = "acquire_evidence"
 
     def __init__(self, evidence_acquirer: EvidenceAcquirer):
@@ -89,8 +85,6 @@ class EvidenceRecoveryExecutor:
 
 
 class ClaimRecoveryExecutor:
-    """Executor for the ``revise_claim`` recovery strategy."""
-
     strategy = "revise_claim"
 
     def __init__(self, claim_reviser: ClaimReviser):
@@ -101,8 +95,6 @@ class ClaimRecoveryExecutor:
 
 
 class SectionRecoveryExecutor:
-    """Executor for the ``revise_section`` recovery strategy."""
-
     strategy = "revise_section"
 
     def __init__(self, section_reviser: SectionReviser):
@@ -113,8 +105,6 @@ class SectionRecoveryExecutor:
 
 
 class SeoRecoveryExecutor:
-    """Executor for the ``revise_seo`` recovery strategy."""
-
     strategy = "revise_seo"
 
     def __init__(self, seo_reviser: SeoReviser):
@@ -122,6 +112,18 @@ class SeoRecoveryExecutor:
 
     def execute(self, context: RecoveryExecutionContext) -> dict[str, Any]:
         return execute_revise_seo(project_name=context.project_name, result=context.result, plan=context.plan, seo_reviser=self._seo_reviser)
+
+
+class EditorialRecoveryExecutor:
+    """Executor for ``revise_editorial`` using the bounded editorial contract."""
+
+    strategy = "revise_editorial"
+
+    def __init__(self, editorial_reviser: EditorialReviser):
+        self._editorial_reviser = editorial_reviser
+
+    def execute(self, context: RecoveryExecutionContext) -> dict[str, Any]:
+        return execute_revise_editorial(project_name=context.project_name, result=context.result, plan=context.plan, editorial_reviser=self._editorial_reviser)
 
 
 class RecoveryExecutorRegistry:
@@ -150,12 +152,7 @@ class RecoveryExecutorRegistry:
         return tuple(sorted(self._executors))
 
 
-def build_recovery_executor_registry(
-    *, evidence_acquirer: EvidenceAcquirer | None = None,
-    claim_reviser: ClaimReviser | None = None,
-    section_reviser: SectionReviser | None = None,
-    seo_reviser: SeoReviser | None = None,
-) -> RecoveryExecutorRegistry:
+def build_recovery_executor_registry(*, evidence_acquirer: EvidenceAcquirer | None = None, claim_reviser: ClaimReviser | None = None, section_reviser: SectionReviser | None = None, seo_reviser: SeoReviser | None = None, editorial_reviser: EditorialReviser | None = None) -> RecoveryExecutorRegistry:
     """Build the default registry without registering unsafe placeholders."""
     executors: list[RecoveryExecutor] = []
     if evidence_acquirer is not None:
@@ -166,6 +163,8 @@ def build_recovery_executor_registry(
         executors.append(SectionRecoveryExecutor(section_reviser))
     if seo_reviser is not None:
         executors.append(SeoRecoveryExecutor(seo_reviser))
+    if editorial_reviser is not None:
+        executors.append(EditorialRecoveryExecutor(editorial_reviser))
     return RecoveryExecutorRegistry(executors)
 
 
@@ -216,7 +215,6 @@ def execute_revise_claim(*, project_name: str, result: dict[str, Any], plan: Map
 
 
 def execute_revise_section(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], section_reviser: SectionReviser) -> dict[str, Any]:
-    """Revise exactly one targeted section while preserving its metadata."""
     if plan.get("strategy") != "revise_section":
         raise RecoveryExecutionError("execute_revise_section received a non-section recovery plan")
     target = str(plan.get("target", "")).strip()
@@ -243,7 +241,6 @@ def execute_revise_section(*, project_name: str, result: dict[str, Any], plan: M
 
 
 def execute_revise_seo(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], seo_reviser: SeoReviser) -> dict[str, Any]:
-    """Apply a bounded SEO metadata mutation to the targeted article draft."""
     if plan.get("strategy") != "revise_seo":
         raise RecoveryExecutionError("execute_revise_seo received a non-SEO recovery plan")
     target = str(plan.get("target", "")).strip()
@@ -281,9 +278,41 @@ def execute_revise_seo(*, project_name: str, result: dict[str, Any], plan: Mappi
     return {"strategy": "revise_seo", "status": "executed", "target": target, "changed": True, "previous": previous, "revised": changed}
 
 
-def execute_recovery(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], evidence_acquirer: EvidenceAcquirer | None = None, claim_reviser: ClaimReviser | None = None, section_reviser: SectionReviser | None = None, seo_reviser: SeoReviser | None = None, registry: RecoveryExecutorRegistry | None = None) -> dict[str, Any]:
+def execute_revise_editorial(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], editorial_reviser: EditorialReviser) -> dict[str, Any]:
+    """Apply exactly one bounded editorial section mutation."""
+    if plan.get("strategy") != "revise_editorial":
+        raise RecoveryExecutionError("execute_revise_editorial received a non-editorial recovery plan")
+    target = str(plan.get("target", "")).strip()
+    if not target:
+        raise RecoveryExecutionError("revise_editorial requires a draft target")
+    draft = result.get("article_draft")
+    if not isinstance(draft, dict):
+        raise RecoveryExecutionError("revise_editorial requires an article_draft artifact")
+    draft_id = str(draft.get("draft_id", "")).strip()
+    if draft_id and draft_id != target:
+        raise RecoveryExecutionError(f"editorial target does not match article_draft: {target}")
+    failure_type = str(plan.get("failure_type", "editorial")).strip() or "editorial"
+    snapshot = {"failure_type": failure_type, "target": target, "evidence_refs": list(plan.get("evidence_refs", []))}
+    try:
+        revision = validate_editorial_revision(editorial_reviser(project_name, target, failure_type, snapshot))
+    except ValueError as exc:
+        raise RecoveryExecutionError(str(exc)) from exc
+    section = _find_section(draft, revision["section_id"])
+    if section is None:
+        raise RecoveryExecutionError(f"editorial section target not found: {revision['section_id']}")
+    field = next((name for name in ("content", "text", "body") if name in section), None)
+    previous_text = str(section.get(field, "")).strip() if field else ""
+    if not previous_text:
+        raise RecoveryExecutionError("revise_editorial requires existing section content")
+    if revision["content"] == previous_text:
+        raise RecoveryExecutionError("editorial revision returned unchanged content")
+    section[field or "content"] = revision["content"]
+    return {"strategy": "revise_editorial", "status": "executed", "target": target, "changed": True, "section_id": revision["section_id"], "field": field or "content", "previous_text": previous_text, "revised_text": revision["content"]}
+
+
+def execute_recovery(*, project_name: str, result: dict[str, Any], plan: Mapping[str, Any], evidence_acquirer: EvidenceAcquirer | None = None, claim_reviser: ClaimReviser | None = None, section_reviser: SectionReviser | None = None, seo_reviser: SeoReviser | None = None, editorial_reviser: EditorialReviser | None = None, registry: RecoveryExecutorRegistry | None = None) -> dict[str, Any]:
     """Execute a recovery plan through the unified executor contract."""
-    active_registry = registry or build_recovery_executor_registry(evidence_acquirer=evidence_acquirer, claim_reviser=claim_reviser, section_reviser=section_reviser, seo_reviser=seo_reviser)
+    active_registry = registry or build_recovery_executor_registry(evidence_acquirer=evidence_acquirer, claim_reviser=claim_reviser, section_reviser=section_reviser, seo_reviser=seo_reviser, editorial_reviser=editorial_reviser)
     strategy = str(plan.get("strategy", "")).strip()
     if not strategy:
         raise RecoveryExecutionError("recovery plan is missing a strategy")
