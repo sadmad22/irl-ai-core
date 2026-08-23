@@ -95,6 +95,7 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
     history: list[dict[str, Any]] = []
     result: dict[str, Any] | None = None
     pending_verification: dict[str, Any] | None = None
+    pending_history_index: int | None = None
     for iteration in range(1, max_iterations + 1):
         result = runner(project_name, deliver=deliver, connection=connection, transport=transport)
         verification: dict[str, Any] | None = None
@@ -103,9 +104,10 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 verification = verify_recovery(plan=pending_verification, result=result)
             except RecoveryVerificationError as exc:
                 verification = {"recovery_id": pending_verification.get("recovery_id", ""), "strategy": pending_verification.get("strategy", ""), "status": "failed", "passed": False, "checks": [], "failed_gates": [], "error": str(exc)}
-            if history:
-                history[-1]["recovery_verification"] = verification
+            if pending_history_index is not None and 0 <= pending_history_index < len(history):
+                history[pending_history_index]["recovery_verification"] = verification
             pending_verification = None
+            pending_history_index = None
         decision = _load(project_name, "decision.json")
         orchestration = build_orchestration_result(project_name=project_name, result=result, decision=decision)
         action = orchestration["next_action"]
@@ -143,6 +145,7 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 return orchestration
             history_entry["recovery_execution"] = execution
             pending_verification = recovery_plan
+            pending_history_index = len(history) - 1
             if iteration == max_iterations:
                 orchestration["revision_loop"] = {"status": "revision_limit_reached", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
                 result["core_orchestration"] = orchestration
