@@ -8,6 +8,7 @@ from typing import Any, Callable
 from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
 from .recovery_executor import ClaimReviser, EditorialReviser, EvidenceAcquirer, RecoveryExecutionError, SectionReviser, SeoReviser, execute_recovery
+from .recovery_verification import RecoveryVerificationError, verify_recovery
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
@@ -93,8 +94,18 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
     runner = pipeline_runner or run_content_research_to_wordpress_draft
     history: list[dict[str, Any]] = []
     result: dict[str, Any] | None = None
+    pending_verification: dict[str, Any] | None = None
     for iteration in range(1, max_iterations + 1):
         result = runner(project_name, deliver=deliver, connection=connection, transport=transport)
+        verification: dict[str, Any] | None = None
+        if pending_verification is not None:
+            try:
+                verification = verify_recovery(plan=pending_verification, result=result)
+            except RecoveryVerificationError as exc:
+                verification = {"recovery_id": pending_verification.get("recovery_id", ""), "strategy": pending_verification.get("strategy", ""), "status": "failed", "passed": False, "checks": [], "failed_gates": [], "error": str(exc)}
+            if history:
+                history[-1]["recovery_verification"] = verification
+            pending_verification = None
         decision = _load(project_name, "decision.json")
         orchestration = build_orchestration_result(project_name=project_name, result=result, decision=decision)
         action = orchestration["next_action"]
@@ -102,6 +113,13 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
         orchestration["iterations"] = revision_count
         history_entry = {"iteration": iteration, "action": action, "outcome": orchestration["outcome"], "reason": orchestration["reason"], "gates": orchestration["gates"], "revision_plan": orchestration["revision_plan"], "adaptive_recovery": orchestration["adaptive_recovery"]}
         history.append(history_entry)
+        if verification is not None and not verification["passed"] and action == "complete":
+            action = orchestration["next_action"] = "stop"
+            orchestration["outcome"] = "blocked"
+            orchestration["reason"] = "Recovery verification failed after the required gate re-run."
+            history_entry["action"] = action
+            history_entry["outcome"] = orchestration["outcome"]
+            history_entry["reason"] = orchestration["reason"]
         if action in {"complete", "stop"}:
             orchestration["revision_loop"] = {"status": "completed" if action == "complete" else "stopped", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
             result["core_orchestration"] = orchestration
@@ -124,6 +142,7 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 result["core_orchestration"] = orchestration
                 return orchestration
             history_entry["recovery_execution"] = execution
+            pending_verification = recovery_plan
             continue
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {"status": "revision_limit_reached" if iteration == max_iterations else "handler_required", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
