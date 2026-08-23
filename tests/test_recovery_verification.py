@@ -59,7 +59,7 @@ def test_revision_loop_records_successful_recovery_verification(monkeypatch):
                 "claims": [{
                     "claim_id": "claim_1",
                     "category": "claim_grounding",
-                    "result": "insufficient",
+                    "result": "disputed",
                     "evidence_refs": ["e1"],
                 }],
             },
