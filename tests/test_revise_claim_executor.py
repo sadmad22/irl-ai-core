@@ -2,10 +2,10 @@ import agents.research.core_orchestrator as orchestrator
 from agents.research.recovery_executor import RecoveryExecutionError, execute_revise_claim
 
 
-def _result(*, revised=False):
+def _result(*, revised=False, delivered=False):
     text = "Accountants need professional liability insurance." if not revised else "Accountants may need professional liability insurance based on their services."
     claim = {"claim_id": "claim_1", "text": text, "evidence_refs": ["ev_1"]}
-    return {
+    result = {
         "article_draft": {
             "draft_id": "draft_1",
             "sections": [{"heading": "Coverage", "claims": [claim]}],
@@ -19,6 +19,9 @@ def _result(*, revised=False):
         "editorial_review": {"outcome": "approved"},
         "publication": {"gate_status": "allowed" if revised else "blocked"},
     }
+    if delivered:
+        result["wordpress_draft_delivery_result"] = {"remote_status": "draft"}
+    return result
 
 
 def test_revise_claim_executor_changes_targeted_claim():
@@ -74,7 +77,7 @@ def test_revise_claim_executor_fails_closed_on_unchanged_text():
 
 
 def test_revision_loop_executes_revise_claim_without_revision_handler(monkeypatch):
-    states = iter([_result(), _result(revised=True)])
+    states = iter([_result(), _result(revised=True, delivered=True)])
     calls = []
     revised = []
 
