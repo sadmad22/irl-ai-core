@@ -2,10 +2,10 @@ import agents.research.core_orchestrator as orchestrator
 from agents.research.recovery_executor import RecoveryExecutionError, execute_acquire_evidence
 
 
-def _result(*, repaired=False):
+def _result(*, repaired=False, delivered=False):
     evidence_refs = ["ev_2"] if repaired else ["ev_1"]
     claim = {"claim_id": "claim_1", "evidence_refs": evidence_refs}
-    return {
+    result = {
         "article_draft": {
             "draft_id": "draft_1",
             "sections": [{"heading": "Coverage", "claims": [claim]}],
@@ -19,6 +19,9 @@ def _result(*, repaired=False):
         "editorial_review": {"outcome": "approved"},
         "publication": {"gate_status": "allowed" if repaired else "blocked"},
     }
+    if delivered:
+        result["wordpress_draft_delivery_result"] = {"remote_status": "draft"}
+    return result
 
 
 def test_acquire_evidence_executor_attaches_new_refs():
@@ -55,7 +58,7 @@ def test_acquire_evidence_executor_fails_closed_without_new_refs():
 
 
 def test_revision_loop_executes_acquire_evidence_without_revision_handler(monkeypatch):
-    states = iter([_result(), _result(repaired=True)])
+    states = iter([_result(), _result(repaired=True, delivered=True)])
     calls = []
     acquired = []
 
