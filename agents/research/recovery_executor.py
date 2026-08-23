@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 EvidenceAcquirer = Callable[[str, str, list[str], Mapping[str, Any]], Any]
+ClaimReviser = Callable[[str, str, str, Mapping[str, Any]], Any]
 
 
 class RecoveryExecutionError(RuntimeError):
@@ -74,6 +75,23 @@ class EvidenceRecoveryExecutor:
         )
 
 
+class ClaimRecoveryExecutor:
+    """Executor for the ``revise_claim`` recovery strategy."""
+
+    strategy = "revise_claim"
+
+    def __init__(self, claim_reviser: ClaimReviser):
+        self._claim_reviser = claim_reviser
+
+    def execute(self, context: RecoveryExecutionContext) -> dict[str, Any]:
+        return execute_revise_claim(
+            project_name=context.project_name,
+            result=context.result,
+            plan=context.plan,
+            claim_reviser=self._claim_reviser,
+        )
+
+
 class RecoveryExecutorRegistry:
     """Deterministic registry mapping recovery strategies to executors."""
 
@@ -103,12 +121,16 @@ class RecoveryExecutorRegistry:
 
 
 def build_recovery_executor_registry(
-    *, evidence_acquirer: EvidenceAcquirer | None = None
+    *,
+    evidence_acquirer: EvidenceAcquirer | None = None,
+    claim_reviser: ClaimReviser | None = None,
 ) -> RecoveryExecutorRegistry:
     """Build the default registry without registering unsafe placeholders."""
     executors: list[RecoveryExecutor] = []
     if evidence_acquirer is not None:
         executors.append(EvidenceRecoveryExecutor(evidence_acquirer))
+    if claim_reviser is not None:
+        executors.append(ClaimRecoveryExecutor(claim_reviser))
     return RecoveryExecutorRegistry(executors)
 
 
@@ -157,17 +179,70 @@ def execute_acquire_evidence(
     }
 
 
+def execute_revise_claim(
+    *,
+    project_name: str,
+    result: dict[str, Any],
+    plan: Mapping[str, Any],
+    claim_reviser: ClaimReviser,
+) -> dict[str, Any]:
+    """Revise one targeted claim through a bounded claim-reviser callback."""
+    if plan.get("strategy") != "revise_claim":
+        raise RecoveryExecutionError(
+            "execute_revise_claim received a non-claim recovery plan"
+        )
+
+    claim_id = str(plan.get("target", "")).strip()
+    if not claim_id:
+        raise RecoveryExecutionError("revise_claim requires a claim target")
+
+    draft = result.get("article_draft")
+    if not isinstance(draft, dict):
+        raise RecoveryExecutionError("revise_claim requires an article_draft artifact")
+
+    claim = _find_claim(draft, claim_id)
+    if claim is None:
+        raise RecoveryExecutionError(f"claim target not found: {claim_id}")
+
+    previous_text = str(claim.get("text", "")).strip()
+    if not previous_text:
+        raise RecoveryExecutionError("revise_claim requires existing claim text")
+
+    revised = claim_reviser(project_name, claim_id, previous_text, plan)
+    if isinstance(revised, Mapping):
+        revised_text = str(revised.get("text", "")).strip()
+    else:
+        revised_text = str(revised).strip()
+
+    if not revised_text:
+        raise RecoveryExecutionError("claim revision returned empty text")
+    if revised_text == previous_text:
+        raise RecoveryExecutionError("claim revision returned unchanged text")
+
+    claim["text"] = revised_text
+    return {
+        "strategy": "revise_claim",
+        "status": "executed",
+        "target": claim_id,
+        "changed": True,
+        "previous_text": previous_text,
+        "revised_text": revised_text,
+    }
+
+
 def execute_recovery(
     *,
     project_name: str,
     result: dict[str, Any],
     plan: Mapping[str, Any],
     evidence_acquirer: EvidenceAcquirer | None = None,
+    claim_reviser: ClaimReviser | None = None,
     registry: RecoveryExecutorRegistry | None = None,
 ) -> dict[str, Any]:
     """Execute a recovery plan through the unified executor contract."""
     active_registry = registry or build_recovery_executor_registry(
-        evidence_acquirer=evidence_acquirer
+        evidence_acquirer=evidence_acquirer,
+        claim_reviser=claim_reviser,
     )
     strategy = str(plan.get("strategy", "")).strip()
     if not strategy:
