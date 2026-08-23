@@ -143,6 +143,10 @@ def run_revision_loop(project_name: str, *, deliver: bool = True, connection: Wo
                 return orchestration
             history_entry["recovery_execution"] = execution
             pending_verification = recovery_plan
+            if iteration == max_iterations:
+                orchestration["revision_loop"] = {"status": "revision_limit_reached", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
+                result["core_orchestration"] = orchestration
+                return orchestration
             continue
         if iteration == max_iterations or revision_handler is None:
             orchestration["revision_loop"] = {"status": "revision_limit_reached" if iteration == max_iterations else "handler_required", "iterations": iteration, "revision_count": revision_count, "max_iterations": max_iterations, "history": history}
