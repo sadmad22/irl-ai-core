@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from .adaptive_recovery import plan_recoveries
 from .content_research_pipeline import _load, run_content_research_to_wordpress_draft
-from .recovery_executor import ClaimReviser, EvidenceAcquirer, RecoveryExecutionError, execute_recovery
+from .recovery_executor import ClaimReviser, EvidenceAcquirer, RecoveryExecutionError, SectionReviser, execute_recovery
 from .revision_planner import build_revision_plan
 from .wordpress_draft_delivery_client import WordPressConnection
 
@@ -135,6 +135,7 @@ def run_revision_loop(
     max_iterations: int = 3,
     evidence_acquirer: EvidenceAcquirer | None = None,
     claim_reviser: ClaimReviser | None = None,
+    section_reviser: SectionReviser | None = None,
 ) -> dict[str, Any]:
     """Run bounded autonomous revision with executable recovery strategies.
 
@@ -176,11 +177,13 @@ def run_revision_loop(
             continue
 
         recovery_plan = next((plan for plan in orchestration["adaptive_recovery"]["plans"] if plan["strategy"] == action), None)
-        executable_strategy = action in {"acquire_evidence", "revise_claim"}
+        executable_strategy = action in {"acquire_evidence", "revise_claim", "revise_section"}
         callback_available = (
             action == "acquire_evidence" and evidence_acquirer is not None
         ) or (
             action == "revise_claim" and claim_reviser is not None
+        ) or (
+            action == "revise_section" and section_reviser is not None
         )
         if executable_strategy and callback_available and recovery_plan is not None:
             try:
@@ -190,6 +193,7 @@ def run_revision_loop(
                     plan=recovery_plan,
                     evidence_acquirer=evidence_acquirer,
                     claim_reviser=claim_reviser,
+                    section_reviser=section_reviser,
                 )
             except RecoveryExecutionError as exc:
                 history_entry["recovery_execution"] = {"strategy": action, "status": "failed", "error": str(exc)}
