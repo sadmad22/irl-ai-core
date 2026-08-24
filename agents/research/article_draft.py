@@ -8,7 +8,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v3"
+METHOD_VERSION = "v4"
 
 _RESEARCH_ONLY_DOMAINS = {"authority", "business"}
 _RESEARCH_ONLY_ATTRIBUTES = {
@@ -18,6 +18,21 @@ _RESEARCH_ONLY_ATTRIBUTES = {
     "adsense_potential",
     "conversion_potential",
     "commercial_value",
+}
+_EDITORIAL_ATTRIBUTES = {
+    "coverage",
+    "provider",
+    "cost",
+    "price",
+    "pricing",
+    "premium",
+    "risk",
+    "claim",
+    "exclusion",
+    "limit",
+    "definition",
+    "requirement",
+    "eligibility",
 }
 
 
@@ -41,13 +56,15 @@ def _claim_parts(record: dict[str, Any]) -> tuple[str, Any, str]:
     return attribute, value.get("data"), str(subject.get("id") or "the topic").strip()
 
 
-def _is_reader_usable(record: dict[str, Any]) -> bool:
+def _is_editorial_evidence(record: dict[str, Any]) -> bool:
     domain = str(record.get("domain", "")).strip().lower()
     claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
     attribute = str(claim.get("attribute", "")).strip().lower()
     if domain in _RESEARCH_ONLY_DOMAINS:
         return False
-    return attribute not in _RESEARCH_ONLY_ATTRIBUTES
+    if attribute in _RESEARCH_ONLY_ATTRIBUTES:
+        return False
+    return attribute in _EDITORIAL_ATTRIBUTES
 
 
 def _evidence_text(record: dict[str, Any]) -> str:
@@ -62,19 +79,25 @@ def _evidence_text(record: dict[str, Any]) -> str:
 
 
 def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
-    usable = [record for record in evidence_records if _is_reader_usable(record)]
-    if not usable:
-        return f"This guide focuses on {keyword} and the questions and research considerations relevant to evaluating this topic."
-    return _evidence_text(usable[0]).replace("The research identifies", f"This guide examines {keyword}; the research identifies", 1)
+    if not evidence_records:
+        return ""
+    return _evidence_text(evidence_records[0]).replace("The research identifies", f"This guide examines {keyword}; the research identifies", 1)
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
-    usable = [record for record in evidence_records if _is_reader_usable(record)]
     if heading.strip().lower() == "introduction":
         return _introduction_body(keyword=keyword, evidence_records=evidence_records)
-    if not usable:
-        return f"This section addresses {heading.lower()} in the context of {keyword}, using the available research evidence."
-    return " ".join(_evidence_text(record) for record in usable)
+    if not evidence_records:
+        return ""
+    return " ".join(_evidence_text(record) for record in evidence_records)
+
+
+def _editorial_evidence_entry(section_index: int, refs: list[str]) -> dict[str, Any]:
+    return {
+        "section_index": section_index,
+        "status": "ready" if refs else "insufficient",
+        "evidence_refs": list(refs),
+    }
 
 
 def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
@@ -115,20 +138,26 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     )
 
     sections = []
-    for item, refs_for_section in zip(outline, section_refs):
+    editorial_evidence = []
+    claim_evidence_by_section = []
+    for section_index, (item, refs_for_section) in enumerate(zip(outline, section_refs), start=1):
         section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
+        editorial_records = [record for record in section_records if _is_editorial_evidence(record)]
+        editorial_refs = [str(record["evidence_id"]) for record in editorial_records]
         heading = str(item["heading"]).strip()
-        body = _section_body(heading=heading, keyword=keyword, evidence_records=section_records)
+        body = _section_body(heading=heading, keyword=keyword, evidence_records=editorial_records)
         sections.append({
             "heading": heading,
             "purpose": str(item["purpose"]).strip(),
             "body": body,
             "evidence_refs": refs_for_section,
         })
+        editorial_evidence.append(_editorial_evidence_entry(section_index, editorial_refs))
+        claim_evidence_by_section.append(editorial_records)
 
     claims_by_section = ground_claims_by_section(
         sections=sections,
-        evidence_records=list(grounded_records.values()),
+        evidence_records=[record for records in claim_evidence_by_section for record in records],
         per_claim=1,
         require_match=True,
     )
@@ -141,6 +170,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         "primary_keyword": keyword,
         "sections": sections,
         "evidence_refs": normalized_refs,
+        "editorial_evidence": editorial_evidence,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
     return {
