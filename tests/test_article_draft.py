@@ -112,7 +112,7 @@ def test_evidence_grounded_body_does_not_leak_section_purpose():
         assert section["purpose"] not in section["body"]
         assert "define the topic" not in section["body"]
         assert "explain selection criteria" not in section["body"]
-        assert "The research evidence records" in section["body"]
+        assert "The research evidence records" not in section["body"]
         assert section["body"].strip()
         assert section["evidence_refs"]
         assert set(section["evidence_refs"]).issubset(set(draft["evidence_refs"]))
