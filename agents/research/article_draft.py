@@ -97,6 +97,7 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -
             "section_index": 3,
             "status": "candidate",
             "text": snippet,
+            "evidence_refs": [evidence_id],
             "source": {
                 "type": "serp_result",
                 "url": url,
@@ -117,7 +118,6 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -
 def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
     if not editorial_evidence:
         return ""
-    # Keep the prose constrained to what the snippets explicitly report.
     parts: list[str] = []
     for item in editorial_evidence:
         text = str(item.get("text", "")).strip()
@@ -197,8 +197,6 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
             "evidence_refs": refs_for_section,
         })
 
-    # Ground all sections in one call so section_index remains stable and
-    # claim IDs are globally unique within the Article Draft.
     claims_by_section = ground_claims_by_section(
         sections=sections,
         evidence_records=list(grounded_records.values()),
