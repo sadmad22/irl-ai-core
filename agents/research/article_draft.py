@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v3"
+METHOD_VERSION = "v4"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -59,25 +60,10 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
 
 
 def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    """Build conservative, internal editorial evidence from existing SERP snippets.
-
-    Only snippets that explicitly contain coverage-oriented language are eligible.
-    The source URL and artifact provenance are retained. No snippet is treated as
-    a verified source document, and an empty result is a safe outcome.
-    """
+    """Build conservative editorial evidence from existing SERP snippets."""
     if not serp_results:
         return []
-
-    terms = (
-        "cover",
-        "coverage",
-        "negligence",
-        "legal fees",
-        "defend",
-        "settlements",
-        "mistakes",
-        "misinformation",
-    )
+    terms = ("cover", "coverage", "negligence", "legal fees", "defend", "settlements", "mistakes", "misinformation")
     candidates: list[dict[str, Any]] = []
     seen_urls: set[str] = set()
     for result in serp_results:
@@ -85,10 +71,7 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -
             continue
         snippet = str(result.get("snippet", "")).strip()
         url = str(result.get("url", "")).strip()
-        if not snippet or not url or url in seen_urls:
-            continue
-        lowered = snippet.lower()
-        if not any(term in lowered for term in terms):
+        if not snippet or not url or url in seen_urls or not any(term in snippet.lower() for term in terms):
             continue
         seen_urls.add(url)
         evidence_id = "editorial_serp_" + hashlib.sha256(f"{url}\n{snippet}".encode("utf-8")).hexdigest()[:16]
@@ -98,34 +81,45 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -
             "status": "candidate",
             "text": snippet,
             "evidence_refs": [evidence_id],
-            "source": {
-                "type": "serp_result",
-                "url": url,
-                "title": str(result.get("title", "")).strip(),
-                "domain": str(result.get("domain", "")).strip(),
-            },
-            "provenance": {
-                "artifact": "serp-analysis.json",
-                "method": "serp-snippet-editorial-v1",
-                "verification": "snippet_only",
-            },
+            "source": {"type": "serp_result", "url": url, "title": str(result.get("title", "")).strip(), "domain": str(result.get("domain", "")).strip()},
+            "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
+            "domain": "editorial",
+            "claim": {"type": "editorial_snippet", "attribute": "coverage_finding"},
+            "value": {"type": "text", "data": snippet},
+            "subject": {"type": "source", "id": url},
         })
         if len(candidates) >= 4:
             break
     return candidates
 
 
+def _clean_coverage_snippet(text: str) -> str:
+    text = re.sub(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}\s*[—-]\s*", "", text)
+    text = re.sub(r"\s*(?:Get a fast, free quote|Get a quote|Request a quote)[^.]*\.?", "", text, flags=re.I)
+    text = re.sub(r"\s*Read more(?:\s*\([^)]*\))?\.?", "", text, flags=re.I)
+    text = re.sub(r"\s*\([^)]*(?:Insurance|Consultant|Professional|Business)[^)]*\)\.?", "", text, flags=re.I)
+    text = re.sub(r"\s*\.\.\.\s*", " ", text)
+    text = re.sub(r"\s+", " ", text).strip(" .")
+    return text
+
+
 def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
     if not editorial_evidence:
         return ""
-    parts: list[str] = []
+    sentences: list[str] = []
+    seen: set[str] = set()
     for item in editorial_evidence:
-        text = str(item.get("text", "")).strip()
-        source = item.get("source") if isinstance(item.get("source"), dict) else {}
-        title = str(source.get("title") or source.get("domain") or "a SERP source").strip()
-        if text:
-            parts.append(f"{text} ({title}).")
-    return " ".join(parts)
+        cleaned = _clean_coverage_snippet(str(item.get("text", "")))
+        if not cleaned or cleaned.lower() in seen:
+            continue
+        seen.add(cleaned.lower())
+        parts = re.split(r"(?<=[.!?])\s+", cleaned)
+        for part in parts:
+            part = part.strip()
+            if len(part) >= 30 and part.lower() not in seen:
+                sentences.append(part)
+                seen.add(part.lower())
+    return " ".join(sentences)
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
@@ -139,7 +133,6 @@ def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str
 
 
 def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None, serp_results: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Translate an approved Content Brief into section- and claim-grounded prose."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -163,66 +156,31 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
 
     normalized_refs = list(dict.fromkeys(str(ref).strip() for ref in refs if str(ref).strip()))
     ref_set = set(normalized_refs)
-    indexed_records = {
-        str(record.get("evidence_id")).strip(): record
-        for record in (evidence_records or [])
-        if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()
-    }
+    indexed_records = {str(record.get("evidence_id")).strip(): record for record in (evidence_records or []) if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()}
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
-    section_refs = ground_evidence_by_section(
-        outline=outline,
-        evidence_refs=normalized_refs,
-        evidence_records=list(grounded_records.values()),
-    )
+    section_refs = ground_evidence_by_section(outline=outline, evidence_refs=normalized_refs, evidence_records=list(grounded_records.values()))
 
     coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results)
     editorial_evidence: list[dict[str, Any]] = []
     sections = []
     for index, (item, refs_for_section) in enumerate(zip(outline, section_refs), 1):
-        section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
         heading = str(item["heading"]).strip()
+        section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
         section_editorial = coverage_editorial_evidence if index == 3 and heading.lower() == "coverage and key factors" else []
         if section_editorial:
             editorial_evidence.extend(section_editorial)
-        body = _section_body(
-            heading=heading,
-            keyword=keyword,
-            evidence_records=section_records,
-            editorial_evidence=section_editorial,
-        )
-        sections.append({
-            "heading": heading,
-            "purpose": str(item["purpose"]).strip(),
-            "body": body,
-            "evidence_refs": refs_for_section,
-        })
+            refs_for_section = [item["evidence_id"] for item in section_editorial]
+        body = _section_body(heading=heading, keyword=keyword, evidence_records=section_editorial or section_records, editorial_evidence=section_editorial)
+        sections.append({"heading": heading, "purpose": str(item["purpose"]).strip(), "body": body, "evidence_refs": refs_for_section})
 
-    claims_by_section = ground_claims_by_section(
-        sections=sections,
-        evidence_records=list(grounded_records.values()),
-        per_claim=1,
-        require_match=True,
-    )
+    all_grounding_records = list(grounded_records.values()) + coverage_editorial_evidence
+    claims_by_section = ground_claims_by_section(sections=sections, evidence_records=all_grounding_records, per_claim=1, require_match=True)
     for section, claims in zip(sections, claims_by_section):
         section["claims"] = claims
 
     payload = {
-        "title": _title(content_brief),
-        "content_type": content_type,
-        "primary_keyword": keyword,
-        "sections": sections,
-        "evidence_refs": normalized_refs,
-        "editorial_evidence": editorial_evidence,
+        "title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword,
+        "sections": sections, "evidence_refs": normalized_refs, "editorial_evidence": editorial_evidence,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
-    return {
-        "draft_id": _draft_id(content_brief, payload),
-        "brief_id": brief_id,
-        "report_id": report_id,
-        "decision_id": decision_id,
-        "strategy_id": strategy_id,
-        "schema_version": SCHEMA_VERSION,
-        "lifecycle_stage": "draft_ready",
-        **payload,
-        "audit": {"method": "content_brief_to_section_and_claim_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"},
-    }
+    return {"draft_id": _draft_id(content_brief, payload), "brief_id": brief_id, "report_id": report_id, "decision_id": decision_id, "strategy_id": strategy_id, "schema_version": SCHEMA_VERSION, "lifecycle_stage": "draft_ready", **payload, "audit": {"method": "content_brief_to_section_and_claim_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"}}
