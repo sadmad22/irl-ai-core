@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v5"
+METHOD_VERSION = "v6"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -104,26 +104,44 @@ def _clean_coverage_snippet(text: str) -> str:
 
 
 def _coverage_sentences(item: dict[str, Any]) -> list[str]:
-    """Keep each source snippet as its own evidence unit; never merge sources."""
+    """Return complete, non-pricing sentences from one source only."""
     cleaned = _clean_coverage_snippet(str(item.get("text", "")))
     if not cleaned:
         return []
     parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", cleaned) if part.strip()]
-    return [part for part in parts if len(part) >= 30 and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)]
+    return [
+        part for part in parts
+        if len(part) >= 30
+        and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)
+    ]
 
 
 def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
-    if not editorial_evidence:
-        return ""
-    sentences: list[str] = []
-    seen: set[str] = set()
+    """Render each source as a separate block so source boundaries survive."""
+    blocks: list[str] = []
     for item in editorial_evidence:
-        for part in _coverage_sentences(item):
-            key = part.lower()
-            if key not in seen:
-                sentences.append(part)
-                seen.add(key)
-    return " ".join(sentences)
+        sentences = _coverage_sentences(item)
+        if sentences:
+            blocks.append(" ".join(sentences))
+    return "\n\n".join(blocks)
+
+
+def _coverage_claims(editorial_evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Create claims per source; a claim can only cite its own source evidence."""
+    claims: list[dict[str, Any]] = []
+    for source_index, item in enumerate(editorial_evidence, 1):
+        ref = str(item.get("evidence_id", "")).strip()
+        if not ref:
+            continue
+        for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
+            digest = hashlib.sha256(sentence.encode("utf-8")).hexdigest()[:12]
+            claims.append({
+                "claim_id": f"claim_3_{source_index}_{sentence_index}_{digest}",
+                "text": sentence,
+                "evidence_refs": [ref],
+                "grounding_status": "grounded",
+            })
+    return claims
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
@@ -180,7 +198,10 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     all_grounding_records = list(grounded_records.values()) + coverage_editorial_evidence
     claims_by_section = ground_claims_by_section(sections=sections, evidence_records=all_grounding_records, per_claim=1, require_match=True)
     for section, claims in zip(sections, claims_by_section):
-        section["claims"] = claims
+        if section["heading"].lower() == "coverage and key factors":
+            section["claims"] = _coverage_claims(coverage_editorial_evidence)
+        else:
+            section["claims"] = claims
 
     payload = {
         "title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword,
