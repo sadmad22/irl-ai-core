@@ -42,14 +42,20 @@ def _evidence_text(record: dict[str, Any]) -> str:
 def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
     if not evidence_records:
         return ""
-    attributes: list[str] = []
-    for record in evidence_records[:2]:
-        claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-        attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
-        if attribute and attribute not in attributes:
-            attributes.append(attribute)
-    evidence_focus = " and ".join(attributes) if attributes else "available evidence"
-    return f"This guide focuses on {keyword} and the available {evidence_focus} evidence for this topic."
+    record = evidence_records[0]
+    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
+    value = record.get("value") if isinstance(record.get("value"), dict) else {}
+    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
+    attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
+    data = value.get("data")
+    subject_id = str(subject.get("id") or "the research set").strip()
+    if isinstance(data, bool):
+        observation = "is supported" if data else "is not supported"
+    elif data is None:
+        observation = "has been recorded"
+    else:
+        observation = f"is recorded as {data}"
+    return f"This guide focuses on {keyword}. The available research records {attribute} for {subject_id}, where the finding {observation}."
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
