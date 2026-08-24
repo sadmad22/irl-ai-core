@@ -5,7 +5,7 @@ import json
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v2"
 
 
 def _review_id(draft_id: str, payload: dict[str, Any]) -> str:
@@ -14,11 +14,7 @@ def _review_id(draft_id: str, payload: dict[str, Any]) -> str:
 
 
 def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
-    """Run deterministic structural/editorial gates over an Article Draft.
-
-    This v1 engine is a quality gate, not a writer, evidence generator, or
-    publisher. It evaluates only invariants represented by the Article Draft.
-    """
+    """Run deterministic structural/editorial gates over an Article Draft."""
     ids = {
         k: str(article_draft.get(k, "")).strip()
         for k in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")
@@ -41,15 +37,26 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     )
     evidence_ok = isinstance(refs, list) and bool(refs) and len(refs) == len(set(str(r) for r in refs))
 
-    def _body_is_evidence_grounded(section: dict[str, Any]) -> bool:
-        body = str(section.get("body", ""))
-        return (
-            "requires editorial verification" in body
-            or "research evidence records" in body
-        )
+    def _section_is_editorially_grounded(section: dict[str, Any]) -> bool:
+        editorial_evidence = section.get("editorial_evidence")
+        if isinstance(editorial_evidence, dict):
+            status = str(editorial_evidence.get("status", "")).strip().lower()
+            return status == "ready" and bool(editorial_evidence.get("evidence_refs"))
+        if isinstance(editorial_evidence, list):
+            return bool(editorial_evidence)
+        claims = section.get("claims")
+        if isinstance(claims, list) and claims:
+            return any(
+                isinstance(claim, dict)
+                and str(claim.get("grounding_status", "")).strip() == "grounded"
+                and isinstance(claim.get("evidence_refs"), list)
+                and bool(claim.get("evidence_refs"))
+                for claim in claims
+            )
+        return False
 
     unsupported_claims_ok = evidence_ok and structure_ok and all(
-        _body_is_evidence_grounded(s) for s in sections if isinstance(s, dict)
+        _section_is_editorially_grounded(s) for s in sections if isinstance(s, dict)
     )
     editorial_ok = bool(str(article_draft.get("title", "")).strip()) and bool(
         str(article_draft.get("primary_keyword", "")).strip()
@@ -60,7 +67,7 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     if not evidence_ok:
         findings.append({"severity": "critical", "category": "evidence", "message": "Draft must retain explicit unique evidence_refs."})
     if not unsupported_claims_ok:
-        findings.append({"severity": "critical", "category": "unsupported_claims", "message": "Draft contains content that is not grounded in research evidence or marked for editorial verification."})
+        findings.append({"severity": "critical", "category": "unsupported_claims", "message": "Draft contains sections without editorial evidence or grounded claims."})
     if not editorial_ok:
         findings.append({"severity": "critical", "category": "editorial", "message": "Draft title and primary keyword are required."})
 
