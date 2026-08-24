@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v4"
+METHOD_VERSION = "v5"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -103,20 +103,24 @@ def _clean_coverage_snippet(text: str) -> str:
     return text
 
 
+def _coverage_sentences(item: dict[str, Any]) -> list[str]:
+    """Keep each source snippet as its own evidence unit; never merge sources."""
+    cleaned = _clean_coverage_snippet(str(item.get("text", "")))
+    if not cleaned:
+        return []
+    parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", cleaned) if part.strip()]
+    return [part for part in parts if len(part) >= 30 and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)]
+
+
 def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
     if not editorial_evidence:
         return ""
     sentences: list[str] = []
     seen: set[str] = set()
     for item in editorial_evidence:
-        cleaned = _clean_coverage_snippet(str(item.get("text", "")))
-        if not cleaned:
-            continue
-        parts = re.split(r"(?<=[.!?])\s+", cleaned)
-        for part in parts:
-            part = part.strip()
+        for part in _coverage_sentences(item):
             key = part.lower()
-            if len(part) >= 30 and key not in seen:
+            if key not in seen:
                 sentences.append(part)
                 seen.add(key)
     return " ".join(sentences)
