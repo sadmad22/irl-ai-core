@@ -30,6 +30,12 @@ def _load_evidence_records(project: str) -> list[dict[str, Any]]:
     return sorted(records, key=lambda item: str(item["evidence_id"]))
 
 
+def _load_serp_results(project: str) -> list[dict[str, Any]]:
+    data = _load(project, "serp-analysis.json")
+    results = data.get("results")
+    return [item for item in results if isinstance(item, dict)] if isinstance(results, list) else []
+
+
 def _save_if_changed(project: str, filename: str, data: dict[str, Any]) -> None:
     path = Path("research") / project / filename
     current = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
@@ -43,9 +49,11 @@ def run(project_name: str) -> dict[str, Any]:
 
     brief = _load(project_name, "content-brief.json")
     evidence_records = _load_evidence_records(project_name)
+    serp_results = _load_serp_results(project_name)
     draft = build_article_draft(
         content_brief=brief,
         evidence_records=evidence_records,
+        serp_results=serp_results,
     )
     _save_if_changed(project_name, "article-draft.json", draft)
 
