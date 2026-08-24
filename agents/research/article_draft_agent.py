@@ -31,8 +31,14 @@ def _load_evidence_records(project: str) -> list[dict[str, Any]]:
 
 
 def _load_serp_results(project: str) -> list[dict[str, Any]]:
-    data = _load(project, "serp-analysis.json")
-    results = data.get("results")
+    path = Path("research") / project / "serp-analysis.json"
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    results = data.get("results") if isinstance(data, dict) else None
     return [item for item in results if isinstance(item, dict)] if isinstance(results, list) else []
 
 
