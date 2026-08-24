@@ -43,10 +43,7 @@ def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str
     if not evidence_records:
         return ""
     if heading.strip().lower() == "introduction":
-        return (
-            f"This guide focuses on {keyword} and the research considerations relevant to the topic. "
-            "The sections that follow organize the available evidence into a grounded content draft."
-        )
+        return f"This guide focuses on {keyword} and the available insurance evidence for this topic."
     return " ".join(_evidence_text(record) for record in evidence_records)
 
 
