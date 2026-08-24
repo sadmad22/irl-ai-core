@@ -55,7 +55,7 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
         observation = "has been recorded"
     else:
         observation = f"is recorded as {data}"
-    return f"This guide focuses on {keyword}. The available research records {attribute} for {subject_id}, where the finding {observation}."
+    return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
