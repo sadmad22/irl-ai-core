@@ -8,7 +8,17 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v2"
+METHOD_VERSION = "v3"
+
+_RESEARCH_ONLY_DOMAINS = {"authority", "business"}
+_RESEARCH_ONLY_ATTRIBUTES = {
+    "authority_score",
+    "topic_fit",
+    "affiliate_potential",
+    "adsense_potential",
+    "conversion_potential",
+    "commercial_value",
+}
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -23,47 +33,48 @@ def _title(brief: dict[str, Any]) -> str:
     return f"{prefixes[content_type]} {keyword.title()}"
 
 
-def _evidence_text(record: dict[str, Any]) -> str:
-    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-    value = record.get("value") if isinstance(record.get("value"), dict) else {}
-    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
-    attribute = str(claim.get("attribute") or claim.get("type") or "observation").replace("_", " ")
-    data = value.get("data")
-    subject_id = str(subject.get("id") or "the research set")
-    if isinstance(data, bool):
-        observation = "is supported" if data else "is not supported"
-    elif data is None:
-        observation = "has been observed"
-    else:
-        observation = f"has a recorded value of {data}"
-    return f"The research evidence records {attribute} for {subject_id}: {observation}."
-
-
-def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
-    if not evidence_records:
-        return ""
-    record = evidence_records[0]
+def _claim_parts(record: dict[str, Any]) -> tuple[str, Any, str]:
     claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
     value = record.get("value") if isinstance(record.get("value"), dict) else {}
     subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
     attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
-    data = value.get("data")
-    subject_id = str(subject.get("id") or "the research set").strip()
+    return attribute, value.get("data"), str(subject.get("id") or "the topic").strip()
+
+
+def _is_reader_usable(record: dict[str, Any]) -> bool:
+    domain = str(record.get("domain", "")).strip().lower()
+    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
+    attribute = str(claim.get("attribute", "")).strip().lower()
+    if domain in _RESEARCH_ONLY_DOMAINS:
+        return False
+    return attribute not in _RESEARCH_ONLY_ATTRIBUTES
+
+
+def _evidence_text(record: dict[str, Any]) -> str:
+    attribute, data, subject_id = _claim_parts(record)
     if isinstance(data, bool):
         observation = "is supported" if data else "is not supported"
     elif data is None:
-        observation = "has been recorded"
+        observation = "is identified in the research"
     else:
         observation = f"is recorded as {data}"
-    return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
+    return f"The research identifies {attribute} for {subject_id}; the finding {observation}."
+
+
+def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
+    usable = [record for record in evidence_records if _is_reader_usable(record)]
+    if not usable:
+        return f"This guide focuses on {keyword} and the questions and research considerations relevant to evaluating this topic."
+    return _evidence_text(usable[0]).replace("The research identifies", f"This guide examines {keyword}; the research identifies", 1)
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
-    if not evidence_records:
-        return ""
+    usable = [record for record in evidence_records if _is_reader_usable(record)]
     if heading.strip().lower() == "introduction":
         return _introduction_body(keyword=keyword, evidence_records=evidence_records)
-    return " ".join(_evidence_text(record) for record in evidence_records)
+    if not usable:
+        return f"This section addresses {heading.lower()} in the context of {keyword}, using the available research evidence."
+    return " ".join(_evidence_text(record) for record in usable)
 
 
 def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
@@ -115,8 +126,6 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
             "evidence_refs": refs_for_section,
         })
 
-    # Ground all sections in one call so section_index remains stable and
-    # claim IDs are globally unique within the Article Draft.
     claims_by_section = ground_claims_by_section(
         sections=sections,
         evidence_records=list(grounded_records.values()),
