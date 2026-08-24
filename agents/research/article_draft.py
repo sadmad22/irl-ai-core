@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v6"
+METHOD_VERSION = "v7"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -104,14 +104,19 @@ def _clean_coverage_snippet(text: str) -> str:
 
 
 def _coverage_sentences(item: dict[str, Any]) -> list[str]:
-    """Return complete, non-pricing sentences from one source only."""
+    """Return only complete, non-pricing sentences from one source."""
     cleaned = _clean_coverage_snippet(str(item.get("text", "")))
     if not cleaned:
         return []
     parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", cleaned) if part.strip()]
+    incomplete_tail = re.compile(
+        r"(?:\band|or|but|nor|to|for|with|of|the|a|an|its|their|this|that|these|those|independent|employees)$",
+        flags=re.I,
+    )
     return [
         part for part in parts
         if len(part) >= 30
+        and not incomplete_tail.search(part.rstrip(" .,!?:;"))
         and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)
     ]
 
