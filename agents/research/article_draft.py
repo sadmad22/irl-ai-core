@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v7"
+METHOD_VERSION = "v8"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -59,8 +59,11 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
     return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
 
-def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    """Build conservative editorial evidence from existing SERP snippets."""
+def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, source_evidence: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Prefer reviewed page evidence; fall back to conservative SERP snippets."""
+    reviewed = [item for item in (source_evidence or []) if isinstance(item, dict) and item.get("evidence_id") and item.get("text") and str(item.get("provenance", {}).get("verification", "")) == "page_reviewed"]
+    if reviewed:
+        return reviewed
     if not serp_results:
         return []
     terms = ("cover", "coverage", "negligence", "legal fees", "defend", "settlements", "mistakes", "misinformation")
@@ -104,25 +107,17 @@ def _clean_coverage_snippet(text: str) -> str:
 
 
 def _coverage_sentences(item: dict[str, Any]) -> list[str]:
-    """Return only complete, non-pricing sentences from one source."""
+    """Return complete, non-pricing sentences from one source."""
     cleaned = _clean_coverage_snippet(str(item.get("text", "")))
     if not cleaned:
         return []
     parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", cleaned) if part.strip()]
-    incomplete_tail = re.compile(
-        r"(?:\band|or|but|nor|to|for|with|of|the|a|an|its|their|this|that|these|those|independent|employees)$",
-        flags=re.I,
-    )
-    return [
-        part for part in parts
-        if len(part) >= 30
-        and not incomplete_tail.search(part.rstrip(" .,!?:;"))
-        and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)
-    ]
+    incomplete_tail = re.compile(r"(?:\band|or|but|nor|to|for|with|of|the|a|an|its|their|this|that|these|those|independent|employees)$", flags=re.I)
+    return [part for part in parts if len(part) >= 30 and not incomplete_tail.search(part.rstrip(" .,!?:;")) and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I)]
 
 
 def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
-    """Render each source as a separate block so source boundaries survive."""
+    """Render reviewed source evidence as separate editorial blocks."""
     blocks: list[str] = []
     for item in editorial_evidence:
         sentences = _coverage_sentences(item)
@@ -140,12 +135,7 @@ def _coverage_claims(editorial_evidence: list[dict[str, Any]]) -> list[dict[str,
             continue
         for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
             digest = hashlib.sha256(sentence.encode("utf-8")).hexdigest()[:12]
-            claims.append({
-                "claim_id": f"claim_3_{source_index}_{sentence_index}_{digest}",
-                "text": sentence,
-                "evidence_refs": [ref],
-                "grounding_status": "grounded",
-            })
+            claims.append({"claim_id": f"claim_3_{source_index}_{sentence_index}_{digest}", "text": sentence, "evidence_refs": [ref], "grounding_status": "grounded"})
     return claims
 
 
@@ -159,7 +149,7 @@ def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str
     return " ".join(_evidence_text(record) for record in evidence_records)
 
 
-def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None, serp_results: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None, serp_results: list[dict[str, Any]] | None = None, source_evidence: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -187,7 +177,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
     section_refs = ground_evidence_by_section(outline=outline, evidence_refs=normalized_refs, evidence_records=list(grounded_records.values()))
 
-    coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results)
+    coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results, source_evidence=source_evidence)
     editorial_evidence: list[dict[str, Any]] = []
     sections = []
     for index, (item, refs_for_section) in enumerate(zip(outline, section_refs), 1):
@@ -208,9 +198,5 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         else:
             section["claims"] = claims
 
-    payload = {
-        "title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword,
-        "sections": sections, "evidence_refs": normalized_refs, "editorial_evidence": editorial_evidence,
-        "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
-    }
+    payload = {"title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword, "sections": sections, "evidence_refs": normalized_refs, "editorial_evidence": editorial_evidence, "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip()))}
     return {"draft_id": _draft_id(content_brief, payload), "brief_id": brief_id, "report_id": report_id, "decision_id": decision_id, "strategy_id": strategy_id, "schema_version": SCHEMA_VERSION, "lifecycle_stage": "draft_ready", **payload, "audit": {"method": "content_brief_to_section_and_claim_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"}}
