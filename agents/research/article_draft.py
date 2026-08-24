@@ -39,11 +39,24 @@ def _evidence_text(record: dict[str, Any]) -> str:
     return f"The research evidence records {attribute} for {subject_id}: {observation}."
 
 
+def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
+    if not evidence_records:
+        return ""
+    attributes: list[str] = []
+    for record in evidence_records[:2]:
+        claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
+        attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
+        if attribute and attribute not in attributes:
+            attributes.append(attribute)
+    evidence_focus = " and ".join(attributes) if attributes else "available evidence"
+    return f"This guide focuses on {keyword} and the available {evidence_focus} evidence for this topic."
+
+
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
     if not evidence_records:
         return ""
     if heading.strip().lower() == "introduction":
-        return f"This guide focuses on {keyword} and the available insurance evidence for this topic."
+        return _introduction_body(keyword=keyword, evidence_records=evidence_records)
     return " ".join(_evidence_text(record) for record in evidence_records)
 
 
