@@ -147,8 +147,10 @@ def run_content_research_to_wordpress_draft(
         article_draft=_load(project_name, "article-draft.json"),
         evidence_records=evidence_records,
     )
+    artifacts["research_sufficiency"] = research_sufficiency
 
     artifact_files = {
+        "research_sufficiency": "research-sufficiency.json",
         "article_draft_quality": "article-draft-quality.json",
         "claim_audit": "claim-audit.json",
         "seo_strategy": "seo-strategy.json",
