@@ -110,15 +110,15 @@ def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
     seen: set[str] = set()
     for item in editorial_evidence:
         cleaned = _clean_coverage_snippet(str(item.get("text", "")))
-        if not cleaned or cleaned.lower() in seen:
+        if not cleaned:
             continue
-        seen.add(cleaned.lower())
         parts = re.split(r"(?<=[.!?])\s+", cleaned)
         for part in parts:
             part = part.strip()
-            if len(part) >= 30 and part.lower() not in seen:
+            key = part.lower()
+            if len(part) >= 30 and key not in seen:
                 sentences.append(part)
-                seen.add(part.lower())
+                seen.add(key)
     return " ".join(sentences)
 
 
