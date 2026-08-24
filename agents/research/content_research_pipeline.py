@@ -8,6 +8,7 @@ from .agent import run as run_research_agent
 from .article_draft_agent import run as run_article_draft_agent, _load_evidence_records
 from .article_draft_quality import validate_article_draft_quality
 from .claim_audit import audit_article_claims
+from .minimal_research_loop import evaluate_research_sufficiency
 from .seo_strategy_agent import run_seo_strategy_agent
 from .seo_validation_agent import run_seo_validation_agent
 from .editorial_review import build_editorial_review
@@ -115,11 +116,33 @@ def run_content_research_to_wordpress_draft(
     No code path in this pipeline can publish a WordPress post.
     """
     run_research_agent(project_name)
+
+    research_report = _load(project_name, "research-report.json")
+    question_analysis = _load(project_name, "question-analysis.json")
+    evidence_records = _load_evidence_records(project_name)
+    research_sufficiency = evaluate_research_sufficiency(
+        research_report=research_report,
+        question_analysis=question_analysis,
+        evidence_records=evidence_records,
+    )
+    _save_if_changed(project_name, "research-sufficiency.json", research_sufficiency)
+
+    if not research_sufficiency["passed"]:
+        metadata_path = Path("research") / project_name / "metadata.json"
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        metadata["project_name"] = project_name
+        metadata["status"] = "research_blocked"
+        metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
+        return {
+            "research_report": research_report,
+            "question_analysis": question_analysis,
+            "research_sufficiency": research_sufficiency,
+        }
+
     run_article_draft_agent(project_name)
 
-    evidence_records = _load_evidence_records(project_name)
     artifacts = build_content_research_to_wordpress_draft(
-        research_report=_load(project_name, "research-report.json"),
+        research_report=research_report,
         content_brief=_load(project_name, "content-brief.json"),
         article_draft=_load(project_name, "article-draft.json"),
         evidence_records=evidence_records,
