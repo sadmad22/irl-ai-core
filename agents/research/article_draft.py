@@ -8,7 +8,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v2"
+METHOD_VERSION = "v3"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -58,7 +58,79 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
     return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
 
-def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
+def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Build conservative, internal editorial evidence from existing SERP snippets.
+
+    Only snippets that explicitly contain coverage-oriented language are eligible.
+    The source URL and artifact provenance are retained. No snippet is treated as
+    a verified source document, and an empty result is a safe outcome.
+    """
+    if not serp_results:
+        return []
+
+    terms = (
+        "cover",
+        "coverage",
+        "negligence",
+        "legal fees",
+        "defend",
+        "settlements",
+        "mistakes",
+        "misinformation",
+    )
+    candidates: list[dict[str, Any]] = []
+    seen_urls: set[str] = set()
+    for result in serp_results:
+        if not isinstance(result, dict):
+            continue
+        snippet = str(result.get("snippet", "")).strip()
+        url = str(result.get("url", "")).strip()
+        if not snippet or not url or url in seen_urls:
+            continue
+        lowered = snippet.lower()
+        if not any(term in lowered for term in terms):
+            continue
+        seen_urls.add(url)
+        evidence_id = "editorial_serp_" + hashlib.sha256(f"{url}\n{snippet}".encode("utf-8")).hexdigest()[:16]
+        candidates.append({
+            "evidence_id": evidence_id,
+            "section_index": 3,
+            "status": "candidate",
+            "text": snippet,
+            "source": {
+                "type": "serp_result",
+                "url": url,
+                "title": str(result.get("title", "")).strip(),
+                "domain": str(result.get("domain", "")).strip(),
+            },
+            "provenance": {
+                "artifact": "serp-analysis.json",
+                "method": "serp-snippet-editorial-v1",
+                "verification": "snippet_only",
+            },
+        })
+        if len(candidates) >= 4:
+            break
+    return candidates
+
+
+def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
+    if not editorial_evidence:
+        return ""
+    # Keep the prose constrained to what the snippets explicitly report.
+    parts: list[str] = []
+    for item in editorial_evidence:
+        text = str(item.get("text", "")).strip()
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        title = str(source.get("title") or source.get("domain") or "a SERP source").strip()
+        if text:
+            parts.append(f"{text} ({title}).")
+    return " ".join(parts)
+
+
+def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
+    if heading.strip().lower() == "coverage and key factors":
+        return _coverage_body(editorial_evidence or [])
     if not evidence_records:
         return ""
     if heading.strip().lower() == "introduction":
@@ -66,7 +138,7 @@ def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str
     return " ".join(_evidence_text(record) for record in evidence_records)
 
 
-def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None, serp_results: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Translate an approved Content Brief into section- and claim-grounded prose."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
@@ -103,11 +175,21 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         evidence_records=list(grounded_records.values()),
     )
 
+    coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results)
+    editorial_evidence: list[dict[str, Any]] = []
     sections = []
-    for item, refs_for_section in zip(outline, section_refs):
+    for index, (item, refs_for_section) in enumerate(zip(outline, section_refs), 1):
         section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
         heading = str(item["heading"]).strip()
-        body = _section_body(heading=heading, keyword=keyword, evidence_records=section_records)
+        section_editorial = coverage_editorial_evidence if index == 3 and heading.lower() == "coverage and key factors" else []
+        if section_editorial:
+            editorial_evidence.extend(section_editorial)
+        body = _section_body(
+            heading=heading,
+            keyword=keyword,
+            evidence_records=section_records,
+            editorial_evidence=section_editorial,
+        )
         sections.append({
             "heading": heading,
             "purpose": str(item["purpose"]).strip(),
@@ -132,6 +214,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         "primary_keyword": keyword,
         "sections": sections,
         "evidence_refs": normalized_refs,
+        "editorial_evidence": editorial_evidence,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
     return {
