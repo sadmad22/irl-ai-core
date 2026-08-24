@@ -42,6 +42,19 @@ def _load_serp_results(project: str) -> list[dict[str, Any]]:
     return [item for item in results if isinstance(item, dict)] if isinstance(results, list) else []
 
 
+def _load_source_evidence(project: str) -> list[dict[str, Any]]:
+    path = Path("research") / project / "source-evidence.json"
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if isinstance(data, list):
+        return [item for item in data if isinstance(item, dict) and item.get("evidence_id")]
+    return [data] if isinstance(data, dict) and data.get("evidence_id") else []
+
+
 def _save_if_changed(project: str, filename: str, data: dict[str, Any]) -> None:
     path = Path("research") / project / filename
     current = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
@@ -56,10 +69,12 @@ def run(project_name: str) -> dict[str, Any]:
     brief = _load(project_name, "content-brief.json")
     evidence_records = _load_evidence_records(project_name)
     serp_results = _load_serp_results(project_name)
+    source_evidence = _load_source_evidence(project_name)
     draft = build_article_draft(
         content_brief=brief,
         evidence_records=evidence_records,
         serp_results=serp_results,
+        source_evidence=source_evidence,
     )
     _save_if_changed(project_name, "article-draft.json", draft)
 
