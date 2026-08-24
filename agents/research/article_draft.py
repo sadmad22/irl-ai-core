@@ -39,9 +39,14 @@ def _evidence_text(record: dict[str, Any]) -> str:
     return f"The research evidence records {attribute} for {subject_id}: {observation}."
 
 
-def _section_body(evidence_records: list[dict[str, Any]]) -> str:
+def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
     if not evidence_records:
         return ""
+    if heading.strip().lower() == "introduction":
+        return (
+            f"This guide focuses on {keyword} and the research considerations relevant to the topic. "
+            "The sections that follow organize the available evidence into a grounded content draft."
+        )
     return " ".join(_evidence_text(record) for record in evidence_records)
 
 
@@ -85,9 +90,10 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     sections = []
     for item, refs_for_section in zip(outline, section_refs):
         section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
-        body = _section_body(section_records)
+        heading = str(item["heading"]).strip()
+        body = _section_body(heading=heading, keyword=keyword, evidence_records=section_records)
         sections.append({
-            "heading": str(item["heading"]).strip(),
+            "heading": heading,
             "purpose": str(item["purpose"]).strip(),
             "body": body,
             "evidence_refs": refs_for_section,
