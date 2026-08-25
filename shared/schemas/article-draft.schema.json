@@ -4,7 +4,7 @@
   "title": "IRL Article Draft",
   "type": "object",
   "additionalProperties": false,
-  "required": ["draft_id", "brief_id", "report_id", "decision_id", "strategy_id", "schema_version", "lifecycle_stage", "title", "content_type", "primary_keyword", "sections", "evidence_refs", "editorial_constraints", "audit"],
+  "required": ["draft_id", "brief_id", "report_id", "decision_id", "strategy_id", "schema_version", "lifecycle_stage", "title", "content_type", "primary_keyword", "sections", "evidence_refs", "editorial_evidence", "editorial_constraints", "audit"],
   "properties": {
     "draft_id": {"type": "string", "minLength": 1},
     "brief_id": {"type": "string", "minLength": 1},
@@ -56,14 +56,14 @@
         "properties": {
           "evidence_id": {"type": "string", "minLength": 1},
           "section_index": {"type": "integer", "minimum": 1},
-          "status": {"const": "candidate"},
+          "status": {"enum": ["candidate", "ready"]},
           "text": {"type": "string", "minLength": 1},
           "source": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["type", "url", "title", "domain"],
+            "required": ["url"],
             "properties": {
-              "type": {"const": "serp_result"},
+              "type": {"type": "string"},
               "url": {"type": "string", "minLength": 1},
               "title": {"type": "string"},
               "domain": {"type": "string"}
@@ -72,11 +72,11 @@
           "provenance": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["artifact", "method", "verification"],
+            "required": ["verification"],
             "properties": {
-              "artifact": {"const": "serp-analysis.json"},
-              "method": {"const": "serp-snippet-editorial-v1"},
-              "verification": {"const": "snippet_only"}
+              "artifact": {"type": "string"},
+              "method": {"type": "string"},
+              "verification": {"enum": ["snippet_only", "page_reviewed"]}
             }
           }
         }
