@@ -200,7 +200,7 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
         evidence_id = f"editorial_serp_{digest}"
         if evidence_id in seen:
             continue
-        normalized = {
+        record = {
             "evidence_id": evidence_id,
             "section_index": 3,
             "status": "candidate",
@@ -208,8 +208,8 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
             "source": {"type": "web_page", "url": url, "title": str(item.get("title") or source.get("title") or "").strip(), "domain": str(item.get("domain") or source.get("domain") or "").strip()},
             "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
         }
-        normalized["source"]["domain"] = normalized["source"]["domain"] or re.sub(r"^www\.", "", re.sub(r"^https?://", "", url).split("/", 1)[0])
-        normalized.append(normalized)
+        record["source"]["domain"] = record["source"]["domain"] or re.sub(r"^www\.", "", re.sub(r"^https?://", "", url).split("/", 1)[0])
+        normalized.append(record)
         seen.add(evidence_id)
     return normalized
 
