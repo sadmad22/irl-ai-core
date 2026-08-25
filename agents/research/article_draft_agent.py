@@ -6,7 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from .content_brief_agent import run as run_content_brief_agent
-from .article_draft import build_article_draft
+from .article_draft import (
+    build_article_draft,
+    _normalize_editorial_evidence,
+)
 
 
 def _load(project: str, filename: str) -> dict[str, Any]:
@@ -55,8 +58,61 @@ def _load_source_evidence(project: str) -> list[dict[str, Any]]:
         return [item for item in data if isinstance(item, dict) and item.get("evidence_id")]
     return [data] if isinstance(data, dict) and data.get("evidence_id") else []
 
+def _faq_editorial_evidence(
+    source_evidence: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    questions = {
+        "editorial_page_hartford_faq_workflow_20260825":
+            "How does professional liability insurance work?",
+        "editorial_page_hartford_faq_coverage_20260825":
+            "What does professional liability insurance cover?",
+        "editorial_page_hartford_faq_need_20260825":
+            "Who needs professional liability insurance?",
+        "editorial_page_insureon_faq_consultants_20260825":
+            "Do consultants need professional liability insurance?",
+    }
 
-def _faq_editorial_evidence(source_evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+
+    for item in source_evidence:
+        if not isinstance(item, dict):
+            continue
+
+        evidence_id = str(item.get("evidence_id", "")).strip()
+
+        if int(item.get("section_index", 0) or 0) != 6:
+            continue
+
+        if evidence_id not in questions:
+            continue
+
+        provenance = (
+            item.get("provenance")
+            if isinstance(item.get("provenance"), dict)
+            else {}
+        )
+
+        if provenance.get("verification") != "page_reviewed":
+            continue
+
+        normalized = _normalize_editorial_evidence(
+            item=item,
+            status="ready",
+        )
+
+        if normalized is None:
+            continue
+
+        selected.append(normalized)
+
+    return sorted(
+        selected,
+        key=lambda item: (
+            list(questions).index(str(item["evidence_id"])),
+            str(item["evidence_id"]),
+        ),
+    )
+
     questions = {
         "editorial_page_hartford_faq_workflow_20260825": "How does professional liability insurance work?",
         "editorial_page_hartford_faq_coverage_20260825": "What does professional liability insurance cover?",

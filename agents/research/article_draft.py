@@ -87,11 +87,56 @@ def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
                 seen.add(part.lower())
     return "\n\n".join(sentences)
 
-
-def _coverage_claims(editorial_evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _coverage_claims(
+    editorial_evidence: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     claims: list[dict[str, Any]] = []
+
+    for item in editorial_evidence:
+        sentences = _coverage_sentences(item)
+
+        for sentence in sentences:
+            claim_index = len(claims) + 1
+
+            digest = hashlib.sha256(
+                f"3:{claim_index}:{sentence}".encode("utf-8")
+            ).hexdigest()[:12]
+
+            claims.append(
+                {
+                    "claim_id": f"claim_3_{claim_index}_{digest}",
+                    "text": sentence,
+                    "evidence_refs": [
+                        str(item["evidence_id"])
+                    ],
+                    "grounding_status": "grounded",
+                }
+            )
+
+    return claims
+
     for source_index, item in enumerate(editorial_evidence, 1):
         for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
+            claim_index = len(claims) + 1
+
+            digest = hashlib.sha256(
+                f"3:{claim_index}:{sentence}".encode("utf-8")
+            ).hexdigest()[:12]
+
+            claims.append(
+                {
+                    "claim_id": f"claim_3_{claim_index}_{digest}",
+                    "text": sentence,
+                    "evidence_refs": [str(item["evidence_id"])],
+                    "grounding_status": "grounded",
+                }
+            )
+
+    return claims
+
+    for source_index, item in enumerate(editorial_evidence, 1):
+        for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
+            claim_index = len(claims) + 1
             digest = hashlib.sha256(f"3:{source_index}:{sentence_index}:{sentence}".encode("utf-8")).hexdigest()[:12]
             claims.append({"claim_id": f"claim_3_{source_index}_{sentence_index}_{digest}", "text": sentence, "evidence_refs": [str(item["evidence_id"])], "grounding_status": "grounded"})
     return claims
@@ -209,9 +254,9 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
             "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
         }
         record["source"]["domain"] = record["source"]["domain"] or re.sub(r"^www\.", "", re.sub(r"^https?://", "", url).split("/", 1)[0])
-        normalized.append(record)
+        page_records.append(record)
         seen.add(evidence_id)
-    return normalized
+    return page_records
 
 
 def _cost_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
