@@ -68,7 +68,10 @@ def _source_evidence():
         _page(3, "coverage_1", "Reviewed guidance describes professional liability protection for negligence and judgment errors arising from professional services."),
         _page(4, "cost_1", "Reviewed pricing guidance says consultant professional liability cost varies by business and coverage factors."),
         _page(5, "compare_1", "Reviewed guidance says consultants should compare limits, deductibles, exclusions, and policy terms."),
-        _page(6, "faq_1", "Reviewed FAQ guidance explains how professional liability responds to client claims involving professional services."),
+        _page(6, "editorial_page_hartford_faq_workflow_20260825", "Reviewed FAQ guidance explains how professional liability responds to client claims involving professional services."),
+        _page(6, "editorial_page_hartford_faq_coverage_20260825", "Reviewed FAQ guidance explains covered errors, omissions, negligence, and defense costs."),
+        _page(6, "editorial_page_hartford_faq_need_20260825", "Reviewed FAQ guidance identifies businesses providing services or advice as candidates for professional liability coverage."),
+        _page(6, "editorial_page_insureon_faq_consultants_20260825", "Reviewed FAQ guidance identifies consultants among businesses that should consider professional liability insurance."),
         _artifact(7, "method_1", "This draft uses section-scoped evidence contracts and preserves explicit evidence references and provenance."),
     ]
 
@@ -130,7 +133,12 @@ def test_all_seven_sections_are_linked_without_cross_section_leakage():
         if index == 7:
             assert all(editorial_by_id[ref]["provenance"]["verification"] == "artifact_reviewed" for ref in section["evidence_refs"])
 
-    assert draft["sections"][5]["evidence_refs"] == ["faq_1"]
+    assert draft["sections"][5]["evidence_refs"] == [
+        "editorial_page_hartford_faq_workflow_20260825",
+        "editorial_page_hartford_faq_coverage_20260825",
+        "editorial_page_hartford_faq_need_20260825",
+        "editorial_page_insureon_faq_consultants_20260825",
+    ]
     assert "Reviewed FAQ guidance" in draft["sections"][5]["body"]
     assert len(claim_ids) == len(set(claim_ids))
     assert all(not any(other["purpose"] in section["body"] for other in draft["sections"] if other is not section) for section in draft["sections"])
