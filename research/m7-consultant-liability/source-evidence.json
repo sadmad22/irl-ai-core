@@ -1,71 +1,8 @@
 [
-  {
-    "evidence_id": "editorial_page_hiscox_20260824",
-    "section_index": 3,
-    "status": "ready",
-    "text": "Hiscox describes professional liability insurance for business consultants as protection against claims of negligence and judgment errors arising from professional services.",
-    "evidence_refs": ["editorial_page_hiscox_20260824"],
-    "source": {
-      "type": "web_page",
-      "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
-      "title": "Business Consultant Insurance Professional & General Liability | Hiscox",
-      "domain": "hiscox.com"
-    },
-    "provenance": {
-      "artifact": "source-evidence.json",
-      "method": "page-level-source-review-v1",
-      "verification": "page_reviewed",
-      "captured_at": "2026-08-24"
-    },
-    "domain": "editorial",
-    "claim": {"type": "editorial_page_finding", "attribute": "professional_liability_coverage"},
-    "value": {"type": "text", "data": "Professional liability insurance can address consultant negligence and judgment-error claims."},
-    "subject": {"type": "source", "id": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance"}
-  },
-  {
-    "evidence_id": "editorial_page_hartford_20260824",
-    "section_index": 3,
-    "status": "ready",
-    "text": "The Hartford explains that consultant professional liability insurance can help cover legal fees and defense costs and can also help pay covered settlements and judgments.",
-    "evidence_refs": ["editorial_page_hartford_20260824"],
-    "source": {
-      "type": "web_page",
-      "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
-      "title": "Professional Liability Insurance for Consultants | The Hartford",
-      "domain": "thehartford.com"
-    },
-    "provenance": {
-      "artifact": "source-evidence.json",
-      "method": "page-level-source-review-v1",
-      "verification": "page_reviewed",
-      "captured_at": "2026-08-24"
-    },
-    "domain": "editorial",
-    "claim": {"type": "editorial_page_finding", "attribute": "defense_and_settlement_costs"},
-    "value": {"type": "text", "data": "Consultant professional liability insurance may help with legal defense costs, settlements, and judgments for covered claims."},
-    "subject": {"type": "source", "id": "https://www.thehartford.com/professional-liability-insurance/consultants"}
-  },
-  {
-    "evidence_id": "editorial_page_cornell_20260824",
-    "section_index": 3,
-    "status": "ready",
-    "text": "Cornell's risk guidance says professional liability coverage for consultants can address claims involving negligence, personal injury such as libel and slander, work completed in the past, and employees or independent contractors.",
-    "evidence_refs": ["editorial_page_cornell_20260824"],
-    "source": {
-      "type": "web_page",
-      "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
-      "title": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
-      "domain": "risk.cornell.edu"
-    },
-    "provenance": {
-      "artifact": "source-evidence.json",
-      "method": "page-level-source-review-v1",
-      "verification": "page_reviewed",
-      "captured_at": "2026-08-24"
-    },
-    "domain": "editorial",
-    "claim": {"type": "editorial_page_finding", "attribute": "covered_claim_categories"},
-    "value": {"type": "text", "data": "Cornell identifies negligence, libel and slander, past-completed work, and personnel or independent-contractor claims as examples of professional liability coverage."},
-    "subject": {"type": "source", "id": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/"}
-  }
+  {"evidence_id":"editorial_page_hiscox_20260824","section_index":3,"status":"ready","text":"Hiscox describes professional liability insurance for business consultants as protection against claims of negligence and judgment errors arising from professional services.","evidence_refs":["editorial_page_hiscox_20260824"],"source":{"type":"web_page","url":"https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance","title":"Business Consultant Insurance Professional & General Liability | Hiscox","domain":"hiscox.com"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-24"},"domain":"editorial"},
+  {"evidence_id":"editorial_page_hartford_20260824","section_index":3,"status":"ready","text":"The Hartford explains that consultant professional liability insurance can help cover legal fees and defense costs and can also help pay covered settlements and judgments.","evidence_refs":["editorial_page_hartford_20260824"],"source":{"type":"web_page","url":"https://www.thehartford.com/professional-liability-insurance/consultants","title":"Professional Liability Insurance for Consultants | The Hartford","domain":"thehartford.com"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-24"},"domain":"editorial"},
+  {"evidence_id":"editorial_page_cornell_20260824","section_index":3,"status":"ready","text":"Cornell's risk guidance says professional liability coverage for consultants can address claims involving negligence, personal injury such as libel and slander, work completed in the past, and employees or independent contractors.","evidence_refs":["editorial_page_cornell_20260824"],"source":{"type":"web_page","url":"https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/","title":"Independent Consultant/Non-Specialist Professional Services Providers | Cornell","domain":"risk.cornell.edu"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-24"},"domain":"editorial"},
+  {"evidence_id":"editorial_page_hartford_faq_20260825","section_index":2,"status":"ready","text":"The Hartford explains that professional liability insurance can help protect a business when a client claims that a mistake in professional services caused a financial loss. It identifies negligence, misrepresentation, and inaccurate advice as examples of claims.","evidence_refs":["editorial_page_hartford_faq_20260825"],"source":{"type":"web_page","url":"https://www.thehartford.com/professional-liability-insurance/faq","title":"Professional Liability Insurance FAQs | The Hartford","domain":"thehartford.com"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-25"},"domain":"editorial"},
+  {"evidence_id":"editorial_page_hiscox_basics_20260825","section_index":2,"status":"ready","text":"Hiscox describes professional liability insurance, also called errors and omissions insurance, as protection for businesses sued over negligent performance of professional services and recommends it for businesses that provide professional services or regularly give advice to clients.","evidence_refs":["editorial_page_hiscox_basics_20260825"],"source":{"type":"web_page","url":"https://www.hiscox.com/small-business-insurance/choose-insurance-product","title":"Help Me Choose an Insurance Product | Hiscox","domain":"hiscox.com"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-25"},"domain":"editorial"},
+  {"evidence_id":"editorial_page_hartford_consultants_20260825","section_index":2,"status":"ready","text":"The Hartford says consultants who provide services directly to customers should consider professional liability insurance and describes common consultant claims involving errors, omissions, negligence, misrepresentation, and inaccurate advice.","evidence_refs":["editorial_page_hartford_consultants_20260825"],"source":{"type":"web_page","url":"https://www.thehartford.com/professional-liability-insurance/consultants","title":"Professional Liability Insurance for Consultants | The Hartford","domain":"thehartford.com"},"provenance":{"artifact":"source-evidence.json","method":"page-level-source-review-v1","verification":"page_reviewed","captured_at":"2026-08-25"},"domain":"editorial"}
 ]
