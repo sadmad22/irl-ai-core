@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from agents.research.article_draft import build_article_draft
+from agents.research.article_draft_agent import _apply_faq_editorial_evidence
 
 
 HEADINGS = [
@@ -72,12 +73,15 @@ def _source_evidence():
     ]
 
 
+def _draft_with_faq_overlay():
+    source = _source_evidence()
+    draft = build_article_draft(content_brief=_brief(), evidence_records=_core_records(), source_evidence=source)
+    _apply_faq_editorial_evidence(draft, source)
+    return draft
+
+
 def test_introduction_and_methodology_have_editorial_value():
-    draft = build_article_draft(
-        content_brief=_brief(),
-        evidence_records=_core_records(),
-        source_evidence=_source_evidence(),
-    )
+    draft = _draft_with_faq_overlay()
     intro = draft["sections"][0]
     methodology = draft["sections"][6]
 
@@ -100,11 +104,7 @@ def test_introduction_and_methodology_have_editorial_value():
 
 
 def test_all_seven_sections_are_linked_without_cross_section_leakage():
-    draft = build_article_draft(
-        content_brief=_brief(),
-        evidence_records=_core_records(),
-        source_evidence=_source_evidence(),
-    )
+    draft = _draft_with_faq_overlay()
 
     assert [section["heading"] for section in draft["sections"]] == HEADINGS
     assert len(draft["sections"]) == 7
@@ -130,12 +130,14 @@ def test_all_seven_sections_are_linked_without_cross_section_leakage():
         if index == 7:
             assert all(editorial_by_id[ref]["provenance"]["verification"] == "artifact_reviewed" for ref in section["evidence_refs"])
 
+    assert draft["sections"][5]["evidence_refs"] == ["faq_1"]
+    assert "Reviewed FAQ guidance" in draft["sections"][5]["body"]
     assert len(claim_ids) == len(set(claim_ids))
     assert all(not any(other["purpose"] in section["body"] for other in draft["sections"] if other is not section) for section in draft["sections"])
 
 
 def test_editorial_evidence_is_deterministic():
-    first = build_article_draft(content_brief=_brief(), evidence_records=_core_records(), source_evidence=_source_evidence())
-    second = build_article_draft(content_brief=_brief(), evidence_records=_core_records(), source_evidence=_source_evidence())
+    first = _draft_with_faq_overlay()
+    second = _draft_with_faq_overlay()
     assert first == second
     assert first["draft_id"] == second["draft_id"]
