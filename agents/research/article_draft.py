@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v8"
+METHOD_VERSION = "v9"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -59,6 +59,30 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
     return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
 
+def _section_evidence_contract(*, heading: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    """Declare what evidence the section needs without inventing missing facts."""
+    key = heading.strip().lower()
+    contracts = {
+        "introduction": {"required_types": ["definition", "scope", "audience_relevance"], "page_level_preferred": True},
+        "what you need to know": {"required_types": ["basic_fact", "coverage_purpose", "risk_type", "who_needs_it"], "page_level_preferred": True},
+        "coverage and key factors": {"required_types": ["coverage_finding", "risk_type"], "page_level_preferred": True},
+        "costs and pricing factors": {"required_types": ["premium_observation", "pricing_range", "pricing_factor"], "page_level_preferred": True},
+        "how to compare options": {"required_types": ["comparison_criterion", "criterion_definition", "decision_factor"], "page_level_preferred": True},
+        "frequently asked questions": {"required_types": ["question", "factual_answer"], "page_level_preferred": True},
+        "sources and editorial methodology": {"required_types": ["provenance", "verification_method", "source_lineage"], "page_level_preferred": False},
+    }
+    contract = contracts.get(key, {"required_types": ["source_fact"], "page_level_preferred": True})
+    page_reviewed = [str(item.get("evidence_id")) for item in editorial_evidence if str(item.get("provenance", {}).get("verification", "")) == "page_reviewed"]
+    return {
+        "required_types": contract["required_types"],
+        "page_level_preferred": contract["page_level_preferred"],
+        "available_evidence_refs": [str(record.get("evidence_id")) for record in evidence_records if record.get("evidence_id")],
+        "available_page_reviewed_refs": page_reviewed,
+        "status": "supported" if editorial_evidence or evidence_records else "insufficient",
+        "fail_safe": "Do not synthesize unsupported factual prose; require source-specific evidence for claims.",
+    }
+
+
 def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, source_evidence: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     """Prefer reviewed page evidence; fall back to conservative SERP snippets."""
     reviewed = [item for item in (source_evidence or []) if isinstance(item, dict) and item.get("evidence_id") and item.get("text") and str(item.get("provenance", {}).get("verification", "")) == "page_reviewed"]
@@ -78,19 +102,7 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
             continue
         seen_urls.add(url)
         evidence_id = "editorial_serp_" + hashlib.sha256(f"{url}\n{snippet}".encode("utf-8")).hexdigest()[:16]
-        candidates.append({
-            "evidence_id": evidence_id,
-            "section_index": 3,
-            "status": "candidate",
-            "text": snippet,
-            "evidence_refs": [evidence_id],
-            "source": {"type": "serp_result", "url": url, "title": str(result.get("title", "")).strip(), "domain": str(result.get("domain", "")).strip()},
-            "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
-            "domain": "editorial",
-            "claim": {"type": "editorial_snippet", "attribute": "coverage_finding"},
-            "value": {"type": "text", "data": snippet},
-            "subject": {"type": "source", "id": url},
-        })
+        candidates.append({"evidence_id": evidence_id, "section_index": 3, "status": "candidate", "text": snippet, "evidence_refs": [evidence_id], "source": {"type": "serp_result", "url": url, "title": str(result.get("title", "")).strip(), "domain": str(result.get("domain", "")).strip()}, "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"}, "domain": "editorial", "claim": {"type": "editorial_snippet", "attribute": "coverage_finding"}, "value": {"type": "text", "data": snippet}, "subject": {"type": "source", "id": url}})
         if len(candidates) >= 4:
             break
     return candidates
@@ -180,6 +192,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results, source_evidence=source_evidence)
     editorial_evidence: list[dict[str, Any]] = []
     sections = []
+    section_evidence_contracts: list[dict[str, Any]] = []
     for index, (item, refs_for_section) in enumerate(zip(outline, section_refs), 1):
         heading = str(item["heading"]).strip()
         section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
@@ -189,6 +202,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
             refs_for_section = [item["evidence_id"] for item in section_editorial]
         body = _section_body(heading=heading, keyword=keyword, evidence_records=section_editorial or section_records, editorial_evidence=section_editorial)
         sections.append({"heading": heading, "purpose": str(item["purpose"]).strip(), "body": body, "evidence_refs": refs_for_section})
+        section_evidence_contracts.append({"section_index": index, "heading": heading, **_section_evidence_contract(heading=heading, evidence_records=section_records, editorial_evidence=section_editorial)})
 
     all_grounding_records = list(grounded_records.values()) + coverage_editorial_evidence
     claims_by_section = ground_claims_by_section(sections=sections, evidence_records=all_grounding_records, per_claim=1, require_match=True)
@@ -198,5 +212,5 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         else:
             section["claims"] = claims
 
-    payload = {"title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword, "sections": sections, "evidence_refs": normalized_refs, "editorial_evidence": editorial_evidence, "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip()))}
+    payload = {"title": _title(content_brief), "content_type": content_type, "primary_keyword": keyword, "sections": sections, "evidence_refs": normalized_refs, "editorial_evidence": editorial_evidence, "section_evidence_contracts": section_evidence_contracts, "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip()))}
     return {"draft_id": _draft_id(content_brief, payload), "brief_id": brief_id, "report_id": report_id, "decision_id": decision_id, "strategy_id": strategy_id, "schema_version": SCHEMA_VERSION, "lifecycle_stage": "draft_ready", **payload, "audit": {"method": "content_brief_to_section_and_claim_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"}}
