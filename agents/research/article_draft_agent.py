@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,81 @@ def _load_source_evidence(project: str) -> list[dict[str, Any]]:
     return [data] if isinstance(data, dict) and data.get("evidence_id") else []
 
 
+def _faq_editorial_evidence(source_evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    questions = {
+        "editorial_page_hartford_faq_workflow_20260825": "How does professional liability insurance work?",
+        "editorial_page_hartford_faq_coverage_20260825": "What does professional liability insurance cover?",
+        "editorial_page_hartford_faq_need_20260825": "Who needs professional liability insurance?",
+        "editorial_page_insureon_faq_consultants_20260825": "Do consultants need professional liability insurance?",
+    }
+    selected: list[dict[str, Any]] = []
+    for item in source_evidence:
+        evidence_id = str(item.get("evidence_id", "")).strip()
+        if int(item.get("section_index", 0) or 0) != 6 or evidence_id not in questions:
+            continue
+        if str(item.get("provenance", {}).get("verification", "")) != "page_reviewed":
+            continue
+        text = str(item.get("text", "")).strip()
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        url = str(source.get("url", "")).strip()
+        if not text or not url:
+            continue
+        record = dict(item)
+        record["status"] = "ready"
+        selected.append(record)
+    return sorted(selected, key=lambda item: (list(questions).index(str(item["evidence_id"])), str(item["evidence_id"])))
+
+
+def _apply_faq_editorial_evidence(draft: dict[str, Any], source_evidence: list[dict[str, Any]]) -> None:
+    faq_evidence = _faq_editorial_evidence(source_evidence)
+    if not faq_evidence:
+        return
+
+    faq_section = next(
+        (section for section in draft.get("sections", []) if str(section.get("heading", "")).strip().lower() == "frequently asked questions"),
+        None,
+    )
+    if faq_section is None:
+        return
+
+    paragraphs = [
+        f"{questions}: {item['text']}"
+        for item, questions in [
+            (item, {"editorial_page_hartford_faq_workflow_20260825": "How does professional liability insurance work?", "editorial_page_hartford_faq_coverage_20260825": "What does professional liability insurance cover?", "editorial_page_hartford_faq_need_20260825": "Who needs professional liability insurance?", "editorial_page_insureon_faq_consultants_20260825": "Do consultants need professional liability insurance?"}[item["evidence_id"]])
+            for item in faq_evidence
+        ]
+    ]
+    faq_section["body"] = "\n\n".join(paragraphs)
+    faq_section["evidence_refs"] = [str(item["evidence_id"]) for item in faq_evidence]
+    faq_section["claims"] = []
+    for item in faq_evidence:
+        text = str(item["text"]).strip()
+        digest = hashlib.sha256(f"6:{item['evidence_id']}:{text}".encode("utf-8")).hexdigest()[:12]
+        faq_section["claims"].append({
+            "claim_id": f"claim_6_{digest}",
+            "text": text,
+            "evidence_refs": [str(item["evidence_id"])],
+            "grounding_status": "grounded",
+        })
+
+    editorial = draft.setdefault("editorial_evidence", [])
+    existing = {str(item.get("evidence_id", "")) for item in editorial if isinstance(item, dict)}
+    for item in faq_evidence:
+        if item["evidence_id"] not in existing:
+            editorial.append(item)
+
+    draft["evidence_refs"] = list(dict.fromkeys(
+        [str(ref) for ref in draft.get("evidence_refs", []) if str(ref).strip()]
+        + [str(item["evidence_id"]) for item in faq_evidence]
+    ))
+    contracts = draft.get("section_evidence_contracts", [])
+    for contract in contracts:
+        if int(contract.get("section_index", 0) or 0) == 6:
+            contract["status"] = "ready"
+            contract["evidence_refs"] = [str(item["evidence_id"]) for item in faq_evidence]
+            break
+
+
 def _save_if_changed(project: str, filename: str, data: dict[str, Any]) -> None:
     path = Path("research") / project / filename
     current = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
@@ -76,6 +152,7 @@ def run(project_name: str) -> dict[str, Any]:
         serp_results=serp_results,
         source_evidence=source_evidence,
     )
+    _apply_faq_editorial_evidence(draft, source_evidence)
     _save_if_changed(project_name, "article-draft.json", draft)
 
     metadata_path = Path("research") / project_name / "metadata.json"
