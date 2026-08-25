@@ -88,6 +88,57 @@ def _coverage_claims(editorial_evidence: list[dict[str, Any]]) -> list[dict[str,
     return claims
 
 
+def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Normalize reviewed page evidence and SERP snippets into Coverage evidence.
+
+    Page-reviewed evidence is preferred. SERP snippets remain a fail-safe fallback
+    and are marked snippet_only; they are still subject to fragment filtering.
+    """
+    normalized: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in source_evidence or []:
+        if not isinstance(item, dict):
+            continue
+        evidence_id = str(item.get("evidence_id", "")).strip()
+        text = str(item.get("text", "")).strip()
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        url = str(source.get("url", "")).strip()
+        if not evidence_id or not text or not url or evidence_id in seen:
+            continue
+        record = dict(item)
+        record.setdefault("status", "ready")
+        provenance = dict(record.get("provenance") or {})
+        provenance.setdefault("verification", "page_reviewed")
+        record["provenance"] = provenance
+        normalized.append(record)
+        seen.add(evidence_id)
+
+    for item in serp_results or []:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("snippet") or item.get("description") or item.get("text") or "").strip()
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        url = str(item.get("url") or source.get("url") or "").strip()
+        if not text or not url:
+            continue
+        digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
+        evidence_id = f"editorial_serp_{digest}"
+        if evidence_id in seen:
+            continue
+        normalized.append({
+            "evidence_id": evidence_id,
+            "section_index": 3,
+            "status": "candidate",
+            "text": text,
+            "evidence_refs": [evidence_id],
+            "source": {"type": "web_page", "url": url, "title": str(item.get("title") or source.get("title") or "").strip()},
+            "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
+            "domain": "editorial",
+        })
+        seen.add(evidence_id)
+    return normalized
+
+
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
     if heading.strip().lower() == "coverage and key factors": return _coverage_body(editorial_evidence or [])
     if not evidence_records: return ""
