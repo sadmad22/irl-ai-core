@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v8"
+METHOD_VERSION = "v9"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -31,14 +31,18 @@ def _evidence_text(record: dict[str, Any]) -> str:
     attribute = str(claim.get("attribute") or claim.get("type") or "observation").replace("_", " ")
     data = value.get("data")
     subject_id = str(subject.get("id") or "the research set")
-    if isinstance(data, bool): observation = "is supported" if data else "is not supported"
-    elif data is None: observation = "has been observed"
-    else: observation = f"has a recorded value of {data}"
+    if isinstance(data, bool):
+        observation = "is supported" if data else "is not supported"
+    elif data is None:
+        observation = "has been observed"
+    else:
+        observation = f"has a recorded value of {data}"
     return f"The research evidence records {attribute} for {subject_id}: {observation}."
 
 
 def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
-    if not evidence_records: return ""
+    if not evidence_records:
+        return ""
     record = evidence_records[0]
     claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
     value = record.get("value") if isinstance(record.get("value"), dict) else {}
@@ -46,9 +50,12 @@ def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) 
     attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
     data = value.get("data")
     subject_id = str(subject.get("id") or "the research set").strip()
-    if isinstance(data, bool): observation = "is supported" if data else "is not supported"
-    elif data is None: observation = "has been recorded"
-    else: observation = f"is recorded as {data}"
+    if isinstance(data, bool):
+        observation = "is supported" if data else "is not supported"
+    elif data is None:
+        observation = "has been recorded"
+    else:
+        observation = f"is recorded as {data}"
     return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
 
@@ -63,7 +70,8 @@ def _clean_coverage_snippet(text: str) -> str:
 
 def _coverage_sentences(item: dict[str, Any]) -> list[str]:
     cleaned = _clean_coverage_snippet(str(item.get("text", "")))
-    if not cleaned: return []
+    if not cleaned:
+        return []
     parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", cleaned) if part.strip()]
     blocked_tail = re.compile(r"(?:\b(?:and|or|to|with|for|of|in|from|the|a|an|as|that|which|employees|independent)\s*)$", re.I)
     return [part for part in parts if len(part) >= 30 and not re.search(r"\b(?:median price|per year|annual price|premium|costs?\b|quote)\b", part, flags=re.I) and not blocked_tail.search(part)]
@@ -164,11 +172,15 @@ def _cost_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) ->
     return _page_editorial_evidence(section_index=4, source_evidence=source_evidence)
 
 
+def _comparison_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    return _page_editorial_evidence(section_index=5, source_evidence=source_evidence)
+
+
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
     normalized_heading = heading.strip().lower()
     if normalized_heading == "coverage and key factors":
         return _coverage_body(editorial_evidence or [])
-    if normalized_heading in {"what you need to know", "costs and pricing factors"}:
+    if normalized_heading in {"what you need to know", "costs and pricing factors", "how to compare options"}:
         return _page_editorial_body(editorial_evidence or [])
     if not evidence_records:
         return ""
@@ -208,6 +220,7 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     coverage_editorial_evidence = _coverage_editorial_evidence(serp_results=serp_results, source_evidence=source_evidence)
     section2_editorial_evidence = _page_editorial_evidence(section_index=2, source_evidence=source_evidence)
     cost_editorial_evidence = _cost_editorial_evidence(source_evidence=source_evidence)
+    comparison_editorial_evidence = _comparison_editorial_evidence(source_evidence=source_evidence)
     editorial_evidence: list[dict[str, Any]] = []
     sections = []
     section_evidence_contracts: list[dict[str, Any]] = []
@@ -221,6 +234,8 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
             section_editorial = section2_editorial_evidence
         elif index == 4 and heading.lower() == "costs and pricing factors":
             section_editorial = cost_editorial_evidence
+        elif index == 5 and heading.lower() == "how to compare options":
+            section_editorial = comparison_editorial_evidence
         else:
             section_editorial = []
         if section_editorial:
@@ -230,13 +245,18 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         sections.append({"heading": heading, "purpose": str(item["purpose"]).strip(), "body": body, "evidence_refs": refs_for_section})
         section_evidence_contracts.append({"section_index": index, "heading": heading, "status": "ready" if section_editorial else "insufficient", "evidence_refs": [record["evidence_id"] for record in section_editorial] if section_editorial else refs_for_section})
 
-    all_grounding_records = list(grounded_records.values()) + coverage_editorial_evidence + section2_editorial_evidence + cost_editorial_evidence
+    all_grounding_records = list(grounded_records.values()) + coverage_editorial_evidence + section2_editorial_evidence + cost_editorial_evidence + comparison_editorial_evidence
     claims_by_section = ground_claims_by_section(sections=sections, evidence_records=all_grounding_records, per_claim=1, require_match=True)
     for index, (section, claims) in enumerate(zip(sections, claims_by_section), 1):
         if section["heading"].lower() == "coverage and key factors":
             section["claims"] = _coverage_claims(coverage_editorial_evidence)
-        elif section["heading"].lower() in {"what you need to know", "costs and pricing factors"}:
-            editorial = section2_editorial_evidence if index == 2 else cost_editorial_evidence
+        elif section["heading"].lower() in {"what you need to know", "costs and pricing factors", "how to compare options"}:
+            if index == 2:
+                editorial = section2_editorial_evidence
+            elif index == 4:
+                editorial = cost_editorial_evidence
+            else:
+                editorial = comparison_editorial_evidence
             section["claims"] = _page_editorial_claims(section_index=index, editorial_evidence=editorial)
         else:
             section["claims"] = claims
