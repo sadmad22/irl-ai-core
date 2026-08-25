@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v11"
+METHOD_VERSION = "v12"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -97,23 +97,48 @@ def _coverage_claims(editorial_evidence: list[dict[str, Any]]) -> list[dict[str,
     return claims
 
 
+def _normalize_editorial_evidence(*, item: dict[str, Any], status: str) -> dict[str, Any] | None:
+    evidence_id = str(item.get("evidence_id", "")).strip()
+    section_index = int(item.get("section_index", 0) or 0)
+    text = str(item.get("text", "")).strip()
+    source = item.get("source") if isinstance(item.get("source"), dict) else {}
+    provenance = item.get("provenance") if isinstance(item.get("provenance"), dict) else {}
+    url = str(source.get("url", "")).strip()
+    verification = str(provenance.get("verification", "")).strip()
+    if not evidence_id or section_index < 1 or not text or not url or not verification:
+        return None
+    return {
+        "evidence_id": evidence_id,
+        "section_index": section_index,
+        "status": status,
+        "text": text,
+        "source": {
+            "type": str(source.get("type", "web_page")),
+            "url": url,
+            "title": str(source.get("title", "")).strip(),
+            "domain": str(source.get("domain") or item.get("domain") or "").strip(),
+        },
+        "provenance": {
+            "artifact": str(provenance.get("artifact", "")).strip(),
+            "method": str(provenance.get("method", "")).strip(),
+            "verification": verification,
+        },
+    }
+
+
 def _page_editorial_evidence(*, section_index: int, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     normalized: list[dict[str, Any]] = []
     seen: set[str] = set()
     for item in source_evidence or []:
         if not isinstance(item, dict) or int(item.get("section_index", 0) or 0) != section_index:
             continue
-        evidence_id = str(item.get("evidence_id", "")).strip()
-        text = str(item.get("text", "")).strip()
-        source = item.get("source") if isinstance(item.get("source"), dict) else {}
-        url = str(source.get("url", "")).strip()
         provenance = item.get("provenance") if isinstance(item.get("provenance"), dict) else {}
-        if not evidence_id or not text or not url or evidence_id in seen or provenance.get("verification") != "page_reviewed":
+        if provenance.get("verification") != "page_reviewed":
             continue
-        record = dict(item)
-        record["status"] = "ready"
-        normalized.append(record)
-        seen.add(evidence_id)
+        record = _normalize_editorial_evidence(item=item, status="ready")
+        if record and record["evidence_id"] not in seen:
+            normalized.append(record)
+            seen.add(record["evidence_id"])
     return normalized
 
 
@@ -123,17 +148,13 @@ def _artifact_editorial_evidence(*, section_index: int, source_evidence: list[di
     for item in source_evidence or []:
         if not isinstance(item, dict) or int(item.get("section_index", 0) or 0) != section_index:
             continue
-        evidence_id = str(item.get("evidence_id", "")).strip()
-        text = str(item.get("text", "")).strip()
-        source = item.get("source") if isinstance(item.get("source"), dict) else {}
-        url = str(source.get("url", "")).strip()
         provenance = item.get("provenance") if isinstance(item.get("provenance"), dict) else {}
-        if not evidence_id or not text or not url or evidence_id in seen or provenance.get("verification") != "artifact_reviewed":
+        if provenance.get("verification") != "artifact_reviewed":
             continue
-        record = dict(item)
-        record["status"] = "ready"
-        normalized.append(record)
-        seen.add(evidence_id)
+        record = _normalize_editorial_evidence(item=item, status="ready")
+        if record and record["evidence_id"] not in seen:
+            normalized.append(record)
+            seen.add(record["evidence_id"])
     return normalized
 
 
@@ -153,26 +174,20 @@ def _page_editorial_claims(*, section_index: int, editorial_evidence: list[dict[
 
 
 def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    normalized: list[dict[str, Any]] = []
+    page_records: list[dict[str, Any]] = []
     seen: set[str] = set()
     for item in source_evidence or []:
         if not isinstance(item, dict) or int(item.get("section_index", 0) or 0) != 3:
             continue
-        evidence_id = str(item.get("evidence_id", "")).strip()
-        text = str(item.get("text", "")).strip()
-        source = item.get("source") if isinstance(item.get("source"), dict) else {}
-        url = str(source.get("url", "")).strip()
-        if not evidence_id or not text or not url or evidence_id in seen:
+        provenance = item.get("provenance") if isinstance(item.get("provenance"), dict) else {}
+        if provenance.get("verification") != "page_reviewed":
             continue
-        record = dict(item)
-        record.setdefault("status", "ready")
-        provenance = dict(record.get("provenance") or {})
-        provenance.setdefault("verification", "page_reviewed")
-        record["provenance"] = provenance
-        normalized.append(record)
-        seen.add(evidence_id)
-    if normalized and any(str(item.get("provenance", {}).get("verification", "")) == "page_reviewed" for item in normalized):
-        return [item for item in normalized if str(item.get("provenance", {}).get("verification", "")) == "page_reviewed"]
+        record = _normalize_editorial_evidence(item=item, status="ready")
+        if record and record["evidence_id"] not in seen:
+            page_records.append(record)
+            seen.add(record["evidence_id"])
+    if page_records:
+        return page_records
     for item in serp_results or []:
         if not isinstance(item, dict):
             continue
@@ -185,7 +200,16 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
         evidence_id = f"editorial_serp_{digest}"
         if evidence_id in seen:
             continue
-        normalized.append({"evidence_id": evidence_id, "section_index": 3, "status": "candidate", "text": text, "evidence_refs": [evidence_id], "source": {"type": "web_page", "url": url, "title": str(item.get("title") or source.get("title") or "").strip()}, "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"}, "domain": "editorial"})
+        normalized = {
+            "evidence_id": evidence_id,
+            "section_index": 3,
+            "status": "candidate",
+            "text": text,
+            "source": {"type": "web_page", "url": url, "title": str(item.get("title") or source.get("title") or "").strip(), "domain": str(item.get("domain") or source.get("domain") or "").strip()},
+            "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
+        }
+        normalized["source"]["domain"] = normalized["source"]["domain"] or re.sub(r"^www\.", "", re.sub(r"^https?://", "", url).split("/", 1)[0])
+        normalized.append(normalized)
         seen.add(evidence_id)
     return normalized
 
