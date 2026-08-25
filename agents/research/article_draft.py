@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v10"
+METHOD_VERSION = "v11"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -171,6 +171,8 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
         record["provenance"] = provenance
         normalized.append(record)
         seen.add(evidence_id)
+    if normalized and any(str(item.get("provenance", {}).get("verification", "")) == "page_reviewed" for item in normalized):
+        return [item for item in normalized if str(item.get("provenance", {}).get("verification", "")) == "page_reviewed"]
     for item in serp_results or []:
         if not isinstance(item, dict):
             continue
