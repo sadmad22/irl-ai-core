@@ -117,6 +117,26 @@ def _page_editorial_evidence(*, section_index: int, source_evidence: list[dict[s
     return normalized
 
 
+def _artifact_editorial_evidence(*, section_index: int, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in source_evidence or []:
+        if not isinstance(item, dict) or int(item.get("section_index", 0) or 0) != section_index:
+            continue
+        evidence_id = str(item.get("evidence_id", "")).strip()
+        text = str(item.get("text", "")).strip()
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        url = str(source.get("url", "")).strip()
+        provenance = item.get("provenance") if isinstance(item.get("provenance"), dict) else {}
+        if not evidence_id or not text or not url or evidence_id in seen or provenance.get("verification") != "artifact_reviewed":
+            continue
+        record = dict(item)
+        record["status"] = "ready"
+        normalized.append(record)
+        seen.add(evidence_id)
+    return normalized
+
+
 def _page_editorial_body(editorial_evidence: list[dict[str, Any]]) -> str:
     return "\n\n".join(str(item.get("text", "")).strip() for item in editorial_evidence if str(item.get("text", "")).strip())
 
@@ -168,24 +188,20 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
     return normalized
 
 
-def _section_page_editorial_evidence(*, section_index: int, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    return _page_editorial_evidence(section_index=section_index, source_evidence=source_evidence)
-
-
 def _cost_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    return _section_page_editorial_evidence(section_index=4, source_evidence=source_evidence)
+    return _page_editorial_evidence(section_index=4, source_evidence=source_evidence)
 
 
 def _comparison_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    return _section_page_editorial_evidence(section_index=5, source_evidence=source_evidence)
+    return _page_editorial_evidence(section_index=5, source_evidence=source_evidence)
 
 
 def _introduction_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    return _section_page_editorial_evidence(section_index=1, source_evidence=source_evidence)
+    return _page_editorial_evidence(section_index=1, source_evidence=source_evidence)
 
 
 def _methodology_editorial_evidence(*, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    return _section_page_editorial_evidence(section_index=7, source_evidence=source_evidence)
+    return _artifact_editorial_evidence(section_index=7, source_evidence=source_evidence)
 
 
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
@@ -245,10 +261,10 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         normalized_heading = heading.lower()
         if index == 1 and normalized_heading == "introduction":
             section_editorial = introduction_editorial_evidence
-        elif index == 3 and normalized_heading == "coverage and key factors":
-            section_editorial = coverage_editorial_evidence
         elif index == 2 and normalized_heading == "what you need to know":
             section_editorial = section2_editorial_evidence
+        elif index == 3 and normalized_heading == "coverage and key factors":
+            section_editorial = coverage_editorial_evidence
         elif index == 4 and normalized_heading == "costs and pricing factors":
             section_editorial = cost_editorial_evidence
         elif index == 5 and normalized_heading == "how to compare options":
