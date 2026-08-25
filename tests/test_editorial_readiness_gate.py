@@ -25,8 +25,17 @@ def _draft():
             "section_index": index,
             "status": "ready",
             "text": f"Grounded evidence for {heading}.",
-            "source": {"type": "artifact" if index == 7 else "web_page", "url": f"https://example.com/{index}"},
-            "provenance": {"verification": verification},
+            "source": {
+                "type": "artifact" if index == 7 else "web_page",
+                "url": f"https://example.com/{index}",
+                "title": f"Reviewed source for {heading}",
+                "domain": "example.com",
+            },
+            "provenance": {
+                "artifact": "article-draft-pipeline" if index == 7 else "source-evidence.json",
+                "method": "article-draft-evidence-contract-v1" if index == 7 else "page-level-source-review-v1",
+                "verification": verification,
+            },
         })
         sections.append({
             "heading": heading,
@@ -59,6 +68,11 @@ def _draft():
             for i in range(1, 8)
         ],
         "editorial_constraints": [],
+        "audit": {
+            "method": "content_brief_to_section_and_claim_grounded_article_draft",
+            "version": "v9",
+            "validation_status": "pending",
+        },
     }
 
 
