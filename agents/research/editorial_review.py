@@ -14,11 +14,7 @@ def _review_id(draft_id: str, payload: dict[str, Any]) -> str:
 
 
 def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
-    """Run deterministic structural/editorial gates over an Article Draft.
-
-    This v1 engine is a quality gate, not a writer, evidence generator, or
-    publisher. It evaluates only invariants represented by the Article Draft.
-    """
+    """Run deterministic structural/editorial gates over an Article Draft."""
     ids = {
         k: str(article_draft.get(k, "")).strip()
         for k in ("draft_id", "brief_id", "report_id", "decision_id", "strategy_id")
@@ -42,11 +38,22 @@ def build_editorial_review(*, article_draft: dict[str, Any]) -> dict[str, Any]:
     evidence_ok = isinstance(refs, list) and bool(refs) and len(refs) == len(set(str(r) for r in refs))
 
     def _body_is_evidence_grounded(section: dict[str, Any]) -> bool:
-        body = str(section.get("body", ""))
-        return (
-            "requires editorial verification" in body
-            or "research evidence records" in body
-        )
+        body = str(section.get("body", "")).strip()
+        if "requires editorial verification" in body or "research evidence records" in body:
+            return True
+        claims = section.get("claims")
+        section_refs = {str(ref).strip() for ref in section.get("evidence_refs", []) if str(ref).strip()}
+        if not isinstance(claims, list) or not claims or not section_refs:
+            return False
+        for claim in claims:
+            if not isinstance(claim, dict):
+                return False
+            if str(claim.get("grounding_status", "")).strip() != "grounded":
+                return False
+            claim_refs = {str(ref).strip() for ref in claim.get("evidence_refs", []) if str(ref).strip()}
+            if not claim.get("text") or not claim_refs or not claim_refs.issubset(section_refs):
+                return False
+        return True
 
     unsupported_claims_ok = evidence_ok and structure_ok and all(
         _body_is_evidence_grounded(s) for s in sections if isinstance(s, dict)
