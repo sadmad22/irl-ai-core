@@ -1,0 +1,76 @@
+{
+    "keyword": "consultant professional liability insurance",
+    "country": "US",
+    "language": "en",
+    "competitors": [
+        {
+            "position": 1,
+            "domain": "www.hiscox.com",
+            "title": "Business Consultant Insurance Professional & General Liability | Hiscox",
+            "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance"
+        },
+        {
+            "position": 2,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance for Consultants | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/consultants"
+        },
+        {
+            "position": 3,
+            "domain": "www.risk.cornell.edu",
+            "title": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
+            "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/"
+        },
+        {
+            "position": 4,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance FAQs | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/faq"
+        },
+        {
+            "position": 5,
+            "domain": "www.insureon.com",
+            "title": "Professional Liability (Errors & Omissions) Insurance for Consultants | Insureon",
+            "url": "https://www.insureon.com/consulting-business-insurance/professional-liability"
+        }
+    ],
+    "domain_counts": {
+        "www.hiscox.com": 1,
+        "www.thehartford.com": 2,
+        "www.risk.cornell.edu": 1,
+        "www.insureon.com": 1
+    },
+    "average_position": 3.0,
+    "top_competitors": [
+        {
+            "position": 1,
+            "domain": "www.hiscox.com",
+            "title": "Business Consultant Insurance Professional & General Liability | Hiscox",
+            "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance"
+        },
+        {
+            "position": 2,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance for Consultants | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/consultants"
+        },
+        {
+            "position": 3,
+            "domain": "www.risk.cornell.edu",
+            "title": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
+            "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/"
+        },
+        {
+            "position": 4,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance FAQs | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/faq"
+        },
+        {
+            "position": 5,
+            "domain": "www.insureon.com",
+            "title": "Professional Liability (Errors & Omissions) Insurance for Consultants | Insureon",
+            "url": "https://www.insureon.com/consulting-business-insurance/professional-liability"
+        }
+    ]
+}

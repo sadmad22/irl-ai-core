@@ -1,0 +1,37 @@
+{
+    "evidence_id": "ev_serp_strategy_ad409d2a44c3792b",
+    "report_id": "rr_m7-consultant-liability",
+    "schema_version": "1.0",
+    "type": "derived",
+    "domain": "serp",
+    "subject": {
+        "type": "keyword",
+        "id": "consultant professional liability insurance"
+    },
+    "claim": {
+        "type": "serp_strategy_signal",
+        "attribute": "strategy_signal"
+    },
+    "value": {
+        "type": "categorical",
+        "data": "informational"
+    },
+    "source": {
+        "type": "derived",
+        "source_id": null,
+        "provider": null,
+        "retrieved_at": null
+    },
+    "provenance": {
+        "analyzer": "serp_strategy_signal",
+        "analyzer_version": "1.0",
+        "method": "rule_based"
+    },
+    "confidence": 0.854,
+    "relation": "supports",
+    "derived_from": [
+        "ev_intent_alignment_b80d94868d8444df"
+    ],
+    "captured_at": "2026-08-26T12:52:40Z",
+    "status": "active"
+}

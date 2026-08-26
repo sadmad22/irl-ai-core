@@ -1,0 +1,14 @@
+{
+    "authority_score": 0.74,
+    "topic_fit": 0.88,
+    "serp_domain_diversity": 0.6,
+    "serp_domain_count": 4,
+    "method": "authority-v1",
+    "keyword": "consultant professional liability insurance",
+    "competitor_domains": {
+        "www.hiscox.com": 1,
+        "www.thehartford.com": 2,
+        "www.risk.cornell.edu": 1,
+        "www.insureon.com": 1
+    }
+}

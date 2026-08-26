@@ -1,0 +1,410 @@
+[
+    {
+        "evidence_id": "ev_b68e2e74a3d8d68d7f0b6f28",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498503+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_d0ee01a51f13063e7d47c3d3",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498531+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f27f204e172f0bc28f509ce8",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 1.0
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498554+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_ad6b4817da573d3539e55967",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498574+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_7be8f8d28256603c97e78523",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498593+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_9e4fd2bf505c53588b7dca01",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.75
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498612+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_75c4849a49f1e0ec17c3ca9d",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498632+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_3c101e172deffec73fc173d2",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498649+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e08d48a1e6c8769e7f384c56",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.4667
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498676+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_11d67e0727eee22468ec7721",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.insureon.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498695+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_c4d36efbb9712e7962801f0a",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.insureon.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498711+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_4facf32aac256200c3945fd1",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.insureon.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.498729+00:00",
+        "status": "active"
+    }
+]

@@ -1,0 +1,70 @@
+[
+    {
+        "evidence_id": "ev_db081695cfad6d9d69e187b8",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "authority_score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.74
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.501751+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_259d00013793f1213fcd7cd7",
+        "report_id": "rr_m7-consultant-liability",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "topic_fit"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.88
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "m7-consultant-liability",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-26T12:52:40.501785+00:00",
+        "status": "active"
+    }
+]

@@ -1,0 +1,74 @@
+{
+    "keyword": "consultant professional liability insurance",
+    "country": "US",
+    "language": "en",
+    "dominant_intent": "Informational",
+    "dominant_confidence": 0.854,
+    "intent_distribution": {
+        "Informational": 0.854,
+        "Commercial": 0.146
+    },
+    "intent_counts": {
+        "Informational": 4,
+        "Commercial": 1
+    },
+    "mixed_intent": false,
+    "results": [
+        {
+            "position": 1,
+            "domain": "www.hiscox.com",
+            "title": "Business Consultant Insurance Professional & General Liability | Hiscox",
+            "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "query-aligned-title"
+            ]
+        },
+        {
+            "position": 2,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance for Consultants | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        },
+        {
+            "position": 3,
+            "domain": "www.risk.cornell.edu",
+            "title": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
+            "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
+            "intent": "Commercial",
+            "confidence": 0.6667,
+            "reasons": [
+                "providers"
+            ]
+        },
+        {
+            "position": 4,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance FAQs | The Hartford",
+            "url": "https://www.thehartford.com/professional-liability-insurance/faq",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "faq"
+            ]
+        },
+        {
+            "position": 5,
+            "domain": "www.insureon.com",
+            "title": "Professional Liability (Errors & Omissions) Insurance for Consultants | Insureon",
+            "url": "https://www.insureon.com/consulting-business-insurance/professional-liability",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "cost",
+                "coverage"
+            ]
+        }
+    ]
+}

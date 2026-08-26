@@ -1,0 +1,35 @@
+{
+    "entities": [
+        {
+            "entity_id": "www.hiscox.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 1.0,
+            "source_position": 1
+        },
+        {
+            "entity_id": "www.thehartford.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.75,
+            "source_position": 2
+        },
+        {
+            "entity_id": "www.risk.cornell.edu",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.4667,
+            "source_position": 3
+        },
+        {
+            "entity_id": "www.insureon.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6,
+            "source_position": 5
+        }
+    ],
+    "entity_count": 4,
+    "unique_domains": 4,
+    "method": "entity-v1"
+}
