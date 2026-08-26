@@ -1,5 +1,5 @@
 {
-    "draft_id": "draft_8c7db15603b4e470",
+    "draft_id": "draft_3684bbf5c7ab5a41",
     "brief_id": "brief_cdeb974c02e6d07e",
     "report_id": "rr_expat-health-insurance",
     "decision_id": "dec_f2ee50bddcd3057d",
@@ -13,37 +13,293 @@
         {
             "heading": "Introduction",
             "purpose": "Address the 'Introduction' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "This guide focuses on expat health insurance and its topic fit evidence for expat health insurance, where the finding is recorded as 0.9667.",
+            "evidence_refs": [
+                "ev_a55b2cd0b14d31d8f94c3634",
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_1_1_5568bd5c11f1",
+                    "text": "This guide focuses on expat health insurance and its topic fit evidence for expat health insurance, where the finding is recorded as 0.9667.",
+                    "evidence_refs": [
+                        "ev_a55b2cd0b14d31d8f94c3634"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "What You Need to Know",
             "purpose": "Address the 'What You Need to Know' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported.",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9",
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_2_1_c06d985be0f7",
+                    "text": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455.",
+                    "evidence_refs": [
+                        "ev_07fc4e7394d17a0f39bcc541"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_2_2_60d7016bc7f1",
+                    "text": "The research evidence records score for www.imglobal.com: has a recorded value of 0.95.",
+                    "evidence_refs": [
+                        "ev_13ef75e026eb0bd9b79113c1"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_2_3_0c626d355e5a",
+                    "text": "The research evidence records type for www.international-sante.com: has a recorded value of organization.",
+                    "evidence_refs": [
+                        "ev_1bf31d73d0b60edf2c380eb9"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_2_4_66781c818e41",
+                    "text": "The research evidence records mentioned for aaro.org: is supported.",
+                    "evidence_refs": [
+                        "ev_1c9e5d9ea6c70ffa5f47e7b9"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "Coverage and Key Factors",
             "purpose": "Address the 'Coverage and Key Factors' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported.",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9",
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_3_1_c06d985be0f7",
+                    "text": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455.",
+                    "evidence_refs": [
+                        "ev_07fc4e7394d17a0f39bcc541"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_3_2_60d7016bc7f1",
+                    "text": "The research evidence records score for www.imglobal.com: has a recorded value of 0.95.",
+                    "evidence_refs": [
+                        "ev_13ef75e026eb0bd9b79113c1"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_3_3_0c626d355e5a",
+                    "text": "The research evidence records type for www.international-sante.com: has a recorded value of organization.",
+                    "evidence_refs": [
+                        "ev_1bf31d73d0b60edf2c380eb9"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_3_4_66781c818e41",
+                    "text": "The research evidence records mentioned for aaro.org: is supported.",
+                    "evidence_refs": [
+                        "ev_1c9e5d9ea6c70ffa5f47e7b9"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "Costs and Pricing Factors",
             "purpose": "Address the 'Costs and Pricing Factors' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records affiliate potential for expat health insurance: has a recorded value of low. The research evidence records commercial value for expat health insurance: has a recorded value of low. The research evidence records conversion potential for expat health insurance: has a recorded value of low. The research evidence records adsense potential for expat health insurance: has a recorded value of low.",
+            "evidence_refs": [
+                "ev_b633ce73305b1d2c88449135",
+                "ev_45682e20adad3758e08109db",
+                "ev_7b92ea8033047a27cfc7dd90",
+                "ev_d0907041f5ed42b9daf437e3"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_4_1_7c8a0e8c2c68",
+                    "text": "The research evidence records affiliate potential for expat health insurance: has a recorded value of low.",
+                    "evidence_refs": [
+                        "ev_b633ce73305b1d2c88449135"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_4_2_968f0ab255a6",
+                    "text": "The research evidence records commercial value for expat health insurance: has a recorded value of low.",
+                    "evidence_refs": [
+                        "ev_45682e20adad3758e08109db"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_4_3_12bed9a71ad0",
+                    "text": "The research evidence records conversion potential for expat health insurance: has a recorded value of low.",
+                    "evidence_refs": [
+                        "ev_7b92ea8033047a27cfc7dd90"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_4_4_5fdfe58254a1",
+                    "text": "The research evidence records adsense potential for expat health insurance: has a recorded value of low.",
+                    "evidence_refs": [
+                        "ev_d0907041f5ed42b9daf437e3"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "How to Compare Options",
             "purpose": "Address the 'How to Compare Options' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records score for www.allianzcare.com: has a recorded value of 0.7667. The research evidence records score for www.internationalinsurance.com: has a recorded value of 0.45.",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_28b89e80c06138321f65204e",
+                "ev_4f502e2cf646837ad3f36c8d"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_5_1_c06d985be0f7",
+                    "text": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455.",
+                    "evidence_refs": [
+                        "ev_07fc4e7394d17a0f39bcc541"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_5_2_60d7016bc7f1",
+                    "text": "The research evidence records score for www.imglobal.com: has a recorded value of 0.95.",
+                    "evidence_refs": [
+                        "ev_13ef75e026eb0bd9b79113c1"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_5_3_38d07507b07c",
+                    "text": "The research evidence records score for www.allianzcare.com: has a recorded value of 0.7667.",
+                    "evidence_refs": [
+                        "ev_28b89e80c06138321f65204e"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_5_4_d93188da9c20",
+                    "text": "The research evidence records score for www.internationalinsurance.com: has a recorded value of 0.45.",
+                    "evidence_refs": [
+                        "ev_4f502e2cf646837ad3f36c8d"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "Frequently Asked Questions",
             "purpose": "Address the 'Frequently Asked Questions' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records primary intent for expat health insurance: has a recorded value of Informational. The research evidence records count for expat health insurance: has a recorded value of 8. The research evidence records alignment for expat health insurance: has a recorded value of mixed. The research evidence records intent distribution for expat health insurance: has a recorded value of {'Commercial': 0.2747, 'Informational': 0.6337, 'Transactional': 0.0916}.",
+            "evidence_refs": [
+                "ev_454e683da39cd64e",
+                "ev_f84050d29bd3788b8db432d4",
+                "ev_intent_alignment_91b405f6a64df87f",
+                "ev_serp_distribution_23165a6f509de19b"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_6_1_0e75ab3374ed",
+                    "text": "The research evidence records primary intent for expat health insurance: has a recorded value of Informational.",
+                    "evidence_refs": [
+                        "ev_454e683da39cd64e"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_2_21255f9caa80",
+                    "text": "The research evidence records count for expat health insurance: has a recorded value of 8.",
+                    "evidence_refs": [
+                        "ev_f84050d29bd3788b8db432d4"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_3_195073d13f4a",
+                    "text": "The research evidence records alignment for expat health insurance: has a recorded value of mixed.",
+                    "evidence_refs": [
+                        "ev_intent_alignment_91b405f6a64df87f"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_4_7c0ee2c26149",
+                    "text": "The research evidence records intent distribution for expat health insurance: has a recorded value of {'Commercial': 0.2747, 'Informational': 0.6337, 'Transactional': 0.0916}.",
+                    "evidence_refs": [
+                        "ev_serp_distribution_23165a6f509de19b"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         },
         {
             "heading": "Sources and Editorial Methodology",
             "purpose": "Address the 'Sources and Editorial Methodology' requirement from the approved content strategy without introducing unsupported claims.",
-            "body": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95. The research evidence records type for www.international-sante.com: has a recorded value of organization. The research evidence records mentioned for aaro.org: is supported. These observations require editorial verification before publication."
+            "body": "The research evidence records authority score for expat health insurance: has a recorded value of 0.9278. The research evidence records topic fit for expat health insurance: has a recorded value of 0.9667. The research evidence records score for www.international-sante.com: has a recorded value of 0.3455. The research evidence records score for www.imglobal.com: has a recorded value of 0.95.",
+            "evidence_refs": [
+                "ev_7728da4194f34bd5e6a1cf77",
+                "ev_a55b2cd0b14d31d8f94c3634",
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_7_1_dd167bfa7fdf",
+                    "text": "The research evidence records authority score for expat health insurance: has a recorded value of 0.9278.",
+                    "evidence_refs": [
+                        "ev_7728da4194f34bd5e6a1cf77"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_7_2_8e50911f4fb2",
+                    "text": "The research evidence records topic fit for expat health insurance: has a recorded value of 0.9667.",
+                    "evidence_refs": [
+                        "ev_a55b2cd0b14d31d8f94c3634"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_7_3_c06d985be0f7",
+                    "text": "The research evidence records score for www.international-sante.com: has a recorded value of 0.3455.",
+                    "evidence_refs": [
+                        "ev_07fc4e7394d17a0f39bcc541"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_7_4_60d7016bc7f1",
+                    "text": "The research evidence records score for www.imglobal.com: has a recorded value of 0.95.",
+                    "evidence_refs": [
+                        "ev_13ef75e026eb0bd9b79113c1"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
         }
     ],
     "evidence_refs": [
@@ -97,6 +353,86 @@
         "ev_7728da4194f34bd5e6a1cf77",
         "ev_a55b2cd0b14d31d8f94c3634"
     ],
+    "editorial_evidence": [],
+    "section_evidence_contracts": [
+        {
+            "section_index": 1,
+            "heading": "Introduction",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_a55b2cd0b14d31d8f94c3634",
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9"
+            ]
+        },
+        {
+            "section_index": 2,
+            "heading": "What You Need to Know",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9",
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ]
+        },
+        {
+            "section_index": 3,
+            "heading": "Coverage and Key Factors",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_1bf31d73d0b60edf2c380eb9",
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ]
+        },
+        {
+            "section_index": 4,
+            "heading": "Costs and Pricing Factors",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_b633ce73305b1d2c88449135",
+                "ev_45682e20adad3758e08109db",
+                "ev_7b92ea8033047a27cfc7dd90",
+                "ev_d0907041f5ed42b9daf437e3"
+            ]
+        },
+        {
+            "section_index": 5,
+            "heading": "How to Compare Options",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1",
+                "ev_28b89e80c06138321f65204e",
+                "ev_4f502e2cf646837ad3f36c8d"
+            ]
+        },
+        {
+            "section_index": 6,
+            "heading": "Frequently Asked Questions",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_454e683da39cd64e",
+                "ev_f84050d29bd3788b8db432d4",
+                "ev_intent_alignment_91b405f6a64df87f",
+                "ev_serp_distribution_23165a6f509de19b"
+            ]
+        },
+        {
+            "section_index": 7,
+            "heading": "Sources and Editorial Methodology",
+            "status": "insufficient",
+            "evidence_refs": [
+                "ev_7728da4194f34bd5e6a1cf77",
+                "ev_a55b2cd0b14d31d8f94c3634",
+                "ev_07fc4e7394d17a0f39bcc541",
+                "ev_13ef75e026eb0bd9b79113c1"
+            ]
+        }
+    ],
     "editorial_constraints": [
         "Use evidence_refs as the authoritative upstream lineage for factual claims.",
         "Do not invent providers, prices, coverage terms, statistics, or regulatory claims absent supporting evidence.",
@@ -104,8 +440,8 @@
         "Do not change the approved Decision or create a new operational decision."
     ],
     "audit": {
-        "method": "content_brief_to_evidence_grounded_article_draft",
-        "version": "v1",
+        "method": "content_brief_to_section_and_claim_grounded_article_draft",
+        "version": "v12",
         "validation_status": "pending"
     }
 }

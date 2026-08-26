@@ -20,7 +20,7 @@
         "type": "query",
         "source_id": "expat health insurance",
         "provider": "local",
-        "retrieved_at": "2026-08-21T12:45:59Z"
+        "retrieved_at": "2026-08-26T21:19:51Z"
     },
     "provenance": {
         "analyzer": "query_intent",
@@ -30,6 +30,6 @@
     "confidence": 1.0,
     "relation": "supports",
     "derived_from": [],
-    "captured_at": "2026-08-21T12:45:59Z",
+    "captured_at": "2026-08-26T21:19:51Z",
     "status": "active"
 }

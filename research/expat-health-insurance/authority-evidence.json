@@ -30,7 +30,7 @@
         "confidence": 0.75,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.618915+00:00",
+        "captured_at": "2026-08-26T21:19:51.049147+00:00",
         "status": "active"
     },
     {
@@ -64,7 +64,7 @@
         "confidence": 0.75,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.618947+00:00",
+        "captured_at": "2026-08-26T21:19:51.049176+00:00",
         "status": "active"
     }
 ]

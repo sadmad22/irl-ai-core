@@ -21,7 +21,7 @@
             "type": "serp",
             "source_id": "https://www.imglobal.com/expat-insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -31,7 +31,7 @@
         "confidence": 0.5,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -56,7 +56,7 @@
             "type": "serp",
             "source_id": "https://www.allianzcare.com/en/personal-international-health-insurance/who-we-help/professionals.html",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -66,7 +66,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -91,7 +91,7 @@
             "type": "serp",
             "source_id": "https://www.reddit.com/r/expats/comments/1guescz/expat_medicalhealth_insurance/",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -101,7 +101,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -126,7 +126,7 @@
             "type": "serp",
             "source_id": "https://www.axaglobalhealthcare.com/en/expat-health-insurance/",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -136,7 +136,7 @@
         "confidence": 0.5,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -161,7 +161,7 @@
             "type": "serp",
             "source_id": "https://www.greenbacktaxservices.com/blog/expat-health-insurance/",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -171,7 +171,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -196,7 +196,7 @@
             "type": "serp",
             "source_id": "https://www.cignaglobal.com/resources/expat-health-insurance-explained",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -206,7 +206,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -231,7 +231,7 @@
             "type": "serp",
             "source_id": "https://aaro.org/health-insurance/health-insurance-plan",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -241,7 +241,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -266,7 +266,7 @@
             "type": "serp",
             "source_id": "https://www.internationalinsurance.com/health/",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -276,7 +276,7 @@
         "confidence": 0.75,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -301,7 +301,7 @@
             "type": "serp",
             "source_id": "https://www.international-sante.com/healthforexpats/expat-insurance/country/united-states/",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -311,7 +311,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -340,7 +340,7 @@
             "type": "serp",
             "source_id": "expat health insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -360,7 +360,7 @@
             "ev_serp_result_1872aaa543564c6b",
             "ev_serp_result_892a0c39ffc23f0e"
         ],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -385,7 +385,7 @@
             "type": "serp",
             "source_id": "expat health insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -403,7 +403,7 @@
             "ev_serp_result_1872aaa543564c6b",
             "ev_serp_result_892a0c39ffc23f0e"
         ],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     },
     {
@@ -428,7 +428,7 @@
             "type": "serp",
             "source_id": "expat health insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-21T12:45:59Z"
+            "retrieved_at": "2026-08-26T21:19:51Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -448,7 +448,7 @@
             "ev_serp_result_1872aaa543564c6b",
             "ev_serp_result_892a0c39ffc23f0e"
         ],
-        "captured_at": "2026-08-21T12:45:59Z",
+        "captured_at": "2026-08-26T21:19:51Z",
         "status": "active"
     }
 ]

@@ -1,6 +1,6 @@
 {
-    "quality_id": "article_draft_quality_81ee4db98621385f",
-    "draft_id": "draft_8c7db15603b4e470",
+    "quality_id": "article_draft_quality_ed634ed182c13dcf",
+    "draft_id": "draft_3684bbf5c7ab5a41",
     "brief_id": "brief_cdeb974c02e6d07e",
     "report_id": "rr_expat-health-insurance",
     "decision_id": "dec_f2ee50bddcd3057d",
@@ -13,6 +13,8 @@
         "lineage": true,
         "structure": true,
         "evidence_lineage": true,
+        "section_evidence_grounding": true,
+        "claim_evidence_grounding": true,
         "placeholders": true,
         "decision_engine_leakage": true
     },
@@ -70,7 +72,7 @@
     ],
     "audit": {
         "method": "article_draft_quality_validator",
-        "version": "v1",
+        "version": "v3",
         "validation_status": "validated"
     }
 }

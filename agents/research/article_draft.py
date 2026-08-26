@@ -231,31 +231,6 @@ def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, s
         if record and record["evidence_id"] not in seen:
             page_records.append(record)
             seen.add(record["evidence_id"])
-    if page_records:
-        return page_records
-    for item in serp_results or []:
-        if not isinstance(item, dict):
-            continue
-        text = str(item.get("snippet") or item.get("description") or item.get("text") or "").strip()
-        source = item.get("source") if isinstance(item.get("source"), dict) else {}
-        url = str(item.get("url") or source.get("url") or "").strip()
-        if not text or not url:
-            continue
-        digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
-        evidence_id = f"editorial_serp_{digest}"
-        if evidence_id in seen:
-            continue
-        record = {
-            "evidence_id": evidence_id,
-            "section_index": 3,
-            "status": "candidate",
-            "text": text,
-            "source": {"type": "web_page", "url": url, "title": str(item.get("title") or source.get("title") or "").strip(), "domain": str(item.get("domain") or source.get("domain") or "").strip()},
-            "provenance": {"artifact": "serp-analysis.json", "method": "serp-snippet-editorial-v1", "verification": "snippet_only"},
-        }
-        record["source"]["domain"] = record["source"]["domain"] or re.sub(r"^www\.", "", re.sub(r"^https?://", "", url).split("/", 1)[0])
-        page_records.append(record)
-        seen.add(evidence_id)
     return page_records
 
 
@@ -278,7 +253,9 @@ def _methodology_editorial_evidence(*, source_evidence: list[dict[str, Any]] | N
 def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
     normalized_heading = heading.strip().lower()
     if normalized_heading == "coverage and key factors":
-        return _coverage_body(editorial_evidence or [])
+        if editorial_evidence:
+            return _coverage_body(editorial_evidence)
+        return " ".join(_evidence_text(record) for record in evidence_records)
     if normalized_heading in {"what you need to know", "costs and pricing factors", "how to compare options", "introduction", "sources and editorial methodology"} and editorial_evidence:
         return _page_editorial_body(editorial_evidence)
     if not evidence_records:
@@ -356,7 +333,11 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
     for index, (section, claims) in enumerate(zip(sections, claims_by_section), 1):
         normalized_heading = section["heading"].lower()
         if normalized_heading == "coverage and key factors":
-            section["claims"] = _coverage_claims(coverage_editorial_evidence)
+            section["claims"] = (
+                _coverage_claims(coverage_editorial_evidence)
+                if coverage_editorial_evidence
+                else claims
+            )
         elif normalized_heading in {"introduction", "what you need to know", "costs and pricing factors", "how to compare options", "sources and editorial methodology"}:
             if index == 1:
                 editorial = introduction_editorial_evidence

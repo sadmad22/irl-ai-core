@@ -1,0 +1,416 @@
+{
+    "audit_id": "claim_audit_378c5675c6f244f3",
+    "draft_id": "draft_3684bbf5c7ab5a41",
+    "schema_version": "1.0",
+    "lifecycle_stage": "claim_audit_ready",
+    "outcome": "passed",
+    "summary": {
+        "total_claims": 25,
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "counts": {
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "claims": [
+        {
+            "audit_id": "claim_audit_47fb5e74283c062e",
+            "claim_id": "claim_1_1_5568bd5c11f1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_a55b2cd0b14d31d8f94c3634"
+            ],
+            "matched_tokens": [
+                "9667",
+                "expat",
+                "fit",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_eb6d21d58bff9549",
+            "claim_id": "claim_2_1_c06d985be0f7",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541"
+            ],
+            "matched_tokens": [
+                "3455",
+                "com",
+                "international",
+                "sante",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_5eedea3e6bcfa6bc",
+            "claim_id": "claim_2_2_60d7016bc7f1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13ef75e026eb0bd9b79113c1"
+            ],
+            "matched_tokens": [
+                "com",
+                "imglobal",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_f675b363b809750b",
+            "claim_id": "claim_2_3_0c626d355e5a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1bf31d73d0b60edf2c380eb9"
+            ],
+            "matched_tokens": [
+                "com",
+                "international",
+                "organization",
+                "sante",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_6e1be917f91b9f6f",
+            "claim_id": "claim_2_4_66781c818e41",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ],
+            "matched_tokens": [
+                "aaro",
+                "mentioned",
+                "org"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_dbbeb62116d4c554",
+            "claim_id": "claim_3_1_c06d985be0f7",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541"
+            ],
+            "matched_tokens": [
+                "3455",
+                "com",
+                "international",
+                "sante",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_ccd3f5be79883258",
+            "claim_id": "claim_3_2_60d7016bc7f1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13ef75e026eb0bd9b79113c1"
+            ],
+            "matched_tokens": [
+                "com",
+                "imglobal",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_53c765d657014e89",
+            "claim_id": "claim_3_3_0c626d355e5a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1bf31d73d0b60edf2c380eb9"
+            ],
+            "matched_tokens": [
+                "com",
+                "international",
+                "organization",
+                "sante",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_e8423d816da480c4",
+            "claim_id": "claim_3_4_66781c818e41",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1c9e5d9ea6c70ffa5f47e7b9"
+            ],
+            "matched_tokens": [
+                "aaro",
+                "mentioned",
+                "org"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_060ac79a2b7aff87",
+            "claim_id": "claim_4_1_7c8a0e8c2c68",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_b633ce73305b1d2c88449135"
+            ],
+            "matched_tokens": [
+                "affiliate",
+                "expat",
+                "low",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_d17aebd16f0a6d8d",
+            "claim_id": "claim_4_2_968f0ab255a6",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_45682e20adad3758e08109db"
+            ],
+            "matched_tokens": [
+                "commercial",
+                "expat",
+                "low",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_027abb4c10dfe7e5",
+            "claim_id": "claim_4_3_12bed9a71ad0",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_7b92ea8033047a27cfc7dd90"
+            ],
+            "matched_tokens": [
+                "conversion",
+                "expat",
+                "low",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_93fba9a8596eb6e6",
+            "claim_id": "claim_4_4_5fdfe58254a1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_d0907041f5ed42b9daf437e3"
+            ],
+            "matched_tokens": [
+                "adsense",
+                "expat",
+                "low",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_afd19e67c174fc6e",
+            "claim_id": "claim_5_1_c06d985be0f7",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541"
+            ],
+            "matched_tokens": [
+                "3455",
+                "com",
+                "international",
+                "sante",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_b31b105032c79a98",
+            "claim_id": "claim_5_2_60d7016bc7f1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13ef75e026eb0bd9b79113c1"
+            ],
+            "matched_tokens": [
+                "com",
+                "imglobal",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9f7ae74c1d547ce0",
+            "claim_id": "claim_5_3_38d07507b07c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_28b89e80c06138321f65204e"
+            ],
+            "matched_tokens": [
+                "7667",
+                "allianzcare",
+                "com",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9f6d06574ab4ca27",
+            "claim_id": "claim_5_4_d93188da9c20",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_4f502e2cf646837ad3f36c8d"
+            ],
+            "matched_tokens": [
+                "com",
+                "internationalinsurance",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_df265f35ef9a1686",
+            "claim_id": "claim_6_1_0e75ab3374ed",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_454e683da39cd64e"
+            ],
+            "matched_tokens": [
+                "expat",
+                "informational",
+                "intent",
+                "primary"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_882846d60d07dc24",
+            "claim_id": "claim_6_2_21255f9caa80",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_f84050d29bd3788b8db432d4"
+            ],
+            "matched_tokens": [
+                "count",
+                "expat"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_3b05d42d43d16216",
+            "claim_id": "claim_6_3_195073d13f4a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_intent_alignment_91b405f6a64df87f"
+            ],
+            "matched_tokens": [
+                "alignment",
+                "expat",
+                "mixed"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9052e6c6787348b9",
+            "claim_id": "claim_6_4_7c0ee2c26149",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_serp_distribution_23165a6f509de19b"
+            ],
+            "matched_tokens": [
+                "0916",
+                "2747",
+                "6337",
+                "commercial",
+                "distribution",
+                "expat",
+                "informational",
+                "intent",
+                "transactional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_978392b9e0c558f8",
+            "claim_id": "claim_7_1_dd167bfa7fdf",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_7728da4194f34bd5e6a1cf77"
+            ],
+            "matched_tokens": [
+                "9278",
+                "authority",
+                "expat",
+                "score"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_d1974e3d2acea2af",
+            "claim_id": "claim_7_2_8e50911f4fb2",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_a55b2cd0b14d31d8f94c3634"
+            ],
+            "matched_tokens": [
+                "9667",
+                "expat",
+                "fit",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_a1ee993e6dfa444e",
+            "claim_id": "claim_7_3_c06d985be0f7",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_07fc4e7394d17a0f39bcc541"
+            ],
+            "matched_tokens": [
+                "3455",
+                "com",
+                "international",
+                "sante",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_f353abaaead49811",
+            "claim_id": "claim_7_4_60d7016bc7f1",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13ef75e026eb0bd9b79113c1"
+            ],
+            "matched_tokens": [
+                "com",
+                "imglobal",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        }
+    ],
+    "audit": {
+        "method": "claim_audit_validator",
+        "version": "v1",
+        "validation_status": "validated"
+    }
+}

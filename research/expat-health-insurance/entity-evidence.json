@@ -30,7 +30,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.615971+00:00",
+        "captured_at": "2026-08-26T21:19:51.042862+00:00",
         "status": "active"
     },
     {
@@ -64,7 +64,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.615988+00:00",
+        "captured_at": "2026-08-26T21:19:51.042902+00:00",
         "status": "active"
     },
     {
@@ -98,7 +98,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616005+00:00",
+        "captured_at": "2026-08-26T21:19:51.042936+00:00",
         "status": "active"
     },
     {
@@ -132,7 +132,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616019+00:00",
+        "captured_at": "2026-08-26T21:19:51.042967+00:00",
         "status": "active"
     },
     {
@@ -166,7 +166,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616030+00:00",
+        "captured_at": "2026-08-26T21:19:51.042993+00:00",
         "status": "active"
     },
     {
@@ -200,7 +200,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616041+00:00",
+        "captured_at": "2026-08-26T21:19:51.043021+00:00",
         "status": "active"
     },
     {
@@ -234,7 +234,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616053+00:00",
+        "captured_at": "2026-08-26T21:19:51.043050+00:00",
         "status": "active"
     },
     {
@@ -268,7 +268,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616064+00:00",
+        "captured_at": "2026-08-26T21:19:51.043076+00:00",
         "status": "active"
     },
     {
@@ -302,7 +302,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616076+00:00",
+        "captured_at": "2026-08-26T21:19:51.043102+00:00",
         "status": "active"
     },
     {
@@ -336,7 +336,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616101+00:00",
+        "captured_at": "2026-08-26T21:19:51.043127+00:00",
         "status": "active"
     },
     {
@@ -370,7 +370,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616112+00:00",
+        "captured_at": "2026-08-26T21:19:51.043151+00:00",
         "status": "active"
     },
     {
@@ -404,7 +404,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616124+00:00",
+        "captured_at": "2026-08-26T21:19:51.043177+00:00",
         "status": "active"
     },
     {
@@ -438,7 +438,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616136+00:00",
+        "captured_at": "2026-08-26T21:19:51.043217+00:00",
         "status": "active"
     },
     {
@@ -472,7 +472,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616147+00:00",
+        "captured_at": "2026-08-26T21:19:51.043243+00:00",
         "status": "active"
     },
     {
@@ -506,7 +506,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616160+00:00",
+        "captured_at": "2026-08-26T21:19:51.043277+00:00",
         "status": "active"
     },
     {
@@ -540,7 +540,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616172+00:00",
+        "captured_at": "2026-08-26T21:19:51.043310+00:00",
         "status": "active"
     },
     {
@@ -574,7 +574,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616184+00:00",
+        "captured_at": "2026-08-26T21:19:51.043336+00:00",
         "status": "active"
     },
     {
@@ -608,7 +608,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616195+00:00",
+        "captured_at": "2026-08-26T21:19:51.043362+00:00",
         "status": "active"
     },
     {
@@ -642,7 +642,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616207+00:00",
+        "captured_at": "2026-08-26T21:19:51.043389+00:00",
         "status": "active"
     },
     {
@@ -676,7 +676,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616218+00:00",
+        "captured_at": "2026-08-26T21:19:51.043414+00:00",
         "status": "active"
     },
     {
@@ -710,7 +710,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616230+00:00",
+        "captured_at": "2026-08-26T21:19:51.043440+00:00",
         "status": "active"
     },
     {
@@ -744,7 +744,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616243+00:00",
+        "captured_at": "2026-08-26T21:19:51.043469+00:00",
         "status": "active"
     },
     {
@@ -778,7 +778,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616253+00:00",
+        "captured_at": "2026-08-26T21:19:51.043494+00:00",
         "status": "active"
     },
     {
@@ -812,7 +812,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616265+00:00",
+        "captured_at": "2026-08-26T21:19:51.043541+00:00",
         "status": "active"
     },
     {
@@ -846,7 +846,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616277+00:00",
+        "captured_at": "2026-08-26T21:19:51.043575+00:00",
         "status": "active"
     },
     {
@@ -880,7 +880,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616288+00:00",
+        "captured_at": "2026-08-26T21:19:51.043600+00:00",
         "status": "active"
     },
     {
@@ -914,7 +914,7 @@
         "confidence": 0.9,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-21T12:45:59.616299+00:00",
+        "captured_at": "2026-08-26T21:19:51.043627+00:00",
         "status": "active"
     }
 ]
