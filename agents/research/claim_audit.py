@@ -27,15 +27,21 @@ def _evidence_text(record: dict[str, Any]) -> str:
     value = record.get("value") if isinstance(record.get("value"), dict) else {}
     subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
     source = record.get("source") if isinstance(record.get("source"), dict) else {}
+    provenance = record.get("provenance") if isinstance(record.get("provenance"), dict) else {}
     return " ".join(
         str(value).strip()
         for value in (
+            record.get("text", ""),
             record.get("domain", ""),
             claim.get("type", ""),
             claim.get("attribute", ""),
             value.get("data", ""),
             subject.get("id", ""),
+            source.get("title", ""),
+            source.get("domain", ""),
             source.get("artifact", ""),
+            provenance.get("artifact", ""),
+            provenance.get("verification", ""),
         )
     )
 

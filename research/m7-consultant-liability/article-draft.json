@@ -1,0 +1,669 @@
+{
+    "draft_id": "draft_c47a58f38ce3f445",
+    "brief_id": "brief_5a11bbf89436675e",
+    "report_id": "rr_m7-consultant-liability",
+    "decision_id": "dec_726d75c366d569aa",
+    "strategy_id": "strat_1fa6e1f92f0119d0",
+    "schema_version": "1.0",
+    "lifecycle_stage": "draft_ready",
+    "title": "A Practical Guide to Consultant Professional Liability Insurance",
+    "content_type": "guide",
+    "primary_keyword": "consultant professional liability insurance",
+    "sections": [
+        {
+            "heading": "Introduction",
+            "purpose": "Address the 'Introduction' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "The Hartford's consultant guidance frames professional liability insurance as coverage relevant to consultants who provide services directly to customers and face claims involving errors, omissions, negligence, misrepresentation, or inaccurate advice.",
+            "evidence_refs": [
+                "editorial_page_hartford_intro_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_1_1_4d54ee738b73",
+                    "text": "The Hartford's consultant guidance frames professional liability insurance as coverage relevant to consultants who provide services directly to customers and face claims involving errors, omissions, negligence, misrepresentation, or inaccurate advice.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_intro_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "What You Need to Know",
+            "purpose": "Address the 'What You Need to Know' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "The Hartford explains that professional liability insurance can help protect a business when a client claims that a mistake in professional services caused a financial loss. It identifies negligence, misrepresentation, and inaccurate advice as examples of claims.\n\nHiscox describes professional liability insurance, also called errors and omissions insurance, as protection for businesses sued over negligent performance of professional services and recommends it for businesses that provide professional services or regularly give advice to clients.\n\nThe Hartford says consultants who provide services directly to customers should consider professional liability insurance and describes common consultant claims involving errors, omissions, negligence, misrepresentation, and inaccurate advice.",
+            "evidence_refs": [
+                "editorial_page_hartford_faq_20260825",
+                "editorial_page_hiscox_basics_20260825",
+                "editorial_page_hartford_consultants_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_2_1_64e76135cf19",
+                    "text": "The Hartford explains that professional liability insurance can help protect a business when a client claims that a mistake in professional services caused a financial loss. It identifies negligence, misrepresentation, and inaccurate advice as examples of claims.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_faq_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_2_2_2d45e1ca62f7",
+                    "text": "Hiscox describes professional liability insurance, also called errors and omissions insurance, as protection for businesses sued over negligent performance of professional services and recommends it for businesses that provide professional services or regularly give advice to clients.",
+                    "evidence_refs": [
+                        "editorial_page_hiscox_basics_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_2_3_0c50090b298d",
+                    "text": "The Hartford says consultants who provide services directly to customers should consider professional liability insurance and describes common consultant claims involving errors, omissions, negligence, misrepresentation, and inaccurate advice.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_consultants_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "Coverage and Key Factors",
+            "purpose": "Address the 'Coverage and Key Factors' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "Hiscox describes professional liability insurance for business consultants as protection against claims of negligence and judgment errors arising from professional services\n\nCornell's risk guidance says professional liability coverage for consultants can address claims involving negligence, personal injury such as libel and slander, work completed in the past, and employees or independent contractors",
+            "evidence_refs": [
+                "editorial_page_hiscox_20260824",
+                "editorial_page_hartford_20260824",
+                "editorial_page_cornell_20260824"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_3_1_1d4e9873af4c",
+                    "text": "Hiscox describes professional liability insurance for business consultants as protection against claims of negligence and judgment errors arising from professional services",
+                    "evidence_refs": [
+                        "editorial_page_hiscox_20260824"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_3_2_feb82ca010c7",
+                    "text": "Cornell's risk guidance says professional liability coverage for consultants can address claims involving negligence, personal injury such as libel and slander, work completed in the past, and employees or independent contractors",
+                    "evidence_refs": [
+                        "editorial_page_cornell_20260824"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "Costs and Pricing Factors",
+            "purpose": "Address the 'Costs and Pricing Factors' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "Insureon reports that consultants pay an average of $62 per month for professional liability insurance, with annual policy costs ranging from around $400 to over $3,750. It says the figures are based on the median cost of policies purchased by consulting businesses through Insureon.\n\nThe Hartford says professional liability insurance costs for consultants vary by business and lists claims history, type of business, coverage limits, and experience as factors that can affect the cost.\n\nInsureon says the cost of professional liability insurance depends on factors including the services offered, revenue, coverage limits, and other business risks.",
+            "evidence_refs": [
+                "editorial_page_insureon_consulting_cost_20260825",
+                "editorial_page_hartford_consultant_cost_20260825",
+                "editorial_page_insureon_pli_cost_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_4_1_fe7c057467da",
+                    "text": "Insureon reports that consultants pay an average of $62 per month for professional liability insurance, with annual policy costs ranging from around $400 to over $3,750. It says the figures are based on the median cost of policies purchased by consulting businesses through Insureon.",
+                    "evidence_refs": [
+                        "editorial_page_insureon_consulting_cost_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_4_2_4374e1f01ac0",
+                    "text": "The Hartford says professional liability insurance costs for consultants vary by business and lists claims history, type of business, coverage limits, and experience as factors that can affect the cost.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_consultant_cost_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_4_3_8ca604192e3c",
+                    "text": "Insureon says the cost of professional liability insurance depends on factors including the services offered, revenue, coverage limits, and other business risks.",
+                    "evidence_refs": [
+                        "editorial_page_insureon_pli_cost_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "How to Compare Options",
+            "purpose": "Address the 'How to Compare Options' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "Insureon says consultants comparing professional liability policies should review the coverage limits, deductible, and exclusions because policies can provide different types and amounts of coverage.\n\nThe Hartford explains that many professional liability policies are claims-made and that a retroactive date and extended reporting period affect when claims can be covered; it recommends understanding these terms when evaluating a policy.\n\nInsureon says professional liability policies can differ in the types and amounts of coverage they provide and advises reviewing policy language for claims-made versus occurrence coverage, coverage limits, deductibles, and exclusions.",
+            "evidence_refs": [
+                "editorial_page_insureon_compare_20260825",
+                "editorial_page_hartford_claims_made_20260825",
+                "editorial_page_insureon_pli_claim_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_5_1_088000b40afa",
+                    "text": "Insureon says consultants comparing professional liability policies should review the coverage limits, deductible, and exclusions because policies can provide different types and amounts of coverage.",
+                    "evidence_refs": [
+                        "editorial_page_insureon_compare_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_5_2_9cd78961a184",
+                    "text": "The Hartford explains that many professional liability policies are claims-made and that a retroactive date and extended reporting period affect when claims can be covered; it recommends understanding these terms when evaluating a policy.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_claims_made_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_5_3_a15b5ed0d60d",
+                    "text": "Insureon says professional liability policies can differ in the types and amounts of coverage they provide and advises reviewing policy language for claims-made versus occurrence coverage, coverage limits, deductibles, and exclusions.",
+                    "evidence_refs": [
+                        "editorial_page_insureon_pli_claim_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "Frequently Asked Questions",
+            "purpose": "Address the 'Frequently Asked Questions' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "How does professional liability insurance work?: The Hartford explains that professional liability insurance, also called E&O insurance, can protect a business when a client claims that a mistake in professional services caused financial loss; it also explains that many professional liability policies are claims-made and that occurrence policies can cover losses that happen during the policy period even if reported after expiration.\n\nWhat does professional liability insurance cover?: The Hartford says professional liability insurance can help cover errors and omissions, personal injury, misrepresentation, negligence, and inaccurate advice, and can also help pay legal defense costs, disciplinary proceedings, loss of earnings, damages, and subpoena assistance.\n\nWho needs professional liability insurance?: The Hartford says businesses that provide services directly to customers or regularly give advice to clients should consider professional liability insurance, and consultants are specifically included in its industry guidance.\n\nDo consultants need professional liability insurance?: Insureon says businesses that offer professional services or give advice to clients need professional liability insurance, and specifically identifies consultants among businesses that should secure coverage against negligence, errors, or failure to perform services.",
+            "evidence_refs": [
+                "editorial_page_hartford_faq_workflow_20260825",
+                "editorial_page_hartford_faq_coverage_20260825",
+                "editorial_page_hartford_faq_need_20260825",
+                "editorial_page_insureon_faq_consultants_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_6_1_892f1f818481",
+                    "text": "The Hartford explains that professional liability insurance, also called E&O insurance, can protect a business when a client claims that a mistake in professional services caused financial loss; it also explains that many professional liability policies are claims-made and that occurrence policies can cover losses that happen during the policy period even if reported after expiration.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_faq_workflow_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_2_6e432e86ce67",
+                    "text": "The Hartford says professional liability insurance can help cover errors and omissions, personal injury, misrepresentation, negligence, and inaccurate advice, and can also help pay legal defense costs, disciplinary proceedings, loss of earnings, damages, and subpoena assistance.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_faq_coverage_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_3_02711725352c",
+                    "text": "The Hartford says businesses that provide services directly to customers or regularly give advice to clients should consider professional liability insurance, and consultants are specifically included in its industry guidance.",
+                    "evidence_refs": [
+                        "editorial_page_hartford_faq_need_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                },
+                {
+                    "claim_id": "claim_6_4_be9b3f39e58c",
+                    "text": "Insureon says businesses that offer professional services or give advice to clients need professional liability insurance, and specifically identifies consultants among businesses that should secure coverage against negligence, errors, or failure to perform services.",
+                    "evidence_refs": [
+                        "editorial_page_insureon_faq_consultants_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        },
+        {
+            "heading": "Sources and Editorial Methodology",
+            "purpose": "Address the 'Sources and Editorial Methodology' requirement from the approved content strategy without introducing unsupported claims.",
+            "body": "This article draft uses section-scoped evidence contracts: page-reviewed sources support editorial sections, claims retain explicit evidence_refs, and evidence provenance records the verification method used for each source.",
+            "evidence_refs": [
+                "editorial_article_methodology_20260825"
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim_7_1_f054da8af5b4",
+                    "text": "This article draft uses section-scoped evidence contracts: page-reviewed sources support editorial sections, claims retain explicit evidence_refs, and evidence provenance records the verification method used for each source.",
+                    "evidence_refs": [
+                        "editorial_article_methodology_20260825"
+                    ],
+                    "grounding_status": "grounded"
+                }
+            ]
+        }
+    ],
+    "evidence_refs": [
+        "ev_9a2aedbda182447f",
+        "ev_serp_result_e444932ffdbdcf4c",
+        "ev_serp_result_ff1b4f79644246be",
+        "ev_serp_result_a313311899a979c3",
+        "ev_serp_result_c1d68f3c48a13f97",
+        "ev_serp_result_cba8fb55be152463",
+        "ev_serp_distribution_5bd5f8181a2685d0",
+        "ev_serp_dominant_5bd5f8181a2685d0",
+        "ev_serp_mixed_5bd5f8181a2685d0",
+        "ev_intent_alignment_b80d94868d8444df",
+        "ev_serp_strategy_ad409d2a44c3792b",
+        "ev_b68e2e74a3d8d68d7f0b6f28",
+        "ev_d0ee01a51f13063e7d47c3d3",
+        "ev_f27f204e172f0bc28f509ce8",
+        "ev_ad6b4817da573d3539e55967",
+        "ev_7be8f8d28256603c97e78523",
+        "ev_9e4fd2bf505c53588b7dca01",
+        "ev_75c4849a49f1e0ec17c3ca9d",
+        "ev_3c101e172deffec73fc173d2",
+        "ev_e08d48a1e6c8769e7f384c56",
+        "ev_11d67e0727eee22468ec7721",
+        "ev_c4d36efbb9712e7962801f0a",
+        "ev_4facf32aac256200c3945fd1",
+        "ev_aacb3b16843de77896baf355",
+        "ev_c6ca61471538bfcf327d46a6",
+        "ev_99663307d0614f16c33e393b",
+        "ev_e4c24c3305be8fd806939e56",
+        "ev_b157e1257743122ff7d6c68b",
+        "ev_db081695cfad6d9d69e187b8",
+        "ev_259d00013793f1213fcd7cd7",
+        "editorial_page_hartford_intro_20260825",
+        "editorial_page_hartford_faq_20260825",
+        "editorial_page_hiscox_basics_20260825",
+        "editorial_page_hartford_consultants_20260825",
+        "editorial_page_hiscox_20260824",
+        "editorial_page_hartford_20260824",
+        "editorial_page_cornell_20260824",
+        "editorial_page_insureon_consulting_cost_20260825",
+        "editorial_page_hartford_consultant_cost_20260825",
+        "editorial_page_insureon_pli_cost_20260825",
+        "editorial_page_insureon_compare_20260825",
+        "editorial_page_hartford_claims_made_20260825",
+        "editorial_page_insureon_pli_claim_20260825",
+        "editorial_article_methodology_20260825",
+        "editorial_page_hartford_faq_workflow_20260825",
+        "editorial_page_hartford_faq_coverage_20260825",
+        "editorial_page_hartford_faq_need_20260825",
+        "editorial_page_insureon_faq_consultants_20260825"
+    ],
+    "editorial_evidence": [
+        {
+            "evidence_id": "editorial_page_hartford_intro_20260825",
+            "section_index": 1,
+            "status": "ready",
+            "text": "The Hartford's consultant guidance frames professional liability insurance as coverage relevant to consultants who provide services directly to customers and face claims involving errors, omissions, negligence, misrepresentation, or inaccurate advice.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+                "title": "Professional Liability Insurance for Consultants | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_faq_20260825",
+            "section_index": 2,
+            "status": "ready",
+            "text": "The Hartford explains that professional liability insurance can help protect a business when a client claims that a mistake in professional services caused a financial loss. It identifies negligence, misrepresentation, and inaccurate advice as examples of claims.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/faq",
+                "title": "Professional Liability Insurance FAQs | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hiscox_basics_20260825",
+            "section_index": 2,
+            "status": "ready",
+            "text": "Hiscox describes professional liability insurance, also called errors and omissions insurance, as protection for businesses sued over negligent performance of professional services and recommends it for businesses that provide professional services or regularly give advice to clients.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.hiscox.com/small-business-insurance/choose-insurance-product",
+                "title": "Help Me Choose an Insurance Product | Hiscox",
+                "domain": "hiscox.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_consultants_20260825",
+            "section_index": 2,
+            "status": "ready",
+            "text": "The Hartford says consultants who provide services directly to customers should consider professional liability insurance and describes common consultant claims involving errors, omissions, negligence, misrepresentation, and inaccurate advice.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+                "title": "Professional Liability Insurance for Consultants | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hiscox_20260824",
+            "section_index": 3,
+            "status": "ready",
+            "text": "Hiscox describes professional liability insurance for business consultants as protection against claims of negligence and judgment errors arising from professional services.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
+                "title": "Business Consultant Insurance Professional & General Liability | Hiscox",
+                "domain": "hiscox.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_20260824",
+            "section_index": 3,
+            "status": "ready",
+            "text": "The Hartford explains that consultant professional liability insurance can help cover legal fees and defense costs and can also help pay covered settlements and judgments.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+                "title": "Professional Liability Insurance for Consultants | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_cornell_20260824",
+            "section_index": 3,
+            "status": "ready",
+            "text": "Cornell's risk guidance says professional liability coverage for consultants can address claims involving negligence, personal injury such as libel and slander, work completed in the past, and employees or independent contractors.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
+                "title": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
+                "domain": "risk.cornell.edu"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_insureon_consulting_cost_20260825",
+            "section_index": 4,
+            "status": "ready",
+            "text": "Insureon reports that consultants pay an average of $62 per month for professional liability insurance, with annual policy costs ranging from around $400 to over $3,750. It says the figures are based on the median cost of policies purchased by consulting businesses through Insureon.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.insureon.com/consulting-business-insurance/cost",
+                "title": "Consulting Business Insurance Costs: Professional, General Liability & More | Insureon",
+                "domain": "insureon.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_consultant_cost_20260825",
+            "section_index": 4,
+            "status": "ready",
+            "text": "The Hartford says professional liability insurance costs for consultants vary by business and lists claims history, type of business, coverage limits, and experience as factors that can affect the cost.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+                "title": "Professional Liability Insurance for Consultants | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_insureon_pli_cost_20260825",
+            "section_index": 4,
+            "status": "ready",
+            "text": "Insureon says the cost of professional liability insurance depends on factors including the services offered, revenue, coverage limits, and other business risks.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.insureon.com/consulting-business-insurance/professional-liability",
+                "title": "Professional Liability (Errors & Omissions) Insurance for Consultants | Insureon",
+                "domain": "insureon.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_insureon_compare_20260825",
+            "section_index": 5,
+            "status": "ready",
+            "text": "Insureon says consultants comparing professional liability policies should review the coverage limits, deductible, and exclusions because policies can provide different types and amounts of coverage.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.insureon.com/small-business-insurance/professional-liability/how-to-make-a-claim",
+                "title": "How to Make a Professional Liability Insurance Claim | Insureon",
+                "domain": "insureon.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_claims_made_20260825",
+            "section_index": 5,
+            "status": "ready",
+            "text": "The Hartford explains that many professional liability policies are claims-made and that a retroactive date and extended reporting period affect when claims can be covered; it recommends understanding these terms when evaluating a policy.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/business-insurance/claims-made-vs-occurrence",
+                "title": "Comparing A Claims-Made vs. Occurrence Policy | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_insureon_pli_claim_20260825",
+            "section_index": 5,
+            "status": "ready",
+            "text": "Insureon says professional liability policies can differ in the types and amounts of coverage they provide and advises reviewing policy language for claims-made versus occurrence coverage, coverage limits, deductibles, and exclusions.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.insureon.com/small-business-insurance/professional-liability/how-to-make-a-claim",
+                "title": "How to Make a Professional Liability Insurance Claim | Insureon",
+                "domain": "insureon.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_article_methodology_20260825",
+            "section_index": 7,
+            "status": "ready",
+            "text": "This article draft uses section-scoped evidence contracts: page-reviewed sources support editorial sections, claims retain explicit evidence_refs, and evidence provenance records the verification method used for each source.",
+            "source": {
+                "type": "artifact",
+                "url": "artifact://m7-consultant-liability/article-draft",
+                "title": "IRL AI Core Article Draft Evidence Contract",
+                "domain": "irl-ai-core"
+            },
+            "provenance": {
+                "artifact": "article-draft-pipeline",
+                "method": "article-draft-evidence-contract-v1",
+                "verification": "artifact_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_faq_workflow_20260825",
+            "section_index": 6,
+            "status": "ready",
+            "text": "The Hartford explains that professional liability insurance, also called E&O insurance, can protect a business when a client claims that a mistake in professional services caused financial loss; it also explains that many professional liability policies are claims-made and that occurrence policies can cover losses that happen during the policy period even if reported after expiration.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/faq",
+                "title": "Professional Liability Insurance Frequently Asked Questions | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_faq_coverage_20260825",
+            "section_index": 6,
+            "status": "ready",
+            "text": "The Hartford says professional liability insurance can help cover errors and omissions, personal injury, misrepresentation, negligence, and inaccurate advice, and can also help pay legal defense costs, disciplinary proceedings, loss of earnings, damages, and subpoena assistance.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/faq",
+                "title": "Professional Liability Insurance Frequently Asked Questions | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_hartford_faq_need_20260825",
+            "section_index": 6,
+            "status": "ready",
+            "text": "The Hartford says businesses that provide services directly to customers or regularly give advice to clients should consider professional liability insurance, and consultants are specifically included in its industry guidance.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.thehartford.com/professional-liability-insurance/faq",
+                "title": "Professional Liability Insurance Frequently Asked Questions | The Hartford",
+                "domain": "thehartford.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        },
+        {
+            "evidence_id": "editorial_page_insureon_faq_consultants_20260825",
+            "section_index": 6,
+            "status": "ready",
+            "text": "Insureon says businesses that offer professional services or give advice to clients need professional liability insurance, and specifically identifies consultants among businesses that should secure coverage against negligence, errors, or failure to perform services.",
+            "source": {
+                "type": "web_page",
+                "url": "https://www.insureon.com/small-business-insurance/professional-liability/faq",
+                "title": "Frequently Asked Questions About Professional Liability Insurance | Insureon",
+                "domain": "insureon.com"
+            },
+            "provenance": {
+                "artifact": "source-evidence.json",
+                "method": "page-level-source-review-v1",
+                "verification": "page_reviewed"
+            }
+        }
+    ],
+    "section_evidence_contracts": [
+        {
+            "section_index": 1,
+            "heading": "Introduction",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_hartford_intro_20260825"
+            ]
+        },
+        {
+            "section_index": 2,
+            "heading": "What You Need to Know",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_hartford_faq_20260825",
+                "editorial_page_hiscox_basics_20260825",
+                "editorial_page_hartford_consultants_20260825"
+            ]
+        },
+        {
+            "section_index": 3,
+            "heading": "Coverage and Key Factors",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_hiscox_20260824",
+                "editorial_page_hartford_20260824",
+                "editorial_page_cornell_20260824"
+            ]
+        },
+        {
+            "section_index": 4,
+            "heading": "Costs and Pricing Factors",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_insureon_consulting_cost_20260825",
+                "editorial_page_hartford_consultant_cost_20260825",
+                "editorial_page_insureon_pli_cost_20260825"
+            ]
+        },
+        {
+            "section_index": 5,
+            "heading": "How to Compare Options",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_insureon_compare_20260825",
+                "editorial_page_hartford_claims_made_20260825",
+                "editorial_page_insureon_pli_claim_20260825"
+            ]
+        },
+        {
+            "section_index": 6,
+            "heading": "Frequently Asked Questions",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_page_hartford_faq_workflow_20260825",
+                "editorial_page_hartford_faq_coverage_20260825",
+                "editorial_page_hartford_faq_need_20260825",
+                "editorial_page_insureon_faq_consultants_20260825"
+            ]
+        },
+        {
+            "section_index": 7,
+            "heading": "Sources and Editorial Methodology",
+            "status": "ready",
+            "evidence_refs": [
+                "editorial_article_methodology_20260825"
+            ]
+        }
+    ],
+    "editorial_constraints": [
+        "Use evidence_refs as the authoritative upstream lineage for factual claims.",
+        "Do not invent providers, prices, coverage terms, statistics, or regulatory claims absent supporting evidence.",
+        "Do not make the brief itself a final article draft; prose generation belongs to the Writer layer.",
+        "Do not change the approved Decision or create a new operational decision."
+    ],
+    "audit": {
+        "method": "content_brief_to_section_and_claim_grounded_article_draft",
+        "version": "v12",
+        "validation_status": "pending"
+    }
+}

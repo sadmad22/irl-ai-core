@@ -66,6 +66,7 @@ def build_content_research_to_wordpress_draft(
     seo_strategy = run_seo_strategy_agent(
         content_brief=content_brief,
         research_report=research_report,
+        article_draft=article_draft,
     )
     seo_validation = run_seo_validation_agent(
         article_draft=article_draft,

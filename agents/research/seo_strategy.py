@@ -13,7 +13,12 @@ def _id(payload: dict[str, Any]) -> str:
     return "seo_" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
 
 
-def build_seo_strategy(*, content_brief: dict[str, Any], research_report: dict[str, Any]) -> dict[str, Any]:
+def build_seo_strategy(
+    *,
+    content_brief: dict[str, Any],
+    research_report: dict[str, Any],
+    article_draft: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     if content_brief.get("lifecycle_stage") != "content_brief_ready":
         raise ValueError("SEO Strategy requires a content_brief_ready Content Brief")
 
@@ -31,6 +36,16 @@ def build_seo_strategy(*, content_brief: dict[str, Any], research_report: dict[s
     refs = [str(x) for x in content_brief.get("evidence_refs", []) if str(x).strip()]
     if not refs:
         raise ValueError("SEO Strategy requires explicit evidence_refs")
+
+    if article_draft is not None:
+        draft_refs = [
+            str(x)
+            for x in article_draft.get("evidence_refs", [])
+            if str(x).strip()
+        ]
+        refs.extend(draft_refs)
+
+    refs = list(dict.fromkeys(refs))
 
     entity_analysis = research_report.get("entity_analysis", {}) or {}
     question_analysis = research_report.get("question_analysis", {}) or {}

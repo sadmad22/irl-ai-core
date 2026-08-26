@@ -1,0 +1,27 @@
+{
+    "status": "research_complete",
+    "passed": true,
+    "checks": {
+        "research_report": true,
+        "research_questions": true,
+        "evidence": true
+    },
+    "research_questions": [
+        {
+            "text": "Professional Liability Insurance for Consultants | The Hartford",
+            "source_position": 2,
+            "count": 1
+        },
+        {
+            "text": "Independent Consultant/Non-Specialist Professional Services Providers | Cornell",
+            "source_position": 3,
+            "count": 1
+        },
+        {
+            "text": "Professional Liability Insurance FAQs | The Hartford",
+            "source_position": 4,
+            "count": 1
+        }
+    ],
+    "evidence_count": 48
+}
