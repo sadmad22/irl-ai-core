@@ -20,7 +20,7 @@
         "type": "query",
         "source_id": "consultant professional liability insurance",
         "provider": "local",
-        "retrieved_at": "2026-08-26T12:52:40Z"
+        "retrieved_at": "2026-08-26T19:00:05Z"
     },
     "provenance": {
         "analyzer": "query_intent",
@@ -30,6 +30,6 @@
     "confidence": 1.0,
     "relation": "supports",
     "derived_from": [],
-    "captured_at": "2026-08-26T12:52:40Z",
+    "captured_at": "2026-08-26T19:00:05Z",
     "status": "active"
 }

@@ -30,7 +30,7 @@
         "confidence": 0.8,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40.500833+00:00",
+        "captured_at": "2026-08-26T19:00:05.965548+00:00",
         "status": "active"
     },
     {
@@ -64,7 +64,7 @@
         "confidence": 0.8,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40.500878+00:00",
+        "captured_at": "2026-08-26T19:00:05.965638+00:00",
         "status": "active"
     },
     {
@@ -98,7 +98,7 @@
         "confidence": 0.8,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40.500911+00:00",
+        "captured_at": "2026-08-26T19:00:05.965678+00:00",
         "status": "active"
     },
     {
@@ -132,7 +132,7 @@
         "confidence": 0.8,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40.500932+00:00",
+        "captured_at": "2026-08-26T19:00:05.965711+00:00",
         "status": "active"
     }
 ]

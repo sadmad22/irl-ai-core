@@ -21,7 +21,7 @@
             "type": "serp",
             "source_id": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -31,7 +31,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -56,7 +56,7 @@
             "type": "serp",
             "source_id": "https://www.thehartford.com/professional-liability-insurance/consultants",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -66,7 +66,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -91,7 +91,7 @@
             "type": "serp",
             "source_id": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -101,7 +101,7 @@
         "confidence": 0.6667,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -126,7 +126,7 @@
             "type": "serp",
             "source_id": "https://www.thehartford.com/professional-liability-insurance/faq",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -136,7 +136,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -161,7 +161,7 @@
             "type": "serp",
             "source_id": "https://www.insureon.com/consulting-business-insurance/professional-liability",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -171,7 +171,7 @@
         "confidence": 1.0,
         "relation": "supports",
         "derived_from": [],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -199,7 +199,7 @@
             "type": "serp",
             "source_id": "consultant professional liability insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -215,7 +215,7 @@
             "ev_serp_result_c1d68f3c48a13f97",
             "ev_serp_result_cba8fb55be152463"
         ],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -240,7 +240,7 @@
             "type": "serp",
             "source_id": "consultant professional liability insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -255,7 +255,7 @@
             "ev_serp_result_c1d68f3c48a13f97",
             "ev_serp_result_cba8fb55be152463"
         ],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     },
     {
@@ -280,7 +280,7 @@
             "type": "serp",
             "source_id": "consultant professional liability insurance",
             "provider": "local",
-            "retrieved_at": "2026-08-26T12:52:40Z"
+            "retrieved_at": "2026-08-26T19:00:05Z"
         },
         "provenance": {
             "analyzer": "serp_intent",
@@ -296,7 +296,7 @@
             "ev_serp_result_c1d68f3c48a13f97",
             "ev_serp_result_cba8fb55be152463"
         ],
-        "captured_at": "2026-08-26T12:52:40Z",
+        "captured_at": "2026-08-26T19:00:05Z",
         "status": "active"
     }
 ]
