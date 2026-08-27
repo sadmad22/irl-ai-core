@@ -1,9 +1,9 @@
 import os
 
 
-ACTIVE_PROVIDER = "dataforseo"
+ACTIVE_PROVIDER = os.getenv("IRL_RESEARCH_PROVIDER", "dataforseo").strip().lower() or "dataforseo"
 
-BASE_URL = "https://api.dataforseo.com"
+BASE_URL = os.getenv("DATAFORSEO_BASE_URL", "https://api.dataforseo.com").strip().rstrip("/")
 
 LOGIN = os.getenv("DATAFORSEO_LOGIN")
 PASSWORD = os.getenv("DATAFORSEO_PASSWORD")
