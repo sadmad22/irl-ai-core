@@ -52,8 +52,7 @@ CONTENT_STRATEGY_FILE = "content-strategy.json"
 
 
 def load_keyword(project_name: str) -> dict:
-    file_path = Path("research") / project_name / "keyword.json"
-    return json.loads(file_path.read_text(encoding="utf-8"))
+    return json.loads((Path("research") / project_name / "keyword.json").read_text(encoding="utf-8"))
 
 
 def save_json(path, data):
@@ -104,11 +103,7 @@ def get_report_id(project_name: str) -> str:
 
 def get_canonical_serp_intent_evidence_ids(serp_intent_evidence: list[dict]) -> list[str]:
     canonical_attributes = {"dominant_intent", "mixed_intent"}
-    return [
-        item["evidence_id"]
-        for item in serp_intent_evidence
-        if item.get("claim", {}).get("attribute") in canonical_attributes
-    ]
+    return [item["evidence_id"] for item in serp_intent_evidence if item.get("claim", {}).get("attribute") in canonical_attributes]
 
 
 def _source(project_name: str, artifact: str) -> dict:
@@ -119,15 +114,17 @@ def _provenance(analyzer: str, method: str) -> dict:
     return {"analyzer": analyzer, "method": method, "version": "v1"}
 
 
-def run(project_name: str) -> None:
+def run(project_name: str, provider: str | None = None) -> None:
     keyword_data = load_keyword(project_name)
     print("=== Research Agent ===\n")
     print(f"Keyword  : {keyword_data['keyword']}")
     print(f"Language : {keyword_data['language']}")
     print(f"Country  : {keyword_data['country']}")
+    selected_provider = (provider or "").strip().lower() or None
+    if selected_provider:
+        print(f"Provider : {selected_provider}")
 
     report_id = get_report_id(project_name)
-
     query_intent_analysis = classify_query_intent(keyword_data["keyword"])
     save_project_file_if_changed(project_name, QUERY_INTENT_ANALYSIS_FILE, query_intent_analysis)
     query_intent_evidence = build_query_intent_evidence(query_intent_analysis, report_id=report_id)
@@ -139,9 +136,7 @@ def run(project_name: str) -> None:
         metrics = load_project_file(project_name, SEARCH_METRICS_FILE)
     else:
         print("Fetching search metrics...")
-        metrics = get_provider().get_metrics(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
-        )
+        metrics = get_provider(selected_provider).get_metrics(keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"])
     save_project_file_if_changed(project_name, SEARCH_METRICS_FILE, metrics)
 
     serp_file = Path("research") / project_name / SERP_ANALYSIS_FILE
@@ -150,133 +145,60 @@ def run(project_name: str) -> None:
         serp_results = load_project_file(project_name, SERP_ANALYSIS_FILE)
     else:
         print("Fetching SERP data...")
-        serp_results = get_serp_provider().get_results(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
-        )
+        serp_results = get_serp_provider(selected_provider).get_results(keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"])
     serp_results = canonicalize_serp_results(serp_results)
     save_project_file_if_changed(project_name, SERP_ANALYSIS_FILE, serp_results)
 
     competitor_analysis = analyze_competitors(serp_results)
     save_project_file_if_changed(project_name, COMPETITOR_ANALYSIS_FILE, competitor_analysis)
-
     serp_intent_analysis = analyze_serp_intent(serp_results)
     save_project_file_if_changed(project_name, SERP_INTENT_ANALYSIS_FILE, serp_intent_analysis)
     serp_intent_evidence = build_serp_intent_evidence(serp_intent_analysis, report_id=report_id)
     save_project_file_if_changed(project_name, SERP_INTENT_EVIDENCE_FILE, serp_intent_evidence)
-
     intent_alignment_analysis = analyze_intent_alignment(query_intent_analysis, serp_intent_analysis)
     save_project_file_if_changed(project_name, INTENT_ALIGNMENT_ANALYSIS_FILE, intent_alignment_analysis)
-    intent_alignment_evidence = build_intent_alignment_evidence(
-        intent_alignment_analysis,
-        report_id=report_id,
-        query_intent_evidence_id=query_intent_evidence["evidence_id"],
-        serp_intent_evidence_ids=get_canonical_serp_intent_evidence_ids(serp_intent_evidence),
-    )
+    intent_alignment_evidence = build_intent_alignment_evidence(intent_alignment_analysis, report_id=report_id, query_intent_evidence_id=query_intent_evidence["evidence_id"], serp_intent_evidence_ids=get_canonical_serp_intent_evidence_ids(serp_intent_evidence))
     save_project_file_if_changed(project_name, INTENT_ALIGNMENT_EVIDENCE_FILE, intent_alignment_evidence)
-
     serp_strategy_signal = analyze_serp_strategy_signal(intent_alignment_analysis)
     save_project_file_if_changed(project_name, SERP_STRATEGY_SIGNAL_FILE, serp_strategy_signal)
-    serp_strategy_signal_evidence = build_serp_strategy_signal_evidence(
-        serp_strategy_signal, report_id=report_id, intent_alignment_evidence_id=intent_alignment_evidence["evidence_id"]
-    )
+    serp_strategy_signal_evidence = build_serp_strategy_signal_evidence(serp_strategy_signal, report_id=report_id, intent_alignment_evidence_id=intent_alignment_evidence["evidence_id"])
     save_project_file_if_changed(project_name, SERP_STRATEGY_SIGNAL_EVIDENCE_FILE, serp_strategy_signal_evidence)
 
     entity_analysis = analyze_entities(serp_results)
     save_project_file_if_changed(project_name, ENTITY_ANALYSIS_FILE, entity_analysis)
     entity_evidence = []
     for entity in entity_analysis["entities"]:
-        entity_evidence.extend(build_entity_evidence(
-            report_id=report_id,
-            entity_id=entity["entity_id"],
-            entity_type=entity["entity_type"],
-            mentioned=entity["mentioned"],
-            relevance=entity["relevance"],
-            source=_source(project_name, SERP_ANALYSIS_FILE),
-            provenance=_provenance("entity", entity_analysis["method"]),
-            confidence=0.9,
-        ))
+        entity_evidence.extend(build_entity_evidence(report_id=report_id, entity_id=entity["entity_id"], entity_type=entity["entity_type"], mentioned=entity["mentioned"], relevance=entity["relevance"], source=_source(project_name, SERP_ANALYSIS_FILE), provenance=_provenance("entity", entity_analysis["method"]), confidence=0.9))
     save_project_file_if_changed(project_name, ENTITY_EVIDENCE_FILE, entity_evidence)
 
     question_analysis = analyze_questions(serp_results)
     save_project_file_if_changed(project_name, QUESTION_ANALYSIS_FILE, question_analysis)
-    question_evidence = build_question_evidence(
-        report_id=report_id,
-        subject_type="keyword",
-        subject_id=keyword_data["keyword"],
-        question_count=question_analysis["question_count"],
-        source=_source(project_name, SERP_ANALYSIS_FILE),
-        provenance=_provenance("question", question_analysis["method"]),
-        confidence=0.85,
-    )
+    question_evidence = build_question_evidence(report_id=report_id, subject_type="keyword", subject_id=keyword_data["keyword"], question_count=question_analysis["question_count"], source=_source(project_name, SERP_ANALYSIS_FILE), provenance=_provenance("question", question_analysis["method"]), confidence=0.85)
     save_project_file_if_changed(project_name, QUESTION_EVIDENCE_FILE, question_evidence)
 
     business_analysis = analyze_business(keyword_data, query_intent_analysis, metrics)
     save_project_file_if_changed(project_name, BUSINESS_ANALYSIS_FILE, business_analysis)
-    business_evidence = [
-        build_business_evidence(
-            report_id=report_id,
-            subject_type="keyword",
-            subject_id=keyword_data["keyword"],
-            claim_type=claim,
-            value=business_analysis[claim],
-            source=_source(project_name, SEARCH_METRICS_FILE),
-            provenance=_provenance("business", business_analysis["method"]),
-            confidence=0.8,
-        )
-        for claim in ("affiliate_potential", "adsense_potential", "conversion_potential", "commercial_value")
-    ]
+    business_evidence = [build_business_evidence(report_id=report_id, subject_type="keyword", subject_id=keyword_data["keyword"], claim_type=claim, value=business_analysis[claim], source=_source(project_name, SEARCH_METRICS_FILE), provenance=_provenance("business", business_analysis["method"]), confidence=0.8) for claim in ("affiliate_potential", "adsense_potential", "conversion_potential", "commercial_value")]
     save_project_file_if_changed(project_name, BUSINESS_EVIDENCE_FILE, business_evidence)
 
     authority_analysis = analyze_authority(keyword_data, serp_results, competitor_analysis, query_intent_analysis)
     save_project_file_if_changed(project_name, AUTHORITY_ANALYSIS_FILE, authority_analysis)
-    authority_evidence = [
-        build_authority_evidence(
-            report_id=report_id,
-            subject_type="keyword",
-            subject_id=keyword_data["keyword"],
-            claim_type=claim,
-            score=authority_analysis[claim],
-            source=_source(project_name, SERP_ANALYSIS_FILE),
-            provenance=_provenance("authority", authority_analysis["method"]),
-            confidence=0.75,
-        )
-        for claim in ("authority_score", "topic_fit")
-    ]
+    authority_evidence = [build_authority_evidence(report_id=report_id, subject_type="keyword", subject_id=keyword_data["keyword"], claim_type=claim, score=authority_analysis[claim], source=_source(project_name, SERP_ANALYSIS_FILE), provenance=_provenance("authority", authority_analysis["method"]), confidence=0.75) for claim in ("authority_score", "topic_fit")]
     save_project_file_if_changed(project_name, AUTHORITY_EVIDENCE_FILE, authority_evidence)
 
-    research_report = build_research_report(
-        report_id=report_id,
-        metadata=load_project_file(project_name, "metadata.json"),
-        keyword=keyword_data,
-        search_intent=query_intent_analysis,
-        search_metrics=metrics,
-        serp_analysis=serp_results,
-        competitor_analysis=competitor_analysis,
-        entity_analysis=entity_analysis,
-        question_analysis=question_analysis,
-        topical_authority=authority_analysis,
-        business_analysis=business_analysis,
-        intent_evidence=([query_intent_evidence] + serp_intent_evidence + [intent_alignment_evidence, serp_strategy_signal_evidence]),
-        entity_evidence=entity_evidence,
-        question_evidence=[question_evidence],
-        business_evidence=business_evidence,
-        authority_evidence=authority_evidence,
-    )
+    research_report = build_research_report(report_id=report_id, metadata=load_project_file(project_name, "metadata.json"), keyword=keyword_data, search_intent=query_intent_analysis, search_metrics=metrics, serp_analysis=serp_results, competitor_analysis=competitor_analysis, entity_analysis=entity_analysis, question_analysis=question_analysis, topical_authority=authority_analysis, business_analysis=business_analysis, intent_evidence=([query_intent_evidence] + serp_intent_evidence + [intent_alignment_evidence, serp_strategy_signal_evidence]), entity_evidence=entity_evidence, question_evidence=[question_evidence], business_evidence=business_evidence, authority_evidence=authority_evidence)
     save_project_file_if_changed(project_name, RESEARCH_REPORT_FILE, research_report)
 
     recommendation = run_recommendation_from_report(research_report)
     save_project_file_if_changed(project_name, RECOMMENDATION_FILE, recommendation)
-
     decision = run_decision_from_report(research_report, recommendation)
     save_project_file_if_changed(project_name, DECISION_FILE, decision)
-
     if decision.get("outcome") == "approved":
         content_strategy = run_content_strategy_from_report(research_report, decision)
         save_project_file_if_changed(project_name, CONTENT_STRATEGY_FILE, content_strategy)
         final_status = "content_strategy_ready"
     else:
         final_status = "decision_ready"
-
     print("\nUpdating metadata...")
     save_metadata(project_name, final_status)
     print("Metadata updated.")
