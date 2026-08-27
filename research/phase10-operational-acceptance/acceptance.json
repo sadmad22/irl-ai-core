@@ -1,0 +1,37 @@
+{
+    "phase": "Phase 10",
+    "acceptance_type": "operational_acceptance_test",
+    "status": "passed",
+    "tested_at": "2026-08-27",
+    "project": {
+        "project_name": "phase10-acceptance-001",
+        "primary_keyword": "consultant insurance cost",
+        "language": "en",
+        "country": "US"
+    },
+    "pipeline": {
+        "research_sufficiency": "ready",
+        "article_draft_quality": "passed",
+        "claim_audit": "passed",
+        "seo_strategy": "seo_strategy_ready",
+        "seo_validation": "passed",
+        "editorial_review": "approved",
+        "publication_gate": "allowed",
+        "publisher": "publisher_ready",
+        "wordpress_draft": "wordpress_draft_ready"
+    },
+    "delivery": {
+        "mode": "LIVE",
+        "result": "passed",
+        "wordpress_post_id": 4952,
+        "wordpress_status": "draft",
+        "publish_performed": false
+    },
+    "acceptance_criteria": {
+        "new_project_completed": true,
+        "full_pipeline_completed": true,
+        "wordpress_draft_created": true,
+        "wordpress_publish_blocked": true,
+        "project_visible_in_operations": true
+    }
+}
