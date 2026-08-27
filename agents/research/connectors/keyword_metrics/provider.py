@@ -1,17 +1,14 @@
 from .base import KeywordMetricsProvider
 from .providers.mock import MockKeywordMetricsProvider
 from .providers.dataforseo import DataForSEOKeywordMetricsProvider
-
-# Active provider
 from .config import ACTIVE_PROVIDER
 
 
-def get_provider() -> KeywordMetricsProvider:
-    """
-    Return the active keyword metrics provider.
-    """
-
-    if ACTIVE_PROVIDER == "dataforseo":
+def get_provider(provider: str | None = None) -> KeywordMetricsProvider:
+    """Return the requested keyword metrics provider."""
+    selected = (provider or ACTIVE_PROVIDER).strip().lower()
+    if selected == "dataforseo":
         return DataForSEOKeywordMetricsProvider()
-
-    return MockKeywordMetricsProvider()
+    if selected == "mock":
+        return MockKeywordMetricsProvider()
+    raise ValueError(f"Unsupported keyword metrics provider: {selected}")
