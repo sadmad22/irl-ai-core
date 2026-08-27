@@ -20,9 +20,32 @@ The UI lets you enter:
 - Primary keyword
 - Language
 - Country
+- Research provider
 - Delivery mode
 
 **LIVE WordPress Draft is the default mode.** The UI calls the established production pipeline and only accepts a WordPress response whose status is `draft`. There is no Publish action or publish code path.
+
+### Research provider control
+
+The **Research Provider** panel controls the provider for keyword metrics and SERP collection for each run:
+
+- **DataForSEO — LIVE research**: production research provider.
+- **Mock — testing only**: local/test provider; it does not represent live research data.
+
+DataForSEO credentials are never entered into the UI and never written to project artifacts. The production environment must provide:
+
+```bash
+export DATAFORSEO_LOGIN="<dataforseo-login>"
+export DATAFORSEO_PASSWORD="<dataforseo-password>"
+```
+
+Optional base URL:
+
+```bash
+export DATAFORSEO_BASE_URL="https://api.dataforseo.com"
+```
+
+The UI shows whether DataForSEO is configured, but never displays the credential values. The provider can also be selected per run without changing project files.
 
 The UI also creates the minimal `research/<project>/keyword.json` and `metadata.json` for a genuinely new project. Existing projects are reused when their keyword matches.
 
