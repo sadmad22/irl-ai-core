@@ -1,0 +1,436 @@
+{
+    "audit_id": "claim_audit_ad12f95d8288bd63",
+    "draft_id": "draft_3ef6a9b52ff7a818",
+    "schema_version": "1.0",
+    "lifecycle_stage": "claim_audit_ready",
+    "outcome": "passed",
+    "summary": {
+        "total_claims": 25,
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "counts": {
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "claims": [
+        {
+            "audit_id": "claim_audit_8198355cd5138cd5",
+            "claim_id": "claim_1_1_f319b8422974",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_59ac68cfccaf468fa76b839b"
+            ],
+            "matched_tokens": [
+                "9333",
+                "consultant",
+                "fit",
+                "liability",
+                "professional",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_fc5b064d222f45f3",
+            "claim_id": "claim_2_1_4627698ea335",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_035ff911d4d1e42b271d0609"
+            ],
+            "matched_tokens": [
+                "3714",
+                "cornell",
+                "edu",
+                "risk",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_10ac3808dccc8b26",
+            "claim_id": "claim_2_2_ecaabf2b969a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13b5c7a50df53a31dacc96f7"
+            ],
+            "matched_tokens": [
+                "com",
+                "mentioned",
+                "thehartford",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_1a9cca017f9405e5",
+            "claim_id": "claim_2_3_01665a5a3f73",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_163e6f50db6033107903c88a"
+            ],
+            "matched_tokens": [
+                "com",
+                "mentioned",
+                "nerdwallet",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_bec6e57c3f4e3dce",
+            "claim_id": "claim_2_4_11d6d3e600ab",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1f155f288cfb6518e1c2f067"
+            ],
+            "matched_tokens": [
+                "cornell",
+                "edu",
+                "organization",
+                "risk",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_a9d30bfa54c97419",
+            "claim_id": "claim_3_1_4627698ea335",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_035ff911d4d1e42b271d0609"
+            ],
+            "matched_tokens": [
+                "3714",
+                "cornell",
+                "edu",
+                "risk",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9487f03b7d49b1ce",
+            "claim_id": "claim_3_2_ecaabf2b969a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13b5c7a50df53a31dacc96f7"
+            ],
+            "matched_tokens": [
+                "com",
+                "mentioned",
+                "thehartford",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_bdc91c905d7d9949",
+            "claim_id": "claim_3_3_01665a5a3f73",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_163e6f50db6033107903c88a"
+            ],
+            "matched_tokens": [
+                "com",
+                "mentioned",
+                "nerdwallet",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_4fba0932d1e1fd29",
+            "claim_id": "claim_3_4_11d6d3e600ab",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_1f155f288cfb6518e1c2f067"
+            ],
+            "matched_tokens": [
+                "cornell",
+                "edu",
+                "organization",
+                "risk",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9e96c09efefd379c",
+            "claim_id": "claim_4_1_247c8b4e435f",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_9d7a29711bcc70c90102a7ff"
+            ],
+            "matched_tokens": [
+                "affiliate",
+                "consultant",
+                "liability",
+                "low",
+                "potential",
+                "professional",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_8356765d1cc17e8b",
+            "claim_id": "claim_4_2_5703a98eff01",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_59e9ee2d6541c56d8f39232b"
+            ],
+            "matched_tokens": [
+                "adsense",
+                "consultant",
+                "high",
+                "liability",
+                "potential",
+                "professional",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_4095ef8c9b75187b",
+            "claim_id": "claim_4_3_88b9a80bcd6e",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_70b85a9f517f84723e1adfec"
+            ],
+            "matched_tokens": [
+                "commercial",
+                "consultant",
+                "liability",
+                "low",
+                "professional",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_6648974d82d6261b",
+            "claim_id": "claim_4_4_15aabbe3d642",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_d8c2f8858ffc24b804271f2c"
+            ],
+            "matched_tokens": [
+                "consultant",
+                "conversion",
+                "liability",
+                "low",
+                "potential",
+                "professional",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_b937ff02b3606280",
+            "claim_id": "claim_5_1_4627698ea335",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_035ff911d4d1e42b271d0609"
+            ],
+            "matched_tokens": [
+                "3714",
+                "cornell",
+                "edu",
+                "risk",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_6d0e8981c2baa62c",
+            "claim_id": "claim_5_2_4b1e8a58442d",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_2714a4d4356757c0050eb839"
+            ],
+            "matched_tokens": [
+                "com",
+                "score",
+                "thehartford",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_7b31cd337b2cf1a1",
+            "claim_id": "claim_5_3_27e038fbc873",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_2a1c8061f9ea60696d2355b5"
+            ],
+            "matched_tokens": [
+                "3625",
+                "com",
+                "progressivecommercial",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_9a30d3e9b6fdddf2",
+            "claim_id": "claim_5_4_416b781e0dec",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_3db70af81d0202181ba038b0"
+            ],
+            "matched_tokens": [
+                "9667",
+                "com",
+                "hiscox",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_1880990de43356b1",
+            "claim_id": "claim_6_1_1b48974cd38f",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_38bcc746245f3993"
+            ],
+            "matched_tokens": [
+                "consultant",
+                "informational",
+                "intent",
+                "liability",
+                "primary",
+                "professional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_a417af0d333c8f31",
+            "claim_id": "claim_6_2_abd3c123a059",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_9289006451aecfa3be4f4fe4"
+            ],
+            "matched_tokens": [
+                "consultant",
+                "count",
+                "liability",
+                "professional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_03e84aa2893f19cf",
+            "claim_id": "claim_6_3_0543440179af",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_intent_alignment_8695d6e6a56f05ea"
+            ],
+            "matched_tokens": [
+                "aligned",
+                "alignment",
+                "consultant",
+                "liability",
+                "professional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_7a36cc3c0e708fef",
+            "claim_id": "claim_6_4_5f75a0f3b637",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_serp_distribution_0eaf56d310a3673f"
+            ],
+            "matched_tokens": [
+                "consultant",
+                "distribution",
+                "informational",
+                "intent",
+                "liability",
+                "professional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_66bdbf25f8258ca7",
+            "claim_id": "claim_7_1_1e86f4fe728d",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_59ac68cfccaf468fa76b839b"
+            ],
+            "matched_tokens": [
+                "9333",
+                "consultant",
+                "fit",
+                "liability",
+                "professional",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_871568b652a07c36",
+            "claim_id": "claim_7_2_d0940afc6152",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_d7a1408f4e667e31693f3c8d"
+            ],
+            "matched_tokens": [
+                "8556",
+                "authority",
+                "consultant",
+                "liability",
+                "professional",
+                "score"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_559d4e78f4909150",
+            "claim_id": "claim_7_3_4627698ea335",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_035ff911d4d1e42b271d0609"
+            ],
+            "matched_tokens": [
+                "3714",
+                "cornell",
+                "edu",
+                "risk",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_301ae6c4c528b92f",
+            "claim_id": "claim_7_4_ecaabf2b969a",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_13b5c7a50df53a31dacc96f7"
+            ],
+            "matched_tokens": [
+                "com",
+                "mentioned",
+                "thehartford",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        }
+    ],
+    "audit": {
+        "method": "claim_audit_validator",
+        "version": "v1",
+        "validation_status": "validated"
+    }
+}

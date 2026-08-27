@@ -1,0 +1,818 @@
+[
+    {
+        "evidence_id": "ev_89320d48ff2fdc8ce4acb907",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387393+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_2e099f8b863f5fd06a002fa2",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387418+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_c42ca47267d6182e775ab7b6",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.reddit.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.45
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387439+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_82044afa62d5a9fa34b71660",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387458+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_242a1da02e28d4b8e94934a9",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387473+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_3db70af81d0202181ba038b0",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.hiscox.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9667
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387489+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_13b5c7a50df53a31dacc96f7",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387506+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e49d520a86423ad0c133029a",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387520+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_2714a4d4356757c0050eb839",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.thehartford.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387535+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_163e6f50db6033107903c88a",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nerdwallet.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387551+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_253e3e2fb52e0b77a75f7dff",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nerdwallet.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387566+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_96afac819e82d0a9e9fdf606",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nerdwallet.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6833
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387581+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_ebcdfc0c7e0017361e9fe724",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387596+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_1f155f288cfb6518e1c2f067",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387610+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_035ff911d4d1e42b271d0609",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.risk.cornell.edu"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3714
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387634+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_93d81c198fbb77d45f4ccb29",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.progressivecommercial.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387653+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_6db7e751a17291dd8d4b328c",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.progressivecommercial.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387667+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_2a1c8061f9ea60696d2355b5",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.progressivecommercial.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3625
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387682+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_83a097554b74b088df37324f",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "ctlowndes.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387698+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_fca5f1f4b9cf86c6ca9a5e56",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "ctlowndes.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387717+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_7568e04c80cc0c24a7c41ac6",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "ctlowndes.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.4556
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387732+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f53671ba6f22c2f137dadf63",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nextinsurance.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387749+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_90ad169da3aa6ae2390439de",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nextinsurance.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387763+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e171eeed459b5e7cc87d2b99",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nextinsurance.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6455
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.387778+00:00",
+        "status": "active"
+    }
+]

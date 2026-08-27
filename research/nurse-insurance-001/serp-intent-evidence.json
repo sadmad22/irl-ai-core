@@ -1,0 +1,416 @@
+[
+    {
+        "evidence_id": "ev_serp_result_1dfd80ac28203140",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:2"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Transactional"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.nso.com/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_8e45435f00c143c6",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:5"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_a3f96ce427b6974f",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:6"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_5bfd1fd50de648a3",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:7"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_2de2d64056406274",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:8"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.cna.com/industries/affinity/nurses",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_9a68454cd73e3ecb",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:9"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.berxi.com/insurance/all-nurses/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_bd0df13dc61ed0fd",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:10"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://www.nasn.org/membership/benefits/liability-insurance",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_result_35b542cb41966888",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "serp",
+        "subject": {
+            "type": "serp_result",
+            "id": "nurse malpractice insurance:11"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "result_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "https://nursejournal.org/ask-a-nurse/do-i-need-personal-liability-insurance/",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_distribution_f35a41bbb73f418a",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "derived",
+        "domain": "serp",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "intent_distribution"
+        },
+        "value": {
+            "type": "object",
+            "data": {
+                "Transactional": 0.3481,
+                "Informational": 0.6519
+            }
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "nurse malpractice insurance",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 0.6519,
+        "relation": "supports",
+        "derived_from": [
+            "ev_serp_result_1dfd80ac28203140",
+            "ev_serp_result_8e45435f00c143c6",
+            "ev_serp_result_a3f96ce427b6974f",
+            "ev_serp_result_5bfd1fd50de648a3",
+            "ev_serp_result_2de2d64056406274",
+            "ev_serp_result_9a68454cd73e3ecb",
+            "ev_serp_result_bd0df13dc61ed0fd",
+            "ev_serp_result_35b542cb41966888"
+        ],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_dominant_f35a41bbb73f418a",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "derived",
+        "domain": "serp",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "dominant_intent"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "Informational"
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "nurse malpractice insurance",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 0.6519,
+        "relation": "supports",
+        "derived_from": [
+            "ev_serp_result_8e45435f00c143c6",
+            "ev_serp_result_a3f96ce427b6974f",
+            "ev_serp_result_5bfd1fd50de648a3",
+            "ev_serp_result_2de2d64056406274",
+            "ev_serp_result_9a68454cd73e3ecb",
+            "ev_serp_result_bd0df13dc61ed0fd",
+            "ev_serp_result_35b542cb41966888"
+        ],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_serp_mixed_f35a41bbb73f418a",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "derived",
+        "domain": "serp",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "serp_intent",
+            "attribute": "mixed_intent"
+        },
+        "value": {
+            "type": "boolean",
+            "data": false
+        },
+        "source": {
+            "type": "serp",
+            "source_id": "nurse malpractice insurance",
+            "provider": "local",
+            "retrieved_at": "2026-08-27T18:38:10Z"
+        },
+        "provenance": {
+            "analyzer": "serp_intent",
+            "analyzer_version": "1.0",
+            "method": "rule_based"
+        },
+        "confidence": 0.6519,
+        "relation": "neutral",
+        "derived_from": [
+            "ev_serp_result_1dfd80ac28203140",
+            "ev_serp_result_8e45435f00c143c6",
+            "ev_serp_result_a3f96ce427b6974f",
+            "ev_serp_result_5bfd1fd50de648a3",
+            "ev_serp_result_2de2d64056406274",
+            "ev_serp_result_9a68454cd73e3ecb",
+            "ev_serp_result_bd0df13dc61ed0fd",
+            "ev_serp_result_35b542cb41966888"
+        ],
+        "captured_at": "2026-08-27T18:38:10Z",
+        "status": "active"
+    }
+]

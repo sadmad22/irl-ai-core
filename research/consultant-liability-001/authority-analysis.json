@@ -1,0 +1,18 @@
+{
+    "authority_score": 0.8556,
+    "topic_fit": 0.9333,
+    "serp_domain_diversity": 0.7778,
+    "serp_domain_count": 8,
+    "method": "authority-v1",
+    "keyword": "consultant professional liability insurance",
+    "competitor_domains": {
+        "www.reddit.com": 1,
+        "www.hiscox.com": 1,
+        "www.thehartford.com": 1,
+        "www.nerdwallet.com": 2,
+        "www.risk.cornell.edu": 1,
+        "www.progressivecommercial.com": 1,
+        "ctlowndes.com": 1,
+        "www.nextinsurance.com": 1
+    }
+}

@@ -1,0 +1,63 @@
+{
+    "entities": [
+        {
+            "entity_id": "www.reddit.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.45,
+            "source_position": 2
+        },
+        {
+            "entity_id": "www.hiscox.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.9667,
+            "source_position": 3
+        },
+        {
+            "entity_id": "www.thehartford.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6,
+            "source_position": 5
+        },
+        {
+            "entity_id": "www.nerdwallet.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6833,
+            "source_position": 6
+        },
+        {
+            "entity_id": "www.risk.cornell.edu",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3714,
+            "source_position": 7
+        },
+        {
+            "entity_id": "www.progressivecommercial.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3625,
+            "source_position": 8
+        },
+        {
+            "entity_id": "ctlowndes.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.4556,
+            "source_position": 9
+        },
+        {
+            "entity_id": "www.nextinsurance.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6455,
+            "source_position": 11
+        }
+    ],
+    "entity_count": 8,
+    "unique_domains": 8,
+    "method": "entity-v1"
+}

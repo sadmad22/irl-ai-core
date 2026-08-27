@@ -1,0 +1,34 @@
+{
+    "evidence_id": "ev_9289006451aecfa3be4f4fe4",
+    "report_id": "rr_consultant-liability-001",
+    "schema_version": "1.0",
+    "type": "observation",
+    "domain": "question",
+    "subject": {
+        "type": "keyword",
+        "id": "consultant professional liability insurance"
+    },
+    "claim": {
+        "type": "question_frequency",
+        "attribute": "count"
+    },
+    "value": {
+        "type": "numeric",
+        "data": 8
+    },
+    "source": {
+        "type": "research_artifact",
+        "project": "consultant-liability-001",
+        "artifact": "serp-analysis.json"
+    },
+    "provenance": {
+        "analyzer": "question",
+        "method": "question-v1",
+        "version": "v1"
+    },
+    "confidence": 0.85,
+    "relation": "supports",
+    "derived_from": [],
+    "captured_at": "2026-08-27T18:32:03.390216+00:00",
+    "status": "active"
+}

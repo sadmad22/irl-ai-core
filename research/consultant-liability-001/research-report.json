@@ -1,0 +1,479 @@
+{
+    "report_id": "rr_consultant-liability-001",
+    "schema_version": "1.0",
+    "lifecycle_stage": "research_complete",
+    "metadata": {
+        "id": "",
+        "keyword": "consultant professional liability insurance",
+        "language": "en",
+        "country": "US",
+        "created_at": "2026-08-27T17:57:07.930011+00:00",
+        "updated_at": "2026-08-27T17:57:07.930028+00:00",
+        "version": "1.0",
+        "project_name": "consultant-liability-001"
+    },
+    "keyword": {
+        "keyword": "consultant professional liability insurance",
+        "search_volume": 0,
+        "difficulty": 0,
+        "cpc": 0,
+        "trend": [],
+        "language": "en",
+        "country": "US"
+    },
+    "search_intent": {
+        "keyword": "consultant professional liability insurance",
+        "primary_intent": "Informational",
+        "secondary_intent": null,
+        "confidence": 1.0,
+        "scores": {
+            "Informational": 1
+        },
+        "signals": {
+            "Informational": [
+                "no-explicit-intent-signal"
+            ]
+        }
+    },
+    "search_metrics": {
+        "keyword": "consultant professional liability insurance",
+        "search_volume": 6600,
+        "difficulty": 7,
+        "cpc": null,
+        "trend": [
+            {
+                "year": 2026,
+                "month": 7,
+                "search_volume": 880
+            },
+            {
+                "year": 2026,
+                "month": 6,
+                "search_volume": 1600
+            },
+            {
+                "year": 2026,
+                "month": 5,
+                "search_volume": 8100
+            },
+            {
+                "year": 2026,
+                "month": 4,
+                "search_volume": 9900
+            },
+            {
+                "year": 2026,
+                "month": 3,
+                "search_volume": 18100
+            },
+            {
+                "year": 2026,
+                "month": 2,
+                "search_volume": 12100
+            },
+            {
+                "year": 2026,
+                "month": 1,
+                "search_volume": 12100
+            },
+            {
+                "year": 2025,
+                "month": 12,
+                "search_volume": 5400
+            },
+            {
+                "year": 2025,
+                "month": 11,
+                "search_volume": 1900
+            },
+            {
+                "year": 2025,
+                "month": 10,
+                "search_volume": 1000
+            },
+            {
+                "year": 2025,
+                "month": 9,
+                "search_volume": 2900
+            },
+            {
+                "year": 2025,
+                "month": 8,
+                "search_volume": 1900
+            }
+        ],
+        "language": "en",
+        "country": "US"
+    },
+    "serp_analysis": {
+        "keyword": "consultant professional liability insurance",
+        "language": "en",
+        "country": "US",
+        "results": [
+            {
+                "position": 2,
+                "title": "New independent consultant - Liability Insurance?",
+                "url": "https://www.reddit.com/r/consulting/comments/16g70yy/new_independent_consultant_liability_insurance/",
+                "domain": "www.reddit.com",
+                "snippet": "I’m retired and just started doing some independent consulting. In a short time I’ve picked up several clients and will likely have annual revenues ..."
+            },
+            {
+                "position": 3,
+                "title": "Business Consultant Insurance Professional & General ...",
+                "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
+                "domain": "www.hiscox.com",
+                "snippet": "Hiscox business consultant insurance protects against negligence and liability claims. Get a fast, free quote on coverage for your professional needs."
+            },
+            {
+                "position": 5,
+                "title": "Professional Liability Insurance for Consultants",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+                "domain": "www.thehartford.com",
+                "snippet": "Feb 24, 2025 — Professional liability insurance can help cover your legal fees and costs to defend your business. It can also help pay for settlements and ..."
+            },
+            {
+                "position": 6,
+                "title": "Business Consultant Insurance: What You Need, Best ...",
+                "url": "https://www.nerdwallet.com/business/insurance/best/consultants",
+                "domain": "www.nerdwallet.com",
+                "snippet": "Professional liability insurance for consulting companies has a median price of $883 per year, according to data that insurance agency Coverdash shared with ... Read more"
+            },
+            {
+                "position": 7,
+                "title": "Independent Consultant/Non-Specialist Professional Services ...",
+                "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
+                "domain": "www.risk.cornell.edu",
+                "snippet": "The insurance can cover the following: Negligence; Personal Injury (Libel & Slander); Claims for work that was completed in the past; employees and independent ... Read more"
+            },
+            {
+                "position": 8,
+                "title": "Consulting Insurance",
+                "url": "https://www.progressivecommercial.com/business-insurance/professions/consulting-insurance/",
+                "domain": "www.progressivecommercial.com",
+                "snippet": "Professional Liability. This essential coverage for consultants protects if you're sued for negligence related to your professional services. · Commercial Auto. Read more"
+            },
+            {
+                "position": 9,
+                "title": "Consultant Liability Insurance: 7 Things to Know",
+                "url": "https://ctlowndes.com/blog/business-insurance-for-consultants/",
+                "domain": "ctlowndes.com",
+                "snippet": "Mar 28, 2026 — Consultant liability insurance helps protect against claims, legal costs, and financial losses tied to being sued for an error. Read more"
+            },
+            {
+                "position": 10,
+                "title": "Do Consultants Need Professional Liability Insurance?",
+                "url": "https://www.nerdwallet.com/business/insurance/learn/do-consultants-need-professional-liability-insurance",
+                "domain": "www.nerdwallet.com",
+                "snippet": "Apr 16, 2026 — Professional liability insurance protects consultants who are sued for mistakes or misinformation. Professional liability insurance covers ..."
+            },
+            {
+                "position": 11,
+                "title": "What's The Best Business Insurance For Consultants?",
+                "url": "https://www.nextinsurance.com/blog/best-business-insurance-for-consultants/",
+                "domain": "www.nextinsurance.com",
+                "snippet": "Sep 17, 2025 — Professional liability insurance (also called errors and omissions insurance, or E&O): For claims and allegations of bad advice, professional ... Read more"
+            }
+        ]
+    },
+    "competitor_analysis": {
+        "keyword": "consultant professional liability insurance",
+        "country": "US",
+        "language": "en",
+        "competitors": [
+            {
+                "position": 2,
+                "domain": "www.reddit.com",
+                "title": "New independent consultant - Liability Insurance?",
+                "url": "https://www.reddit.com/r/consulting/comments/16g70yy/new_independent_consultant_liability_insurance/"
+            },
+            {
+                "position": 3,
+                "domain": "www.hiscox.com",
+                "title": "Business Consultant Insurance Professional & General ...",
+                "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance"
+            },
+            {
+                "position": 5,
+                "domain": "www.thehartford.com",
+                "title": "Professional Liability Insurance for Consultants",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants"
+            },
+            {
+                "position": 6,
+                "domain": "www.nerdwallet.com",
+                "title": "Business Consultant Insurance: What You Need, Best ...",
+                "url": "https://www.nerdwallet.com/business/insurance/best/consultants"
+            },
+            {
+                "position": 7,
+                "domain": "www.risk.cornell.edu",
+                "title": "Independent Consultant/Non-Specialist Professional Services ...",
+                "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/"
+            },
+            {
+                "position": 8,
+                "domain": "www.progressivecommercial.com",
+                "title": "Consulting Insurance",
+                "url": "https://www.progressivecommercial.com/business-insurance/professions/consulting-insurance/"
+            },
+            {
+                "position": 9,
+                "domain": "ctlowndes.com",
+                "title": "Consultant Liability Insurance: 7 Things to Know",
+                "url": "https://ctlowndes.com/blog/business-insurance-for-consultants/"
+            },
+            {
+                "position": 10,
+                "domain": "www.nerdwallet.com",
+                "title": "Do Consultants Need Professional Liability Insurance?",
+                "url": "https://www.nerdwallet.com/business/insurance/learn/do-consultants-need-professional-liability-insurance"
+            },
+            {
+                "position": 11,
+                "domain": "www.nextinsurance.com",
+                "title": "What's The Best Business Insurance For Consultants?",
+                "url": "https://www.nextinsurance.com/blog/best-business-insurance-for-consultants/"
+            }
+        ],
+        "domain_counts": {
+            "www.reddit.com": 1,
+            "www.hiscox.com": 1,
+            "www.thehartford.com": 1,
+            "www.nerdwallet.com": 2,
+            "www.risk.cornell.edu": 1,
+            "www.progressivecommercial.com": 1,
+            "ctlowndes.com": 1,
+            "www.nextinsurance.com": 1
+        },
+        "average_position": 6.777777777777778,
+        "top_competitors": [
+            {
+                "position": 2,
+                "domain": "www.reddit.com",
+                "title": "New independent consultant - Liability Insurance?",
+                "url": "https://www.reddit.com/r/consulting/comments/16g70yy/new_independent_consultant_liability_insurance/"
+            },
+            {
+                "position": 3,
+                "domain": "www.hiscox.com",
+                "title": "Business Consultant Insurance Professional & General ...",
+                "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance"
+            },
+            {
+                "position": 5,
+                "domain": "www.thehartford.com",
+                "title": "Professional Liability Insurance for Consultants",
+                "url": "https://www.thehartford.com/professional-liability-insurance/consultants"
+            },
+            {
+                "position": 6,
+                "domain": "www.nerdwallet.com",
+                "title": "Business Consultant Insurance: What You Need, Best ...",
+                "url": "https://www.nerdwallet.com/business/insurance/best/consultants"
+            },
+            {
+                "position": 7,
+                "domain": "www.risk.cornell.edu",
+                "title": "Independent Consultant/Non-Specialist Professional Services ...",
+                "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/"
+            }
+        ]
+    },
+    "entity_analysis": {
+        "entities": [
+            {
+                "entity_id": "www.reddit.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.45,
+                "source_position": 2
+            },
+            {
+                "entity_id": "www.hiscox.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.9667,
+                "source_position": 3
+            },
+            {
+                "entity_id": "www.thehartford.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6,
+                "source_position": 5
+            },
+            {
+                "entity_id": "www.nerdwallet.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6833,
+                "source_position": 6
+            },
+            {
+                "entity_id": "www.risk.cornell.edu",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3714,
+                "source_position": 7
+            },
+            {
+                "entity_id": "www.progressivecommercial.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3625,
+                "source_position": 8
+            },
+            {
+                "entity_id": "ctlowndes.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.4556,
+                "source_position": 9
+            },
+            {
+                "entity_id": "www.nextinsurance.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6455,
+                "source_position": 11
+            }
+        ],
+        "entity_count": 8,
+        "unique_domains": 8,
+        "method": "entity-v1"
+    },
+    "question_analysis": {
+        "questions": [
+            {
+                "text": "New independent consultant - Liability Insurance?",
+                "source_position": 2,
+                "count": 1
+            },
+            {
+                "text": "Professional Liability Insurance for Consultants",
+                "source_position": 5,
+                "count": 1
+            },
+            {
+                "text": "Business Consultant Insurance: What You Need, Best ...",
+                "source_position": 6,
+                "count": 1
+            },
+            {
+                "text": "Independent Consultant/Non-Specialist Professional Services ...",
+                "source_position": 7,
+                "count": 1
+            },
+            {
+                "text": "Do Consultants Need Professional Liability Insurance?",
+                "source_position": 10,
+                "count": 2
+            },
+            {
+                "text": "What's The Best Business Insurance For Consultants?",
+                "source_position": 11,
+                "count": 2
+            }
+        ],
+        "question_count": 8,
+        "result_question_count": 6,
+        "method": "question-v1"
+    },
+    "topical_authority": {
+        "authority_score": 0.8556,
+        "topic_fit": 0.9333,
+        "serp_domain_diversity": 0.7778,
+        "serp_domain_count": 8,
+        "method": "authority-v1",
+        "keyword": "consultant professional liability insurance",
+        "competitor_domains": {
+            "www.reddit.com": 1,
+            "www.hiscox.com": 1,
+            "www.thehartford.com": 1,
+            "www.nerdwallet.com": 2,
+            "www.risk.cornell.edu": 1,
+            "www.progressivecommercial.com": 1,
+            "ctlowndes.com": 1,
+            "www.nextinsurance.com": 1
+        }
+    },
+    "business_analysis": {
+        "affiliate_potential": "low",
+        "adsense_potential": "high",
+        "conversion_potential": "low",
+        "commercial_value": "low",
+        "commercial_value_score": 0.24,
+        "cpc_signal": 0.0,
+        "volume_signal": 0.66,
+        "competition_signal": 1.0,
+        "method": "business-v1",
+        "keyword": "consultant professional liability insurance"
+    },
+    "evidence_refs": {
+        "intent": [
+            "ev_38bcc746245f3993",
+            "ev_serp_result_ad3f9c5d517ee7a3",
+            "ev_serp_result_0b4f0e3e89b560da",
+            "ev_serp_result_8856d08332fc1f99",
+            "ev_serp_result_adbaaf5998cff652",
+            "ev_serp_result_f5861312f10acc17",
+            "ev_serp_result_d9109168f9828f23",
+            "ev_serp_result_687dc6ca2e964d97",
+            "ev_serp_result_0af6a8d66839d48b",
+            "ev_serp_result_31128a05b7969821",
+            "ev_serp_distribution_0eaf56d310a3673f",
+            "ev_serp_dominant_0eaf56d310a3673f",
+            "ev_serp_mixed_0eaf56d310a3673f",
+            "ev_intent_alignment_8695d6e6a56f05ea",
+            "ev_serp_strategy_85839d0c5cd36e9e"
+        ],
+        "entity": [
+            "ev_89320d48ff2fdc8ce4acb907",
+            "ev_2e099f8b863f5fd06a002fa2",
+            "ev_c42ca47267d6182e775ab7b6",
+            "ev_82044afa62d5a9fa34b71660",
+            "ev_242a1da02e28d4b8e94934a9",
+            "ev_3db70af81d0202181ba038b0",
+            "ev_13b5c7a50df53a31dacc96f7",
+            "ev_e49d520a86423ad0c133029a",
+            "ev_2714a4d4356757c0050eb839",
+            "ev_163e6f50db6033107903c88a",
+            "ev_253e3e2fb52e0b77a75f7dff",
+            "ev_96afac819e82d0a9e9fdf606",
+            "ev_ebcdfc0c7e0017361e9fe724",
+            "ev_1f155f288cfb6518e1c2f067",
+            "ev_035ff911d4d1e42b271d0609",
+            "ev_93d81c198fbb77d45f4ccb29",
+            "ev_6db7e751a17291dd8d4b328c",
+            "ev_2a1c8061f9ea60696d2355b5",
+            "ev_83a097554b74b088df37324f",
+            "ev_fca5f1f4b9cf86c6ca9a5e56",
+            "ev_7568e04c80cc0c24a7c41ac6",
+            "ev_f53671ba6f22c2f137dadf63",
+            "ev_90ad169da3aa6ae2390439de",
+            "ev_e171eeed459b5e7cc87d2b99"
+        ],
+        "question": [
+            "ev_9289006451aecfa3be4f4fe4"
+        ],
+        "business": [
+            "ev_9d7a29711bcc70c90102a7ff",
+            "ev_59e9ee2d6541c56d8f39232b",
+            "ev_d8c2f8858ffc24b804271f2c",
+            "ev_70b85a9f517f84723e1adfec"
+        ],
+        "authority": [
+            "ev_d7a1408f4e667e31693f3c8d",
+            "ev_59ac68cfccaf468fa76b839b"
+        ]
+    },
+    "recommendation": null,
+    "decision": null,
+    "audit": {
+        "validation_status": "pending",
+        "validation_errors": [],
+        "notes": [
+            "Pre-decision research state; recommendation and decision are intentionally not generated."
+        ]
+    }
+}

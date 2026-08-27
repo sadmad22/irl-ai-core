@@ -1,0 +1,138 @@
+[
+    {
+        "evidence_id": "ev_28b93b4ce2312b1f21f25a16",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "affiliate_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.991969+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f3f5380b7543aacc1bc4a1e7",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "adsense_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "high"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.991999+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_5db43ca25ad033763a318519",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "conversion_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.992020+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_fda919b2068258f950c3d5f1",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "commercial_value"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.992038+00:00",
+        "status": "active"
+    }
+]

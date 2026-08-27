@@ -1,0 +1,63 @@
+{
+    "entities": [
+        {
+            "entity_id": "www.nso.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.55,
+            "source_position": 2
+        },
+        {
+            "entity_id": "www.nursingworld.org",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.6,
+            "source_position": 5
+        },
+        {
+            "entity_id": "www.proliability.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3833,
+            "source_position": 6
+        },
+        {
+            "entity_id": "mnnurses.org",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3714,
+            "source_position": 7
+        },
+        {
+            "entity_id": "www.cna.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.2625,
+            "source_position": 8
+        },
+        {
+            "entity_id": "www.berxi.com",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.3556,
+            "source_position": 9
+        },
+        {
+            "entity_id": "www.nasn.org",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.45,
+            "source_position": 10
+        },
+        {
+            "entity_id": "nursejournal.org",
+            "entity_type": "organization",
+            "mentioned": true,
+            "relevance": 0.4455,
+            "source_position": 11
+        }
+    ],
+    "entity_count": 8,
+    "unique_domains": 8,
+    "method": "entity-v1"
+}

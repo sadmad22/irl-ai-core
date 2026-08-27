@@ -1,0 +1,445 @@
+{
+    "report_id": "rr_nurse-insurance-001",
+    "schema_version": "1.0",
+    "lifecycle_stage": "research_complete",
+    "metadata": {
+        "id": "",
+        "keyword": "nurse malpractice insurance",
+        "language": "en",
+        "country": "US",
+        "created_at": "2026-08-27T18:38:09.193280+00:00",
+        "updated_at": "2026-08-27T18:38:09.193300+00:00",
+        "version": "1.0",
+        "project_name": "nurse-insurance-001"
+    },
+    "keyword": {
+        "keyword": "nurse malpractice insurance",
+        "search_volume": 0,
+        "difficulty": 0,
+        "cpc": 0,
+        "trend": [],
+        "language": "en",
+        "country": "US"
+    },
+    "search_intent": {
+        "keyword": "nurse malpractice insurance",
+        "primary_intent": "Informational",
+        "secondary_intent": null,
+        "confidence": 1.0,
+        "scores": {
+            "Informational": 1
+        },
+        "signals": {
+            "Informational": [
+                "no-explicit-intent-signal"
+            ]
+        }
+    },
+    "search_metrics": {
+        "keyword": "nurse malpractice insurance",
+        "search_volume": 8100,
+        "difficulty": 50,
+        "cpc": null,
+        "trend": [
+            {
+                "year": 2026,
+                "month": 7,
+                "search_volume": 6600
+            },
+            {
+                "year": 2026,
+                "month": 6,
+                "search_volume": 6600
+            },
+            {
+                "year": 2026,
+                "month": 5,
+                "search_volume": 6600
+            },
+            {
+                "year": 2026,
+                "month": 4,
+                "search_volume": 6600
+            },
+            {
+                "year": 2026,
+                "month": 3,
+                "search_volume": 8100
+            },
+            {
+                "year": 2026,
+                "month": 2,
+                "search_volume": 8100
+            },
+            {
+                "year": 2026,
+                "month": 1,
+                "search_volume": 9900
+            },
+            {
+                "year": 2025,
+                "month": 12,
+                "search_volume": 6600
+            },
+            {
+                "year": 2025,
+                "month": 11,
+                "search_volume": 8100
+            },
+            {
+                "year": 2025,
+                "month": 10,
+                "search_volume": 8100
+            },
+            {
+                "year": 2025,
+                "month": 9,
+                "search_volume": 8100
+            },
+            {
+                "year": 2025,
+                "month": 8,
+                "search_volume": 8100
+            }
+        ],
+        "language": "en",
+        "country": "US"
+    },
+    "serp_analysis": {
+        "keyword": "nurse malpractice insurance",
+        "language": "en",
+        "country": "US",
+        "results": [
+            {
+                "position": 2,
+                "title": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+                "url": "https://www.nso.com/",
+                "domain": "www.nso.com",
+                "snippet": "If you're looking for nursing malpractice insurance, NSO insurance can give you a fast and easy quote. Find out more about nursing liability insurance."
+            },
+            {
+                "position": 5,
+                "title": "ANA Membership Personal Benefits - Insurance & more",
+                "url": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/",
+                "domain": "www.nursingworld.org",
+                "snippet": "Nurses need to protect themselves and their career by maintaining Professional Liability Insurance, a.k.a. Medical Malpractice Insurance."
+            },
+            {
+                "position": 6,
+                "title": "Nurse Professional Liability Insurance Stay Covered While ...",
+                "url": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/",
+                "domain": "www.proliability.com",
+                "snippet": "With Proliability, you get affordable coverage designed specifically for nurses, with premiums starting at just $106 for employed RNs.*"
+            },
+            {
+                "position": 7,
+                "title": "To Have or Not to Have Malpractice/Liability Insurance",
+                "url": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/",
+                "domain": "mnnurses.org",
+                "snippet": "Dec 5, 2018 — Professional malpractice insurance, through Nurses Service Organization (NSO), for instance will pay up to $25,000 for a Board of Nursing ... Read more"
+            },
+            {
+                "position": 8,
+                "title": "Insurance for Nurses | CNA",
+                "url": "https://www.cna.com/industries/affinity/nurses",
+                "domain": "www.cna.com",
+                "snippet": "As the country's leading underwriter for nursing professionals, we provide malpractice insurance for individuals and small groups of nurses."
+            },
+            {
+                "position": 9,
+                "title": "Nurse Malpractice and Liability Insurance",
+                "url": "https://www.berxi.com/insurance/all-nurses/",
+                "domain": "www.berxi.com",
+                "snippet": "Nursing malpractice insurance for LPNs, LVNs, and RNs typically starts at around $68 per year. Typical limits of liability range from $500,000 per claim/$1 ..."
+            },
+            {
+                "position": 10,
+                "title": "Professional Liability Insurance",
+                "url": "https://www.nasn.org/membership/benefits/liability-insurance",
+                "domain": "www.nasn.org",
+                "snippet": "Professional Liability Insurance – up to $1 million per claim ($6 million aggregate per year) Phone: 1-800-247-1500. Telephone: 240-821-1130"
+            },
+            {
+                "position": 11,
+                "title": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+                "url": "https://nursejournal.org/ask-a-nurse/do-i-need-personal-liability-insurance/",
+                "domain": "nursejournal.org",
+                "snippet": "Nov 4, 2024 — It is a type of insurance that protects you from claims brought against you and the service you provide as a nurse. According to the Nurses ... Read more"
+            }
+        ]
+    },
+    "competitor_analysis": {
+        "keyword": "nurse malpractice insurance",
+        "country": "US",
+        "language": "en",
+        "competitors": [
+            {
+                "position": 2,
+                "domain": "www.nso.com",
+                "title": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+                "url": "https://www.nso.com/"
+            },
+            {
+                "position": 5,
+                "domain": "www.nursingworld.org",
+                "title": "ANA Membership Personal Benefits - Insurance & more",
+                "url": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/"
+            },
+            {
+                "position": 6,
+                "domain": "www.proliability.com",
+                "title": "Nurse Professional Liability Insurance Stay Covered While ...",
+                "url": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/"
+            },
+            {
+                "position": 7,
+                "domain": "mnnurses.org",
+                "title": "To Have or Not to Have Malpractice/Liability Insurance",
+                "url": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/"
+            },
+            {
+                "position": 8,
+                "domain": "www.cna.com",
+                "title": "Insurance for Nurses | CNA",
+                "url": "https://www.cna.com/industries/affinity/nurses"
+            },
+            {
+                "position": 9,
+                "domain": "www.berxi.com",
+                "title": "Nurse Malpractice and Liability Insurance",
+                "url": "https://www.berxi.com/insurance/all-nurses/"
+            },
+            {
+                "position": 10,
+                "domain": "www.nasn.org",
+                "title": "Professional Liability Insurance",
+                "url": "https://www.nasn.org/membership/benefits/liability-insurance"
+            },
+            {
+                "position": 11,
+                "domain": "nursejournal.org",
+                "title": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+                "url": "https://nursejournal.org/ask-a-nurse/do-i-need-personal-liability-insurance/"
+            }
+        ],
+        "domain_counts": {
+            "www.nso.com": 1,
+            "www.nursingworld.org": 1,
+            "www.proliability.com": 1,
+            "mnnurses.org": 1,
+            "www.cna.com": 1,
+            "www.berxi.com": 1,
+            "www.nasn.org": 1,
+            "nursejournal.org": 1
+        },
+        "average_position": 7.25,
+        "top_competitors": [
+            {
+                "position": 2,
+                "domain": "www.nso.com",
+                "title": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+                "url": "https://www.nso.com/"
+            },
+            {
+                "position": 5,
+                "domain": "www.nursingworld.org",
+                "title": "ANA Membership Personal Benefits - Insurance & more",
+                "url": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/"
+            },
+            {
+                "position": 6,
+                "domain": "www.proliability.com",
+                "title": "Nurse Professional Liability Insurance Stay Covered While ...",
+                "url": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/"
+            },
+            {
+                "position": 7,
+                "domain": "mnnurses.org",
+                "title": "To Have or Not to Have Malpractice/Liability Insurance",
+                "url": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/"
+            },
+            {
+                "position": 8,
+                "domain": "www.cna.com",
+                "title": "Insurance for Nurses | CNA",
+                "url": "https://www.cna.com/industries/affinity/nurses"
+            }
+        ]
+    },
+    "entity_analysis": {
+        "entities": [
+            {
+                "entity_id": "www.nso.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.55,
+                "source_position": 2
+            },
+            {
+                "entity_id": "www.nursingworld.org",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.6,
+                "source_position": 5
+            },
+            {
+                "entity_id": "www.proliability.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3833,
+                "source_position": 6
+            },
+            {
+                "entity_id": "mnnurses.org",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3714,
+                "source_position": 7
+            },
+            {
+                "entity_id": "www.cna.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.2625,
+                "source_position": 8
+            },
+            {
+                "entity_id": "www.berxi.com",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.3556,
+                "source_position": 9
+            },
+            {
+                "entity_id": "www.nasn.org",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.45,
+                "source_position": 10
+            },
+            {
+                "entity_id": "nursejournal.org",
+                "entity_type": "organization",
+                "mentioned": true,
+                "relevance": 0.4455,
+                "source_position": 11
+            }
+        ],
+        "entity_count": 8,
+        "unique_domains": 8,
+        "method": "entity-v1"
+    },
+    "question_analysis": {
+        "questions": [
+            {
+                "text": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+                "source_position": 2,
+                "count": 1
+            },
+            {
+                "text": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+                "source_position": 11,
+                "count": 1
+            }
+        ],
+        "question_count": 2,
+        "result_question_count": 2,
+        "method": "question-v1"
+    },
+    "topical_authority": {
+        "authority_score": 0.9187,
+        "topic_fit": 0.9625,
+        "serp_domain_diversity": 0.875,
+        "serp_domain_count": 8,
+        "method": "authority-v1",
+        "keyword": "nurse malpractice insurance",
+        "competitor_domains": {
+            "www.nso.com": 1,
+            "www.nursingworld.org": 1,
+            "www.proliability.com": 1,
+            "mnnurses.org": 1,
+            "www.cna.com": 1,
+            "www.berxi.com": 1,
+            "www.nasn.org": 1,
+            "nursejournal.org": 1
+        }
+    },
+    "business_analysis": {
+        "affiliate_potential": "low",
+        "adsense_potential": "high",
+        "conversion_potential": "low",
+        "commercial_value": "low",
+        "commercial_value_score": 0.2775,
+        "cpc_signal": 0.0,
+        "volume_signal": 0.81,
+        "competition_signal": 1.0,
+        "method": "business-v1",
+        "keyword": "nurse malpractice insurance"
+    },
+    "evidence_refs": {
+        "intent": [
+            "ev_899bc35030db6ae9",
+            "ev_serp_result_1dfd80ac28203140",
+            "ev_serp_result_8e45435f00c143c6",
+            "ev_serp_result_a3f96ce427b6974f",
+            "ev_serp_result_5bfd1fd50de648a3",
+            "ev_serp_result_2de2d64056406274",
+            "ev_serp_result_9a68454cd73e3ecb",
+            "ev_serp_result_bd0df13dc61ed0fd",
+            "ev_serp_result_35b542cb41966888",
+            "ev_serp_distribution_f35a41bbb73f418a",
+            "ev_serp_dominant_f35a41bbb73f418a",
+            "ev_serp_mixed_f35a41bbb73f418a",
+            "ev_intent_alignment_3dda34e37d41f549",
+            "ev_serp_strategy_8f3e0ccc47044226"
+        ],
+        "entity": [
+            "ev_37000010b6cdf166ebe7f211",
+            "ev_88601f584f5ce576aa293d8f",
+            "ev_8c755ee156753574a21b3693",
+            "ev_bc04eb32b2d4d7d2cb892534",
+            "ev_000b6ff1d883e4b236e2a255",
+            "ev_32f29ba58089e24071ef7400",
+            "ev_561ac6e1712acee51c031d51",
+            "ev_939ba9bd6af24af6227db5ec",
+            "ev_f07dea65e3c438cc915ba742",
+            "ev_b6bcf2035ad8fc7a2a8aa12e",
+            "ev_dc6781ac11ed7d77500d45ef",
+            "ev_7647b34b28d27f0904a7c003",
+            "ev_a8b52a0511bb73d1b3cf5c99",
+            "ev_194594d3915805696e43e930",
+            "ev_7df87bec6e46cd6af0b27229",
+            "ev_78f3d450713da5ef9ca7f529",
+            "ev_61ef469e7aa2ba63cd9b6d87",
+            "ev_4762cfc4c3e58e4fd43b1c54",
+            "ev_f7943ffb9fdb21b1fd3c8a5f",
+            "ev_62b47393bada549c000e90c1",
+            "ev_bf9d4f9e6ac89f749caea030",
+            "ev_e6ca8764ba88910b5bfc46c2",
+            "ev_5a7caa9e12247cd1389aed0f",
+            "ev_e75d12b51b25eaf885fdef37"
+        ],
+        "question": [
+            "ev_c5e74c2c8306d3edd88f6cb5"
+        ],
+        "business": [
+            "ev_28b93b4ce2312b1f21f25a16",
+            "ev_f3f5380b7543aacc1bc4a1e7",
+            "ev_5db43ca25ad033763a318519",
+            "ev_fda919b2068258f950c3d5f1"
+        ],
+        "authority": [
+            "ev_5a36575cf6dafcf6ff592d6a",
+            "ev_03d3deddc7aa3467e8c6751e"
+        ]
+    },
+    "recommendation": null,
+    "decision": null,
+    "audit": {
+        "validation_status": "pending",
+        "validation_errors": [],
+        "notes": [
+            "Pre-decision research state; recommendation and decision are intentionally not generated."
+        ]
+    }
+}

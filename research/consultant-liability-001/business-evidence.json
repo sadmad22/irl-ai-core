@@ -1,0 +1,138 @@
+[
+    {
+        "evidence_id": "ev_9d7a29711bcc70c90102a7ff",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "affiliate_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.390881+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_59e9ee2d6541c56d8f39232b",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "adsense_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "high"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.390928+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_d8c2f8858ffc24b804271f2c",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "conversion_potential"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.390950+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_70b85a9f517f84723e1adfec",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "business",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "business_value",
+            "attribute": "commercial_value"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "low"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "search-metrics.json"
+        },
+        "provenance": {
+            "analyzer": "business",
+            "method": "business-v1",
+            "version": "v1"
+        },
+        "confidence": 0.8,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.390967+00:00",
+        "status": "active"
+    }
+]

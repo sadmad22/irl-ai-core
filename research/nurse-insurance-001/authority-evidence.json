@@ -1,0 +1,70 @@
+[
+    {
+        "evidence_id": "ev_5a36575cf6dafcf6ff592d6a",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "authority_score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9187
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.992964+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_03d3deddc7aa3467e8c6751e",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "nurse malpractice insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "topic_fit"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9625
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.992994+00:00",
+        "status": "active"
+    }
+]

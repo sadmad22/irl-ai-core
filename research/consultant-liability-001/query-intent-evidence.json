@@ -1,0 +1,35 @@
+{
+    "evidence_id": "ev_38bcc746245f3993",
+    "report_id": "rr_consultant-liability-001",
+    "schema_version": "1.0",
+    "type": "observation",
+    "domain": "intent",
+    "subject": {
+        "type": "keyword",
+        "id": "consultant professional liability insurance"
+    },
+    "claim": {
+        "type": "query_intent",
+        "attribute": "primary_intent"
+    },
+    "value": {
+        "type": "categorical",
+        "data": "Informational"
+    },
+    "source": {
+        "type": "query",
+        "source_id": "consultant professional liability insurance",
+        "provider": "local",
+        "retrieved_at": "2026-08-27T18:32:03Z"
+    },
+    "provenance": {
+        "analyzer": "query_intent",
+        "analyzer_version": "1.0",
+        "method": "rule_based"
+    },
+    "confidence": 1.0,
+    "relation": "supports",
+    "derived_from": [],
+    "captured_at": "2026-08-27T18:32:03Z",
+    "status": "active"
+}

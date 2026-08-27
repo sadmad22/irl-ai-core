@@ -1,0 +1,112 @@
+{
+    "brief_id": "brief_307d3844e157d046",
+    "report_id": "rr_consultant-liability-001",
+    "decision_id": "dec_e1584255c243e32e",
+    "strategy_id": "strat_287a125188f1fa58",
+    "schema_version": "1.0",
+    "lifecycle_stage": "content_brief_ready",
+    "content_type": "guide",
+    "primary_keyword": "consultant professional liability insurance",
+    "search_intent": "informational",
+    "audience": "Readers seeking clear, trustworthy insurance information",
+    "objective": "Build qualified organic traffic and provide trustworthy insurance guidance.",
+    "title_direction": "Use the primary topic 'consultant professional liability insurance' with a clear, benefit-led guide framing; do not treat this as a final headline.",
+    "outline": [
+        {
+            "heading": "Introduction",
+            "purpose": "Address the 'Introduction' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "What You Need to Know",
+            "purpose": "Address the 'What You Need to Know' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "Coverage and Key Factors",
+            "purpose": "Address the 'Coverage and Key Factors' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "Costs and Pricing Factors",
+            "purpose": "Address the 'Costs and Pricing Factors' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "How to Compare Options",
+            "purpose": "Address the 'How to Compare Options' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "Frequently Asked Questions",
+            "purpose": "Address the 'Frequently Asked Questions' requirement from the approved content strategy without introducing unsupported claims."
+        },
+        {
+            "heading": "Sources and Editorial Methodology",
+            "purpose": "Address the 'Sources and Editorial Methodology' requirement from the approved content strategy without introducing unsupported claims."
+        }
+    ],
+    "required_entities": [],
+    "required_questions": [
+        "{'text': 'New independent consultant - Liability Insurance?', 'source_position': 2, 'count': 1}",
+        "{'text': 'Professional Liability Insurance for Consultants', 'source_position': 5, 'count': 1}",
+        "{'text': 'Business Consultant Insurance: What You Need, Best ...', 'source_position': 6, 'count': 1}",
+        "{'text': 'Independent Consultant/Non-Specialist Professional Services ...', 'source_position': 7, 'count': 1}",
+        "{'text': 'Do Consultants Need Professional Liability Insurance?', 'source_position': 10, 'count': 2}",
+        "{'text': \"What's The Best Business Insurance For Consultants?\", 'source_position': 11, 'count': 2}"
+    ],
+    "evidence_refs": [
+        "ev_38bcc746245f3993",
+        "ev_serp_result_ad3f9c5d517ee7a3",
+        "ev_serp_result_0b4f0e3e89b560da",
+        "ev_serp_result_8856d08332fc1f99",
+        "ev_serp_result_adbaaf5998cff652",
+        "ev_serp_result_f5861312f10acc17",
+        "ev_serp_result_d9109168f9828f23",
+        "ev_serp_result_687dc6ca2e964d97",
+        "ev_serp_result_0af6a8d66839d48b",
+        "ev_serp_result_31128a05b7969821",
+        "ev_serp_distribution_0eaf56d310a3673f",
+        "ev_serp_dominant_0eaf56d310a3673f",
+        "ev_serp_mixed_0eaf56d310a3673f",
+        "ev_intent_alignment_8695d6e6a56f05ea",
+        "ev_serp_strategy_85839d0c5cd36e9e",
+        "ev_89320d48ff2fdc8ce4acb907",
+        "ev_2e099f8b863f5fd06a002fa2",
+        "ev_c42ca47267d6182e775ab7b6",
+        "ev_82044afa62d5a9fa34b71660",
+        "ev_242a1da02e28d4b8e94934a9",
+        "ev_3db70af81d0202181ba038b0",
+        "ev_13b5c7a50df53a31dacc96f7",
+        "ev_e49d520a86423ad0c133029a",
+        "ev_2714a4d4356757c0050eb839",
+        "ev_163e6f50db6033107903c88a",
+        "ev_253e3e2fb52e0b77a75f7dff",
+        "ev_96afac819e82d0a9e9fdf606",
+        "ev_ebcdfc0c7e0017361e9fe724",
+        "ev_1f155f288cfb6518e1c2f067",
+        "ev_035ff911d4d1e42b271d0609",
+        "ev_93d81c198fbb77d45f4ccb29",
+        "ev_6db7e751a17291dd8d4b328c",
+        "ev_2a1c8061f9ea60696d2355b5",
+        "ev_83a097554b74b088df37324f",
+        "ev_fca5f1f4b9cf86c6ca9a5e56",
+        "ev_7568e04c80cc0c24a7c41ac6",
+        "ev_f53671ba6f22c2f137dadf63",
+        "ev_90ad169da3aa6ae2390439de",
+        "ev_e171eeed459b5e7cc87d2b99",
+        "ev_9289006451aecfa3be4f4fe4",
+        "ev_9d7a29711bcc70c90102a7ff",
+        "ev_59e9ee2d6541c56d8f39232b",
+        "ev_d8c2f8858ffc24b804271f2c",
+        "ev_70b85a9f517f84723e1adfec",
+        "ev_d7a1408f4e667e31693f3c8d",
+        "ev_59ac68cfccaf468fa76b839b"
+    ],
+    "editorial_constraints": [
+        "Use evidence_refs as the authoritative upstream lineage for factual claims.",
+        "Do not invent providers, prices, coverage terms, statistics, or regulatory claims absent supporting evidence.",
+        "Do not make the brief itself a final article draft; prose generation belongs to the Writer layer.",
+        "Do not change the approved Decision or create a new operational decision."
+    ],
+    "audit": {
+        "method": "content_strategy_to_content_brief",
+        "version": "v1",
+        "validation_status": "pending"
+    }
+}

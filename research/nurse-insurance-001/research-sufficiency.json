@@ -1,0 +1,22 @@
+{
+    "status": "research_complete",
+    "passed": true,
+    "checks": {
+        "research_report": true,
+        "research_questions": true,
+        "evidence": true
+    },
+    "research_questions": [
+        {
+            "text": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+            "source_position": 2,
+            "count": 1
+        },
+        {
+            "text": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+            "source_position": 11,
+            "count": 1
+        }
+    ],
+    "evidence_count": 45
+}

@@ -1,0 +1,426 @@
+{
+    "audit_id": "claim_audit_c0f83ce8cb4a606b",
+    "draft_id": "draft_943736613f23d0c4",
+    "schema_version": "1.0",
+    "lifecycle_stage": "claim_audit_ready",
+    "outcome": "passed",
+    "summary": {
+        "total_claims": 25,
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "counts": {
+        "supported": 25,
+        "disputed": 0,
+        "insufficient": 0
+    },
+    "claims": [
+        {
+            "audit_id": "claim_audit_2e467582b09e12ef",
+            "claim_id": "claim_1_1_7f1c747d9c09",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_03d3deddc7aa3467e8c6751e"
+            ],
+            "matched_tokens": [
+                "9625",
+                "fit",
+                "malpractice",
+                "nurse",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_0904442b51d4cdcf",
+            "claim_id": "claim_2_1_d939cdeedb2c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_000b6ff1d883e4b236e2a255"
+            ],
+            "matched_tokens": [
+                "nursingworld",
+                "org",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_7f4caf02cd942dd5",
+            "claim_id": "claim_2_2_aeef41ee652c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_03d3deddc7aa3467e8c6751e"
+            ],
+            "matched_tokens": [
+                "9625",
+                "fit",
+                "malpractice",
+                "nurse",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_fa60f4bdd8d9b1c5",
+            "claim_id": "claim_2_3_a268be19cbf3",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_194594d3915805696e43e930"
+            ],
+            "matched_tokens": [
+                "cna",
+                "com",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_5a0cbc9906cd3dba",
+            "claim_id": "claim_2_4_54e2ef025a5b",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_32f29ba58089e24071ef7400"
+            ],
+            "matched_tokens": [
+                "nursingworld",
+                "org",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_aa9d8c92da3d3369",
+            "claim_id": "claim_3_1_d939cdeedb2c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_000b6ff1d883e4b236e2a255"
+            ],
+            "matched_tokens": [
+                "nursingworld",
+                "org",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_58ba27cf00c4b2fb",
+            "claim_id": "claim_3_2_aeef41ee652c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_03d3deddc7aa3467e8c6751e"
+            ],
+            "matched_tokens": [
+                "9625",
+                "fit",
+                "malpractice",
+                "nurse",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_aa757e50ab6a111f",
+            "claim_id": "claim_3_3_a268be19cbf3",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_194594d3915805696e43e930"
+            ],
+            "matched_tokens": [
+                "cna",
+                "com",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_b1672a5ce13c3fc9",
+            "claim_id": "claim_3_4_9421af4c6852",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_28b93b4ce2312b1f21f25a16"
+            ],
+            "matched_tokens": [
+                "affiliate",
+                "low",
+                "malpractice",
+                "nurse",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_1656d19684bff3dc",
+            "claim_id": "claim_4_1_9421af4c6852",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_28b93b4ce2312b1f21f25a16"
+            ],
+            "matched_tokens": [
+                "affiliate",
+                "low",
+                "malpractice",
+                "nurse",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_7f7b1940950aa87b",
+            "claim_id": "claim_4_2_317cc2fb0db0",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_5db43ca25ad033763a318519"
+            ],
+            "matched_tokens": [
+                "conversion",
+                "low",
+                "malpractice",
+                "nurse",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_0f54e2f81e670eec",
+            "claim_id": "claim_4_3_14f525bdba5f",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_f3f5380b7543aacc1bc4a1e7"
+            ],
+            "matched_tokens": [
+                "adsense",
+                "high",
+                "malpractice",
+                "nurse",
+                "potential",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_dbc450dedd19ef1b",
+            "claim_id": "claim_4_4_b2036a1ab4f0",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_fda919b2068258f950c3d5f1"
+            ],
+            "matched_tokens": [
+                "commercial",
+                "low",
+                "malpractice",
+                "nurse",
+                "value"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_240ca4d117c0c1f0",
+            "claim_id": "claim_5_1_54e2ef025a5b",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_32f29ba58089e24071ef7400"
+            ],
+            "matched_tokens": [
+                "nursingworld",
+                "org",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_f1f73ccd0201054c",
+            "claim_id": "claim_5_2_451a50955a92",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_4762cfc4c3e58e4fd43b1c54"
+            ],
+            "matched_tokens": [
+                "3556",
+                "berxi",
+                "com",
+                "score",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_d08c56687fa55cc5",
+            "claim_id": "claim_5_3_5a1e89125877",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_5a36575cf6dafcf6ff592d6a"
+            ],
+            "matched_tokens": [
+                "9187",
+                "authority",
+                "malpractice",
+                "nurse",
+                "score"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_3d14984cccac5af3",
+            "claim_id": "claim_5_4_85cbb4632d11",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_7647b34b28d27f0904a7c003"
+            ],
+            "matched_tokens": [
+                "3714",
+                "mnnurses",
+                "org",
+                "score"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_b7483fa01447bff5",
+            "claim_id": "claim_6_1_f7f5e12c4306",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_899bc35030db6ae9"
+            ],
+            "matched_tokens": [
+                "informational",
+                "intent",
+                "malpractice",
+                "nurse",
+                "primary"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_f50f4d1253614cf1",
+            "claim_id": "claim_6_2_5f5497e784f6",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_c5e74c2c8306d3edd88f6cb5"
+            ],
+            "matched_tokens": [
+                "count",
+                "malpractice",
+                "nurse"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_c1e600a4ab19ee4a",
+            "claim_id": "claim_6_3_d844a538f197",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_intent_alignment_3dda34e37d41f549"
+            ],
+            "matched_tokens": [
+                "aligned",
+                "alignment",
+                "malpractice",
+                "nurse"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_69b26d82e53c6b80",
+            "claim_id": "claim_6_4_d41c976764af",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_serp_distribution_f35a41bbb73f418a"
+            ],
+            "matched_tokens": [
+                "3481",
+                "6519",
+                "distribution",
+                "informational",
+                "intent",
+                "malpractice",
+                "nurse",
+                "transactional"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_dd42bf3d7ee65599",
+            "claim_id": "claim_7_1_aeef41ee652c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_03d3deddc7aa3467e8c6751e"
+            ],
+            "matched_tokens": [
+                "9625",
+                "fit",
+                "malpractice",
+                "nurse",
+                "topic"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_a998f1ca028fc871",
+            "claim_id": "claim_7_2_5a1e89125877",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_5a36575cf6dafcf6ff592d6a"
+            ],
+            "matched_tokens": [
+                "9187",
+                "authority",
+                "malpractice",
+                "nurse",
+                "score"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_f01ab051c7f90d63",
+            "claim_id": "claim_7_3_d939cdeedb2c",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_000b6ff1d883e4b236e2a255"
+            ],
+            "matched_tokens": [
+                "nursingworld",
+                "org",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        },
+        {
+            "audit_id": "claim_audit_b0bcadacdd2dcddd",
+            "claim_id": "claim_7_4_a268be19cbf3",
+            "result": "supported",
+            "evidence_refs": [
+                "ev_194594d3915805696e43e930"
+            ],
+            "matched_tokens": [
+                "cna",
+                "com",
+                "organization",
+                "type",
+                "www"
+            ],
+            "reason": "Assigned evidence provides sufficient deterministic lexical support."
+        }
+    ],
+    "audit": {
+        "method": "claim_audit_validator",
+        "version": "v1",
+        "validation_status": "validated"
+    }
+}

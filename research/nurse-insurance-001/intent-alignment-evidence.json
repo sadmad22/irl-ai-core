@@ -1,0 +1,39 @@
+{
+    "evidence_id": "ev_intent_alignment_3dda34e37d41f549",
+    "report_id": "rr_nurse-insurance-001",
+    "schema_version": "1.0",
+    "type": "derived",
+    "domain": "intent",
+    "subject": {
+        "type": "keyword",
+        "id": "nurse malpractice insurance"
+    },
+    "claim": {
+        "type": "intent_alignment",
+        "attribute": "alignment"
+    },
+    "value": {
+        "type": "categorical",
+        "data": "aligned"
+    },
+    "source": {
+        "type": "derived",
+        "source_id": null,
+        "provider": null,
+        "retrieved_at": null
+    },
+    "provenance": {
+        "analyzer": "intent_alignment",
+        "analyzer_version": "1.0",
+        "method": "rule_based"
+    },
+    "confidence": 0.6519,
+    "relation": "supports",
+    "derived_from": [
+        "ev_899bc35030db6ae9",
+        "ev_serp_dominant_f35a41bbb73f418a",
+        "ev_serp_mixed_f35a41bbb73f418a"
+    ],
+    "captured_at": "2026-08-27T18:38:10Z",
+    "status": "active"
+}

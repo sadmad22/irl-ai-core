@@ -1,0 +1,17 @@
+{
+    "questions": [
+        {
+            "text": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+            "source_position": 2,
+            "count": 1
+        },
+        {
+            "text": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+            "source_position": 11,
+            "count": 1
+        }
+    ],
+    "question_count": 2,
+    "result_question_count": 2,
+    "method": "question-v1"
+}

@@ -1,0 +1,98 @@
+{
+    "keyword": "nurse malpractice insurance",
+    "country": "US",
+    "language": "en",
+    "competitors": [
+        {
+            "position": 2,
+            "domain": "www.nso.com",
+            "title": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+            "url": "https://www.nso.com/"
+        },
+        {
+            "position": 5,
+            "domain": "www.nursingworld.org",
+            "title": "ANA Membership Personal Benefits - Insurance & more",
+            "url": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/"
+        },
+        {
+            "position": 6,
+            "domain": "www.proliability.com",
+            "title": "Nurse Professional Liability Insurance Stay Covered While ...",
+            "url": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/"
+        },
+        {
+            "position": 7,
+            "domain": "mnnurses.org",
+            "title": "To Have or Not to Have Malpractice/Liability Insurance",
+            "url": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/"
+        },
+        {
+            "position": 8,
+            "domain": "www.cna.com",
+            "title": "Insurance for Nurses | CNA",
+            "url": "https://www.cna.com/industries/affinity/nurses"
+        },
+        {
+            "position": 9,
+            "domain": "www.berxi.com",
+            "title": "Nurse Malpractice and Liability Insurance",
+            "url": "https://www.berxi.com/insurance/all-nurses/"
+        },
+        {
+            "position": 10,
+            "domain": "www.nasn.org",
+            "title": "Professional Liability Insurance",
+            "url": "https://www.nasn.org/membership/benefits/liability-insurance"
+        },
+        {
+            "position": 11,
+            "domain": "nursejournal.org",
+            "title": "Ask A Nurse: What Is Personal Liability Insurance And ...",
+            "url": "https://nursejournal.org/ask-a-nurse/do-i-need-personal-liability-insurance/"
+        }
+    ],
+    "domain_counts": {
+        "www.nso.com": 1,
+        "www.nursingworld.org": 1,
+        "www.proliability.com": 1,
+        "mnnurses.org": 1,
+        "www.cna.com": 1,
+        "www.berxi.com": 1,
+        "www.nasn.org": 1,
+        "nursejournal.org": 1
+    },
+    "average_position": 7.25,
+    "top_competitors": [
+        {
+            "position": 2,
+            "domain": "www.nso.com",
+            "title": "NSO: Nurses Service Organization - Nursing Malpractice ...",
+            "url": "https://www.nso.com/"
+        },
+        {
+            "position": 5,
+            "domain": "www.nursingworld.org",
+            "title": "ANA Membership Personal Benefits - Insurance & more",
+            "url": "https://www.nursingworld.org/membership/member-benefits/personal-benefits/"
+        },
+        {
+            "position": 6,
+            "domain": "www.proliability.com",
+            "title": "Nurse Professional Liability Insurance Stay Covered While ...",
+            "url": "https://www.proliability.com/healthcare/healthcare-professionals/nurses/"
+        },
+        {
+            "position": 7,
+            "domain": "mnnurses.org",
+            "title": "To Have or Not to Have Malpractice/Liability Insurance",
+            "url": "https://mnnurses.org/to-have-or-not-to-have-malpractice-liability-insurance/"
+        },
+        {
+            "position": 8,
+            "domain": "www.cna.com",
+            "title": "Insurance for Nurses | CNA",
+            "url": "https://www.cna.com/industries/affinity/nurses"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "keyword": "nurse malpractice insurance",
+    "primary_intent": "Informational",
+    "secondary_intent": null,
+    "confidence": 1.0,
+    "scores": {
+        "Informational": 1
+    },
+    "signals": {
+        "Informational": [
+            "no-explicit-intent-signal"
+        ]
+    }
+}

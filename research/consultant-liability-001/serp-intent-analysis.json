@@ -1,0 +1,115 @@
+{
+    "keyword": "consultant professional liability insurance",
+    "country": "US",
+    "language": "en",
+    "dominant_intent": "Informational",
+    "dominant_confidence": 1.0,
+    "intent_distribution": {
+        "Informational": 1.0
+    },
+    "intent_counts": {
+        "Informational": 9
+    },
+    "mixed_intent": false,
+    "results": [
+        {
+            "position": 2,
+            "domain": "www.reddit.com",
+            "title": "New independent consultant - Liability Insurance?",
+            "url": "https://www.reddit.com/r/consulting/comments/16g70yy/new_independent_consultant_liability_insurance/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        },
+        {
+            "position": 3,
+            "domain": "www.hiscox.com",
+            "title": "Business Consultant Insurance Professional & General ...",
+            "url": "https://www.hiscox.com/small-business-insurance/professional-business-insurance/business-consultant-insurance",
+            "intent": "Informational",
+            "confidence": 0.5,
+            "reasons": [
+                "coverage"
+            ]
+        },
+        {
+            "position": 5,
+            "domain": "www.thehartford.com",
+            "title": "Professional Liability Insurance for Consultants",
+            "url": "https://www.thehartford.com/professional-liability-insurance/consultants",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        },
+        {
+            "position": 6,
+            "domain": "www.nerdwallet.com",
+            "title": "Business Consultant Insurance: What You Need, Best ...",
+            "url": "https://www.nerdwallet.com/business/insurance/best/consultants",
+            "intent": "Informational",
+            "confidence": 0.5,
+            "reasons": [
+                "what"
+            ]
+        },
+        {
+            "position": 7,
+            "domain": "www.risk.cornell.edu",
+            "title": "Independent Consultant/Non-Specialist Professional Services ...",
+            "url": "https://www.risk.cornell.edu/vendor-provider-main-page/consultant-or-non-specialist/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        },
+        {
+            "position": 8,
+            "domain": "www.progressivecommercial.com",
+            "title": "Consulting Insurance",
+            "url": "https://www.progressivecommercial.com/business-insurance/professions/consulting-insurance/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "coverage"
+            ]
+        },
+        {
+            "position": 9,
+            "domain": "ctlowndes.com",
+            "title": "Consultant Liability Insurance: 7 Things to Know",
+            "url": "https://ctlowndes.com/blog/business-insurance-for-consultants/",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "default"
+            ]
+        },
+        {
+            "position": 10,
+            "domain": "www.nerdwallet.com",
+            "title": "Do Consultants Need Professional Liability Insurance?",
+            "url": "https://www.nerdwallet.com/business/insurance/learn/do-consultants-need-professional-liability-insurance",
+            "intent": "Informational",
+            "confidence": 1.0,
+            "reasons": [
+                "learn"
+            ]
+        },
+        {
+            "position": 11,
+            "domain": "www.nextinsurance.com",
+            "title": "What's The Best Business Insurance For Consultants?",
+            "url": "https://www.nextinsurance.com/blog/best-business-insurance-for-consultants/",
+            "intent": "Informational",
+            "confidence": 0.5,
+            "reasons": [
+                "what"
+            ]
+        }
+    ]
+}

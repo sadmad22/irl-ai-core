@@ -1,0 +1,18 @@
+{
+    "authority_score": 0.9187,
+    "topic_fit": 0.9625,
+    "serp_domain_diversity": 0.875,
+    "serp_domain_count": 8,
+    "method": "authority-v1",
+    "keyword": "nurse malpractice insurance",
+    "competitor_domains": {
+        "www.nso.com": 1,
+        "www.nursingworld.org": 1,
+        "www.proliability.com": 1,
+        "mnnurses.org": 1,
+        "www.cna.com": 1,
+        "www.berxi.com": 1,
+        "www.nasn.org": 1,
+        "nursejournal.org": 1
+    }
+}

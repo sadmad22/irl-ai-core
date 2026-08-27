@@ -1,0 +1,34 @@
+{
+    "evidence_id": "ev_c5e74c2c8306d3edd88f6cb5",
+    "report_id": "rr_nurse-insurance-001",
+    "schema_version": "1.0",
+    "type": "observation",
+    "domain": "question",
+    "subject": {
+        "type": "keyword",
+        "id": "nurse malpractice insurance"
+    },
+    "claim": {
+        "type": "question_frequency",
+        "attribute": "count"
+    },
+    "value": {
+        "type": "numeric",
+        "data": 2
+    },
+    "source": {
+        "type": "research_artifact",
+        "project": "nurse-insurance-001",
+        "artifact": "serp-analysis.json"
+    },
+    "provenance": {
+        "analyzer": "question",
+        "method": "question-v1",
+        "version": "v1"
+    },
+    "confidence": 0.85,
+    "relation": "supports",
+    "derived_from": [],
+    "captured_at": "2026-08-27T18:38:10.991308+00:00",
+    "status": "active"
+}

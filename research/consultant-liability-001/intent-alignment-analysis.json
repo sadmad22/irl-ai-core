@@ -1,0 +1,11 @@
+{
+    "keyword": "consultant professional liability insurance",
+    "query_primary_intent": "Informational",
+    "serp_dominant_intent": "Informational",
+    "alignment": "aligned",
+    "confidence": 1.0,
+    "serp_mixed": false,
+    "intent_distribution": {
+        "Informational": 1.0
+    }
+}

@@ -1,0 +1,818 @@
+[
+    {
+        "evidence_id": "ev_37000010b6cdf166ebe7f211",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nso.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988564+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_88601f584f5ce576aa293d8f",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nso.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988591+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_8c755ee156753574a21b3693",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nso.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.55
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988612+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_bc04eb32b2d4d7d2cb892534",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nursingworld.org"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988631+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_000b6ff1d883e4b236e2a255",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nursingworld.org"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988646+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_32f29ba58089e24071ef7400",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nursingworld.org"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.6
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988662+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_561ac6e1712acee51c031d51",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.proliability.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988679+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_939ba9bd6af24af6227db5ec",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.proliability.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988693+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f07dea65e3c438cc915ba742",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.proliability.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3833
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988709+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_b6bcf2035ad8fc7a2a8aa12e",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "mnnurses.org"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988724+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_dc6781ac11ed7d77500d45ef",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "mnnurses.org"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988738+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_7647b34b28d27f0904a7c003",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "mnnurses.org"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3714
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988753+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_a8b52a0511bb73d1b3cf5c99",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cna.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988770+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_194594d3915805696e43e930",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cna.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988784+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_7df87bec6e46cd6af0b27229",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.cna.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.2625
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988851+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_78f3d450713da5ef9ca7f529",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.berxi.com"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988880+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_61ef469e7aa2ba63cd9b6d87",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.berxi.com"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988895+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_4762cfc4c3e58e4fd43b1c54",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.berxi.com"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.3556
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988910+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_f7943ffb9fdb21b1fd3c8a5f",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nasn.org"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988926+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_62b47393bada549c000e90c1",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nasn.org"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988940+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_bf9d4f9e6ac89f749caea030",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "www.nasn.org"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.45
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988954+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e6ca8764ba88910b5bfc46c2",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "nursejournal.org"
+        },
+        "claim": {
+            "type": "entity_presence",
+            "attribute": "mentioned"
+        },
+        "value": {
+            "type": "boolean",
+            "data": true
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988969+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_5a7caa9e12247cd1389aed0f",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "nursejournal.org"
+        },
+        "claim": {
+            "type": "entity_classification",
+            "attribute": "type"
+        },
+        "value": {
+            "type": "categorical",
+            "data": "organization"
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988984+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_e75d12b51b25eaf885fdef37",
+        "report_id": "rr_nurse-insurance-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "entity",
+        "subject": {
+            "type": "entity",
+            "id": "nursejournal.org"
+        },
+        "claim": {
+            "type": "entity_relevance",
+            "attribute": "score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.4455
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "nurse-insurance-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1"
+        },
+        "confidence": 0.9,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:38:10.988998+00:00",
+        "status": "active"
+    }
+]

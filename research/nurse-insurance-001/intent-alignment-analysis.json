@@ -1,0 +1,12 @@
+{
+    "keyword": "nurse malpractice insurance",
+    "query_primary_intent": "Informational",
+    "serp_dominant_intent": "Informational",
+    "alignment": "aligned",
+    "confidence": 0.6519,
+    "serp_mixed": false,
+    "intent_distribution": {
+        "Transactional": 0.3481,
+        "Informational": 0.6519
+    }
+}

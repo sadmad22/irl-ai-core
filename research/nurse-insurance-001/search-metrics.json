@@ -1,0 +1,70 @@
+{
+    "keyword": "nurse malpractice insurance",
+    "search_volume": 8100,
+    "difficulty": 50,
+    "cpc": null,
+    "trend": [
+        {
+            "year": 2026,
+            "month": 7,
+            "search_volume": 6600
+        },
+        {
+            "year": 2026,
+            "month": 6,
+            "search_volume": 6600
+        },
+        {
+            "year": 2026,
+            "month": 5,
+            "search_volume": 6600
+        },
+        {
+            "year": 2026,
+            "month": 4,
+            "search_volume": 6600
+        },
+        {
+            "year": 2026,
+            "month": 3,
+            "search_volume": 8100
+        },
+        {
+            "year": 2026,
+            "month": 2,
+            "search_volume": 8100
+        },
+        {
+            "year": 2026,
+            "month": 1,
+            "search_volume": 9900
+        },
+        {
+            "year": 2025,
+            "month": 12,
+            "search_volume": 6600
+        },
+        {
+            "year": 2025,
+            "month": 11,
+            "search_volume": 8100
+        },
+        {
+            "year": 2025,
+            "month": 10,
+            "search_volume": 8100
+        },
+        {
+            "year": 2025,
+            "month": 9,
+            "search_volume": 8100
+        },
+        {
+            "year": 2025,
+            "month": 8,
+            "search_volume": 8100
+        }
+    ],
+    "language": "en",
+    "country": "US"
+}

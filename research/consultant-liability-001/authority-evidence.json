@@ -1,0 +1,70 @@
+[
+    {
+        "evidence_id": "ev_d7a1408f4e667e31693f3c8d",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "authority_score"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.8556
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.391796+00:00",
+        "status": "active"
+    },
+    {
+        "evidence_id": "ev_59ac68cfccaf468fa76b839b",
+        "report_id": "rr_consultant-liability-001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "domain": "authority",
+        "subject": {
+            "type": "keyword",
+            "id": "consultant professional liability insurance"
+        },
+        "claim": {
+            "type": "authority",
+            "attribute": "topic_fit"
+        },
+        "value": {
+            "type": "numeric",
+            "data": 0.9333
+        },
+        "source": {
+            "type": "research_artifact",
+            "project": "consultant-liability-001",
+            "artifact": "serp-analysis.json"
+        },
+        "provenance": {
+            "analyzer": "authority",
+            "method": "authority-v1",
+            "version": "v1"
+        },
+        "confidence": 0.75,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-08-27T18:32:03.391886+00:00",
+        "status": "active"
+    }
+]
