@@ -2,17 +2,39 @@
 
 AI Operating System for Insurance Review Lab.
 
-## Production entry point
+## Operator Web UI
 
-Run from the repository root:
+The primary operator experience is the browser UI. It hides the internal JSON artifacts and pipeline commands behind a single project form and live gate dashboard.
+
+Start it from the repository root:
+
+```bash
+python3 scripts/web_ui.py --host 0.0.0.0 --port 8080
+```
+
+Then open the Cloud Shell port preview for **8080**.
+
+The UI lets you enter:
+
+- Project name
+- Primary keyword
+- Language
+- Country
+- Delivery mode
+
+**LIVE WordPress Draft is the default mode.** The UI calls the established production pipeline and only accepts a WordPress response whose status is `draft`. There is no Publish action or publish code path.
+
+The UI also creates the minimal `research/<project>/keyword.json` and `metadata.json` for a genuinely new project. Existing projects are reused when their keyword matches.
+
+## CLI production entry point
+
+The CLI remains available for diagnostics and automation:
 
 ```bash
 python3 scripts/run_pipeline.py m7-consultant-liability
 ```
 
-The default mode is a **dry run**. It executes the Research/Content pipeline through the WordPress Draft contract and performs no network delivery.
-
-For the already-verified live WordPress Draft path:
+For the verified live WordPress Draft path:
 
 ```bash
 export WORDPRESS_BASE_URL="https://insurancereviewlab.com"
@@ -31,4 +53,4 @@ Run the full test suite before production delivery:
 pytest -q
 ```
 
-For a single project, use the dry run first, inspect the gate output, then use `--deliver` only when the resulting WordPress post is intended to remain a Draft for human review.
+The operator UI is intended to be the normal human-facing workflow; the CLI is the lower-level production/diagnostic entry point.
