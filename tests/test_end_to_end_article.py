@@ -17,7 +17,7 @@ def test_end_to_end_article_reaches_wordpress_draft_ready(monkeypatch, tmp_path)
 
     _write_json(research_dir, "metadata.json", {"project_name": project, "status": "researching"})
 
-    def fake_research(project_name: str) -> None:
+    def fake_research(project_name: str, provider=None) -> None:
         assert project_name == project
         _write_json(research_dir, "research-report.json", {"report_id": "report-1"})
         _write_json(research_dir, "question-analysis.json", {"questions": ["What is the core question?"]})

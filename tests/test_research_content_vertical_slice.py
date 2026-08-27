@@ -18,7 +18,7 @@ def test_research_to_content_vertical_slice(monkeypatch, tmp_path):
     _write_json(research_dir, "metadata.json", {"project_name": project, "status": "researching"})
     research_calls = []
 
-    def fake_research(project_name: str) -> None:
+    def fake_research(project_name: str, provider=None) -> None:
         research_calls.append(project_name)
         _write_json(research_dir, "research-report.json", {"report_id": "report-1"})
         _write_json(research_dir, "question-analysis.json", {"questions": ["What is the core question?"]})

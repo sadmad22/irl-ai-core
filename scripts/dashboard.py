@@ -42,6 +42,9 @@ async function load(){const r=await fetch('/api/dashboard');const d=await r.json
 </script>'''
 )
 
+# Backward-compatible alias for existing dashboard integrations/tests.
+HTML = OPERATIONS_HTML
+
 PRODUCTION_HTML = page(
     "Content Production",
     "Create and run a new content project through the proven LIVE production workflow.",
