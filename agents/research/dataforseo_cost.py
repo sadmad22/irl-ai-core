@@ -37,7 +37,10 @@ def start_run(provider: str | None) -> dict[str, Any]:
 
 
 def finish_run(project: str, start: dict[str, Any], provider: str | None) -> dict[str, Any]:
-    end = start_run(provider) if (provider or "").strip().lower() == "dataforseo" else {"provider": provider, "available": False, "balance": None, "captured_at": _now(), "reason": "Exact DataForSEO cost applies only to the DataForSEO provider."}
+    if (provider or "").strip().lower() == "dataforseo":
+        end = {"provider": "dataforseo", **snapshot()}
+    else:
+        end = {"provider": provider, "available": False, "balance": None, "captured_at": _now(), "reason": "Exact DataForSEO cost applies only to the DataForSEO provider."}
     result: dict[str, Any] = {
         "version": "1.0",
         "project": project,
