@@ -5,6 +5,7 @@ def test_dashboard_html_is_available():
     assert "IRL AI Core Operations" in dashboard.OPERATIONS_HTML
     assert "Content Production" in dashboard.PRODUCTION_HTML
     assert "Production Console" in dashboard.PRODUCTION_HTML
+    assert "DataForSEO Account &amp; Cost Monitor" in dashboard.OPERATIONS_HTML
 
 
 def test_dashboard_handler_reuses_proven_operator_backend():
