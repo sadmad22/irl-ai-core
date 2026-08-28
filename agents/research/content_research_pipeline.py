@@ -8,6 +8,7 @@ from .agent import run as run_research_agent
 from .article_draft_agent import run as run_article_draft_agent, _load_evidence_records
 from .article_draft_quality import validate_article_draft_quality
 from .claim_audit import audit_article_claims
+from .content_score_agent import run_content_score_agent
 from .minimal_research_loop import evaluate_research_sufficiency
 from .seo_strategy_agent import run_seo_strategy_agent
 from .seo_validation_agent import run_seo_validation_agent
@@ -73,9 +74,20 @@ def run_content_research_to_wordpress_draft(project_name: str, *, deliver: bool 
             metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
             return {"research_report": research_report, "question_analysis": question_analysis, "research_sufficiency": research_sufficiency}
         run_article_draft_agent(project_name)
-        artifacts = build_content_research_to_wordpress_draft(research_report=research_report, content_brief=_load(project_name, "content-brief.json"), article_draft=_load(project_name, "article-draft.json"), evidence_records=evidence_records)
+        content_brief = _load(project_name, "content-brief.json")
+        article_draft = _load(project_name, "article-draft.json")
+        serp_analysis = _load(project_name, "serp-analysis.json") if (Path("research") / project_name / "serp-analysis.json").exists() else {}
+        content_score = run_content_score_agent(
+            research_report=research_report,
+            content_strategy=_load(project_name, "content-strategy.json"),
+            content_brief=content_brief,
+            article_draft=article_draft,
+            serp_results=serp_analysis.get("results", []) if isinstance(serp_analysis, dict) else [],
+        )
+        artifacts = build_content_research_to_wordpress_draft(research_report=research_report, content_brief=content_brief, article_draft=article_draft, evidence_records=evidence_records)
+        artifacts["content_score"] = content_score
         artifacts["research_sufficiency"] = research_sufficiency
-        artifact_files = {"research_sufficiency": "research-sufficiency.json", "article_draft_quality": "article-draft-quality.json", "claim_audit": "claim-audit.json", "seo_strategy": "seo-strategy.json", "seo_validation": "seo-validation.json", "editorial_review": "editorial-review.json", "publication": "publication.json", "publisher": "publisher.json", "wordpress_draft_delivery": "wordpress-draft-delivery.json"}
+        artifact_files = {"content_score": "content-score.json", "research_sufficiency": "research-sufficiency.json", "article_draft_quality": "article-draft-quality.json", "claim_audit": "claim-audit.json", "seo_strategy": "seo-strategy.json", "seo_validation": "seo-validation.json", "editorial_review": "editorial-review.json", "publication": "publication.json", "publisher": "publisher.json", "wordpress_draft_delivery": "wordpress-draft-delivery.json"}
         for key, filename in artifact_files.items():
             if key in artifacts:
                 _save_if_changed(project_name, filename, artifacts[key])
