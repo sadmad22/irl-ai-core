@@ -6,6 +6,10 @@ def test_dashboard_html_is_available():
     assert "Content Production" in dashboard.PRODUCTION_HTML
     assert "Production Console" in dashboard.PRODUCTION_HTML
     assert "DataForSEO Account &amp; Cost Monitor" in dashboard.OPERATIONS_HTML
+    assert 'href="/provider"' in dashboard.OPERATIONS_HTML
+    assert "Configure Provider" in dashboard.OPERATIONS_HTML
+    assert "Manage DataForSEO" in dashboard.OPERATIONS_HTML
+    assert "DataForSEO Configuration" in dashboard.PROVIDER_HTML
 
 
 def test_dashboard_handler_reuses_proven_operator_backend():
