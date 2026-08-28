@@ -1,5 +1,8 @@
 import os
 
+from agents.research.provider_config import load_saved_environment
+
+load_saved_environment()
 
 ACTIVE_PROVIDER = os.getenv("IRL_RESEARCH_PROVIDER", "dataforseo").strip().lower() or "dataforseo"
 

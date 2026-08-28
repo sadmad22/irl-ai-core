@@ -89,12 +89,35 @@ def _entities(report: dict[str, Any]) -> list[str]:
     return list(dict.fromkeys(result))
 
 
-def _questions(report: dict[str, Any]) -> list[str]:
+def _questions(report: dict[str, Any]) -> list[Any]:
     analysis = report.get("question_analysis") or {}
     values = analysis.get("questions") if isinstance(analysis, dict) else None
     if not isinstance(values, list):
         return []
-    return list(dict.fromkeys(str(v).strip() for v in values if str(v).strip()))
+
+    result: list[Any] = []
+    seen: set[str] = set()
+
+    for value in values:
+        if isinstance(value, str):
+            if not value.strip():
+                continue
+            key = json.dumps(value.strip(), ensure_ascii=False, sort_keys=True)
+            normalized = value.strip()
+        elif isinstance(value, dict):
+            key = json.dumps(value, ensure_ascii=False, sort_keys=True)
+            normalized = value
+        else:
+            key = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+            normalized = value
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        result.append(normalized)
+
+    return result
 
 
 def _business_goal(report: dict[str, Any]) -> str:

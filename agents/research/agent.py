@@ -140,12 +140,19 @@ def run(project_name: str, provider: str | None = None) -> None:
     save_project_file_if_changed(project_name, SEARCH_METRICS_FILE, metrics)
 
     serp_file = Path("research") / project_name / SERP_ANALYSIS_FILE
-    if serp_file.exists():
+    existing_serp = load_project_file(project_name, SERP_ANALYSIS_FILE) if serp_file.exists() else {}
+    existing_serp_results = existing_serp.get("results", []) if isinstance(existing_serp, dict) else []
+
+    if existing_serp_results:
         print("Using existing SERP data.")
-        serp_results = load_project_file(project_name, SERP_ANALYSIS_FILE)
+        serp_results = existing_serp
     else:
         print("Fetching SERP data...")
-        serp_results = get_serp_provider(selected_provider).get_results(keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"])
+        serp_results = get_serp_provider(selected_provider).get_results(
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
+        )
     serp_results = canonicalize_serp_results(serp_results)
     save_project_file_if_changed(project_name, SERP_ANALYSIS_FILE, serp_results)
 
