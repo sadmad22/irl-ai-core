@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "phase": "10",
+  "type": "operational_acceptance",
+  "project": "phase10-cost-acceptance-003",
+  "status": "passed",
+  "acceptance": {
+    "dataforseo_credentials": true,
+    "dataforseo_serp": true,
+    "research_sufficiency": "research_complete",
+    "article_draft": true,
+    "article_draft_quality": "passed",
+    "claim_audit": "passed",
+    "seo_validation": "passed",
+    "editorial_review": "approved",
+    "wordpress_api": true,
+    "wordpress_delivery": "delivered",
+    "wordpress_remote_status": "draft",
+    "wordpress_post_id": 4953,
+    "exact_dataforseo_cost_usd": 0.0
+  },
+  "fresh_research_reference": {
+    "project": "phase10-cost-acceptance-002",
+    "dataforseo_start_balance_usd": 0.54,
+    "dataforseo_end_balance_usd": 0.538,
+    "exact_cost_usd": 0.002
+  },
+  "notes": [
+    "LIVE acceptance created a real WordPress draft.",
+    "The LIVE acceptance run reused existing SERP/search-metrics artifacts.",
+    "Therefore its additional DataForSEO account-balance delta was USD 0.000.",
+    "The preceding fresh research run recorded an exact DataForSEO delta of USD 0.002."
+  ]
+}
