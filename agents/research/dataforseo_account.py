@@ -7,31 +7,15 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-
 DEFAULT_BASE_URL = "https://api.dataforseo.com"
 
 
 def _credentials() -> tuple[str, str, str]:
-    base_url = os.getenv("DATAFORSEO_BASE_URL", DEFAULT_BASE_URL).strip().rstrip("/")
-    login = os.getenv("DATAFORSEO_LOGIN", "").strip()
-    password = os.getenv("DATAFORSEO_PASSWORD", "").strip()
-    return base_url, login, password
-
-
-def _find_first(value: Any, key: str) -> Any:
-    if isinstance(value, dict):
-        if key in value:
-            return value[key]
-        for child in value.values():
-            found = _find_first(child, key)
-            if found is not None:
-                return found
-    elif isinstance(value, list):
-        for child in value:
-            found = _find_first(child, key)
-            if found is not None:
-                return found
-    return None
+    return (
+        os.getenv("DATAFORSEO_BASE_URL", DEFAULT_BASE_URL).strip().rstrip("/"),
+        os.getenv("DATAFORSEO_LOGIN", "").strip(),
+        os.getenv("DATAFORSEO_PASSWORD", "").strip(),
+    )
 
 
 def _walk_pricing(value: Any, path: tuple[str, ...] = ()) -> list[dict[str, Any]]:
@@ -86,8 +70,9 @@ def fetch_account() -> dict[str, Any]:
 
     rates = result.get("rates") if isinstance(result.get("rates"), dict) else {}
     money = result.get("money") if isinstance(result.get("money"), dict) else {}
-    price = rates.get("price") if isinstance(rates.get("price"), dict) else {}
-    pricing = _walk_pricing(price)
+    statistics = money.get("statistics") if isinstance(money.get("statistics"), dict) else {}
+    pricing = _walk_pricing(rates.get("price", {}))
+    day_stats = statistics.get("day") if isinstance(statistics.get("day"), dict) else {}
 
     return {
         "configured": True,
@@ -95,6 +80,8 @@ def fetch_account() -> dict[str, Any]:
         "timezone": result.get("timezone"),
         "balance": money.get("balance"),
         "total_deposited": money.get("total"),
+        "today_spend": day_stats.get("total"),
+        "spending_statistics": statistics,
         "pricing": pricing,
         "backlinks_subscription_expiry_date": result.get("backlinks_subscription_expiry_date"),
         "llm_mentions_subscription_expiry_date": result.get("llm_mentions_subscription_expiry_date"),
@@ -110,8 +97,7 @@ def pricing_summary(account: dict[str, Any], limit: int = 30) -> list[dict[str, 
     for row in rows:
         if not isinstance(row, dict):
             continue
-        path = str(row.get("path", ""))
-        parts = path.split(".")
+        parts = str(row.get("path", "")).split(".")
         api = parts[0] if parts else "unknown"
         function = parts[-2] if len(parts) >= 2 else "unknown"
         cost_type = str(row.get("cost_type", ""))
