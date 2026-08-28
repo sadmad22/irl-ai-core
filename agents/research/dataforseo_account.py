@@ -84,19 +84,17 @@ def fetch_account() -> dict[str, Any]:
     except RuntimeError as exc:
         return {"configured": True, "error": str(exc)}
 
-    rates = result.get("rates") if isinstance(result.get("rates"), dict) else result
-    money = _find_first(rates, "money") or {}
-    price = _find_first(rates, "price") or {}
-    balance = money.get("balance") if isinstance(money, dict) else None
-    total = money.get("total") if isinstance(money, dict) else None
+    rates = result.get("rates") if isinstance(result.get("rates"), dict) else {}
+    money = result.get("money") if isinstance(result.get("money"), dict) else {}
+    price = rates.get("price") if isinstance(rates.get("price"), dict) else {}
     pricing = _walk_pricing(price)
 
     return {
         "configured": True,
         "login": result.get("login"),
         "timezone": result.get("timezone"),
-        "balance": balance,
-        "total_deposited": total,
+        "balance": money.get("balance"),
+        "total_deposited": money.get("total"),
         "pricing": pricing,
         "backlinks_subscription_expiry_date": result.get("backlinks_subscription_expiry_date"),
         "llm_mentions_subscription_expiry_date": result.get("llm_mentions_subscription_expiry_date"),
