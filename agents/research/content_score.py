@@ -2,13 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import re
-from collections import Counter
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v1.1"
+
+_STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "how",
+    "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "what",
+    "when", "where", "which", "who", "why", "with", "do", "does", "you", "your",
+    "need", "can", "should", "will", "than", "their", "they", "them", "these",
+}
 
 
 def _score_id(draft_id: str, payload: dict[str, Any]) -> str:
@@ -32,11 +37,22 @@ def _tokens(text: str) -> set[str]:
     return {token for token in _words(text) if len(token) > 2}
 
 
+def _meaningful_tokens(text: str) -> set[str]:
+    return {token for token in _tokens(text) if token not in _STOPWORDS}
+
+
 def _similarity(left: str, right: str) -> float:
-    a, b = _tokens(left), _tokens(right)
+    a, b = _meaningful_tokens(left), _meaningful_tokens(right)
     if not a or not b:
         return 0.0
     return len(a & b) / len(a | b)
+
+
+def _coverage(left: str, right: str) -> float:
+    a, b = _meaningful_tokens(left), _meaningful_tokens(right)
+    if not a:
+        return 0.0
+    return len(a & b) / len(a)
 
 
 def _question_text(value: Any) -> str:
@@ -84,22 +100,29 @@ def _intent_score(report: dict[str, Any], text: str) -> float:
         "transactional": ("choose", "buy", "quote", "purchase", "coverage", "cost"),
         "navigational": (),
     }.get(intent, ())
+    lower = text.lower()
     if intent == "navigational":
         keyword = str(report.get("keyword", "")).strip().lower()
-        return 15.0 if keyword and keyword in text.lower() else 7.5
+        return 15.0 if keyword and keyword in lower else 7.5
     if not signals:
         return 7.5
-    hits = sum(1 for signal in signals if signal in text.lower())
+    hits = sum(1 for signal in signals if signal in lower)
     return 15.0 * min(1.0, hits / max(3, len(signals) * 0.6))
 
 
 def _topic_score(strategy: dict[str, Any], draft: dict[str, Any]) -> tuple[float, list[str]]:
-    expected = [str(v).strip().lower() for v in strategy.get("sections", []) if str(v).strip()]
-    actual = [str(s.get("heading", "")).strip().lower() for s in draft.get("sections", []) if isinstance(s, dict)]
+    expected = [str(v).strip() for v in strategy.get("sections", []) if str(v).strip()]
+    actual = [str(s.get("heading", "")).strip() for s in draft.get("sections", []) if isinstance(s, dict)]
     if not expected:
         return 15.0, []
-    missing = [value for value in expected if value not in actual]
-    return 15.0 * (len(expected) - len(missing)) / len(expected), missing
+    missing: list[str] = []
+    covered = 0
+    for item in expected:
+        if any(_similarity(item, candidate) >= 0.55 or _coverage(item, candidate) >= 0.75 for candidate in actual):
+            covered += 1
+        else:
+            missing.append(item)
+    return 15.0 * covered / len(expected), missing
 
 
 def _entity_score(strategy: dict[str, Any], text: str) -> tuple[float, list[str]]:
@@ -117,12 +140,14 @@ def _question_score(strategy: dict[str, Any], text: str) -> tuple[float, list[st
     if not questions:
         return 10.0, []
     lower = text.lower()
+    text_tokens = _meaningful_tokens(lower)
     covered: list[str] = []
     missing: list[str] = []
     for question in questions:
-        tokens = _tokens(question)
-        overlap = len(tokens & _tokens(lower)) / len(tokens) if tokens else 0.0
-        if overlap >= 0.45:
+        phrase_hit = question.lower().rstrip("?") in lower
+        tokens = _meaningful_tokens(question)
+        overlap = len(tokens & text_tokens) / len(tokens) if tokens else 0.0
+        if phrase_hit or overlap >= 0.50:
             covered.append(question)
         else:
             missing.append(question)
@@ -130,32 +155,38 @@ def _question_score(strategy: dict[str, Any], text: str) -> tuple[float, list[st
 
 
 def _depth_score(text: str, section_count: int) -> float:
-    count = len(_words(text))
-    if count >= 2400:
+    word_count = len(_words(text))
+    if word_count >= 2400:
         base = 10.0
-    elif count >= 1800:
-        base = 8.0
-    elif count >= 1200:
-        base = 6.0
-    elif count >= 800:
-        base = 4.0
-    elif count >= 400:
+    elif word_count >= 1800:
+        base = 8.5
+    elif word_count >= 1400:
+        base = 7.0
+    elif word_count >= 1000:
+        base = 5.5
+    elif word_count >= 800:
+        base = 4.5
+    elif word_count >= 600:
+        base = 3.5
+    elif word_count >= 400:
         base = 2.5
     else:
         base = 1.0
     if section_count >= 7:
         base = min(10.0, base + 0.5)
+    elif section_count >= 5:
+        base = min(10.0, base + 0.25)
     return base
 
 
 def _heading_score(strategy: dict[str, Any], draft: dict[str, Any]) -> float:
-    expected = [str(v).strip().lower() for v in strategy.get("sections", []) if str(v).strip()]
+    expected = [str(v).strip() for v in strategy.get("sections", []) if str(v).strip()]
     actual = [str(s.get("heading", "")).strip() for s in draft.get("sections", []) if isinstance(s, dict)]
     if not expected:
         return 10.0
-    exact = sum(1 for value in expected if value in {item.lower() for item in actual}) / len(expected)
+    matched = sum(1 for value in expected if any(_similarity(value, item) >= 0.55 for item in actual)) / len(expected)
     hierarchy = min(1.0, len(actual) / len(expected))
-    return 10.0 * (0.75 * exact + 0.25 * hierarchy)
+    return 10.0 * (0.75 * matched + 0.25 * hierarchy)
 
 
 def _keyword_score(keyword: str, text: str, title: str) -> float:
@@ -165,6 +196,7 @@ def _keyword_score(keyword: str, text: str, title: str) -> float:
     lower = text.lower()
     occurrences = lower.count(keyword)
     title_hit = keyword in title.lower()
+    headings = " ".join(str(s.get("heading", "")) for s in [] )
     words = max(1, len(_words(text)))
     density = occurrences / words
     if not title_hit or occurrences == 0:
@@ -179,12 +211,19 @@ def _keyword_score(keyword: str, text: str, title: str) -> float:
 def _serp_score(report: dict[str, Any], draft: dict[str, Any], serp_results: list[dict[str, Any]]) -> float:
     if not serp_results:
         return 5.0
-    text = _text(draft)
-    keyword = str(report.get("keyword", ""))
-    title_similarity = [_similarity(keyword, str(item.get("title", ""))) for item in serp_results[:10] if isinstance(item, dict)]
-    avg_similarity = sum(title_similarity) / len(title_similarity) if title_similarity else 0.0
-    domain_count = len({str(item.get("domain", "")).lower() for item in serp_results if isinstance(item, dict) and item.get("domain")})
-    return min(10.0, 4.0 + avg_similarity * 8.0 + min(2.0, domain_count / 5.0) + (2.0 if keyword.lower() in text.lower() else 0.0))
+    keyword = str(report.get("keyword", "")).strip()
+    draft_text = _text(draft)
+    benchmark_items = [item for item in serp_results[:10] if isinstance(item, dict)]
+    if not benchmark_items:
+        return 5.0
+    relevance = []
+    for item in benchmark_items:
+        competitor_text = " ".join(str(item.get(key, "")) for key in ("title", "snippet", "description"))
+        relevance.append(_coverage(competitor_text, draft_text))
+    avg_relevance = sum(relevance) / len(relevance)
+    keyword_presence = sum(1 for item in benchmark_items if keyword.lower() in str(item.get("title", "")).lower()) / len(benchmark_items) if keyword else 0.0
+    domain_count = len({str(item.get("domain", "")).lower() for item in benchmark_items if item.get("domain")})
+    return min(10.0, 2.0 + 6.0 * avg_relevance + min(1.5, domain_count / 5.0) + 0.5 * keyword_presence + (1.0 if keyword and keyword.lower() in draft_text.lower() else 0.0))
 
 
 def _evidence_score(brief: dict[str, Any], draft: dict[str, Any]) -> float:
@@ -196,25 +235,29 @@ def _evidence_score(brief: dict[str, Any], draft: dict[str, Any]) -> float:
 
 
 def _readability_score(text: str) -> float:
-    sentences = [s for s in re.split(r"[.!?]+", text) if s.strip()]
+    sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
     if not sentences:
         return 1.0
-    word_count = len(_words(text))
-    avg = word_count / len(sentences)
-    if 12 <= avg <= 22:
+    lengths = [len(_words(sentence)) for sentence in sentences]
+    avg = sum(lengths) / len(lengths)
+    long_ratio = sum(1 for value in lengths if value > 30) / len(lengths)
+    avg_paragraph = len(_words(text)) / max(1, len(paragraphs))
+    if 12 <= avg <= 22 and long_ratio <= 0.15 and avg_paragraph <= 120:
         return 5.0
-    if 10 <= avg <= 28:
+    if 10 <= avg <= 25 and long_ratio <= 0.25 and avg_paragraph <= 160:
         return 4.0
-    if 8 <= avg <= 32:
+    if 8 <= avg <= 30 and long_ratio <= 0.35:
         return 3.0
     return 2.0
 
 
 def build_content_score(*, research_report: dict[str, Any], content_strategy: dict[str, Any], content_brief: dict[str, Any], article_draft: dict[str, Any], serp_results: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Calculate a deterministic, diagnostic Content Score from existing artifacts.
+    """Calculate deterministic Content Score v1.1 from existing artifacts.
 
-    No external API or model call is made. The score is measurement-only in v1
-    and never changes an upstream decision or publication gate.
+    Calibration improves semantic heading/question matching, depth thresholds,
+    SERP lexical benchmarking, and readability diagnostics. No external API or
+    model call is made, and the score remains measurement-only.
     """
     report_id = str(research_report.get("report_id", "")).strip()
     strategy_id = str(content_strategy.get("strategy_id", "")).strip()
