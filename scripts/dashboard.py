@@ -14,7 +14,13 @@ if str(ROOT) not in sys.path:
 
 from agents.research.dataforseo_account import fetch_account, pricing_summary
 from agents.research.dataforseo_cost import load_project_cost
-from agents.research.provider_config import load_saved_environment, save_dataforseo_credentials
+from agents.research.provider_config import (
+    load_saved_environment,
+    save_dataforseo_credentials,
+    save_wordpress_credentials,
+    wordpress_configuration_status,
+)
+from agents.research.wordpress_config import verify_wordpress_credentials
 from scripts import web_ui
 
 load_saved_environment()
@@ -52,19 +58,24 @@ OPERATIONS_HTML = page(
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>v===null||v===undefined?'—':`$${Number(v).toFixed(4)}`;
 function renderCost(a,projects){const metrics=document.getElementById('costMetrics'),error=document.getElementById('costError'),table=document.getElementById('pricingTable');if(!a.configured){metrics.innerHTML='';table.innerHTML='';error.innerHTML='<div class="notice error">DataForSEO is not configured. <a href="/provider">Configure provider credentials</a>.</div>';return}if(a.error){metrics.innerHTML='';table.innerHTML='';error.innerHTML=`<div class="notice error">${esc(a.error)}. <a href="/provider">Manage provider credentials</a>.</div>`;return}const exact=projects.filter(x=>x.dataforseo_cost&&x.dataforseo_cost.exact);const latest=exact.length?exact[0].dataforseo_cost:null;metrics.innerHTML=[['Balance',money(a.balance),'live account balance'],['Today spend',money(a.today_spend),'DataForSEO current-day spend'],['Latest article cost',latest?money(latest.cost):'—',latest?'measured from account balance delta':'no exact project cost yet'],['Measured articles',exact.length,exact.length?'projects with exact cost records':'no exact project cost records']].map(x=>`<div class="metric"><div class="muted">${x[2]}</div><strong>${x[1]}</strong><span class="muted">${x[0]}</span></div>`).join('');error.innerHTML=latest?`<div class="muted" style="margin:8px 0">Latest exact cost: ${money(latest.cost)} for ${esc(exact[0].project)}. Measurement uses the DataForSEO account-balance delta captured around that production run.</div>`:'<div class="muted" style="margin:8px 0">Exact project cost appears after a DataForSEO production run with successful before/after account-balance snapshots.</div>';const rows=(a.pricing||[]).slice(0,30);table.innerHTML=rows.length?`<table><tr><th>API</th><th>Function</th><th>Charge</th><th>Cost</th></tr>${rows.map(x=>`<tr><td>${esc(x.api)}</td><td>${esc(x.function)}</td><td>${esc(x.cost_type)}</td><td>${money(x.cost)}</td></tr>`).join('')}</table>`:'<div class="muted">No pricing records returned.</div>'}
-async function load(){const r=await fetch('/api/dashboard');const d=await r.json();const m=d.metrics,p=d.provider;document.getElementById('cards').innerHTML=[['Projects',m.projects,'initialized'],['WordPress Drafts',m.drafts,'delivered + still draft'],['Draft Ready',m.draft_ready,'ready before delivery'],['Exact Cost Records',m.exact_cost_records,'measured DataForSEO project costs']].map(x=>`<div class="card"><div class="muted">${x[2]}</div><div class="num">${x[1]}</div><strong>${x[0]}</strong></div>`).join('');document.getElementById('provider').innerHTML=`<span class="badge ok">${esc(p.active)}</span> <strong>${p.dataforseo.configured?'DataForSEO connected':'DataForSEO not configured'}</strong><div class="muted" style="margin-top:8px">Credentials are stored locally with restrictive permissions and are never returned to the browser.</div>`;renderCost(d.dataforseo,d.recent_projects);document.getElementById('projectsTable').innerHTML=d.recent_projects.length?`<table><tr><th>Project</th><th>Status</th><th>Draft</th><th>Article Cost</th></tr>${d.recent_projects.map(x=>`<tr><td><strong>${esc(x.project)}</strong><div class="muted">${esc(x.keyword)}</div></td><td>${esc(x.status||'created')}</td><td>${x.post_id?'#'+esc(x.post_id):'—'}</td><td>${x.dataforseo_cost&&x.dataforseo_cost.exact?money(x.dataforseo_cost.cost):'—'}</td></tr>`).join('')}</table>`:'<div class="muted">No projects yet.</div>';const drafts=d.recent_projects.filter(x=>x.post_id&&x.remote_status==='draft');document.getElementById('draftsTable').innerHTML=drafts.length?`<table><tr><th>Project</th><th>Post</th><th>Action</th></tr>${drafts.map(x=>`<tr><td>${esc(x.project)}</td><td>#${esc(x.post_id)}</td><td><a href="${esc(x.edit_url)}" target="_blank">Open Draft</a></td></tr>`).join('')}</table>`:'<div class="muted">No WordPress drafts recorded.</div>'}
+async function load(){const r=await fetch('/api/dashboard');const d=await r.json();const m=d.metrics,p=d.provider;document.getElementById('cards').innerHTML=[['Projects',m.projects,'initialized'],['WordPress Drafts',m.drafts,'delivered + still draft'],['Draft Ready',m.draft_ready,'ready before delivery'],['Exact Cost Records',m.exact_cost_records,'measured DataForSEO project costs']].map(x=>`<div class="card"><div class="muted">${x[2]}</div><div class="num">${x[1]}</div><strong>${x[0]}</strong></div>`).join('');document.getElementById('provider').innerHTML=`<span class="badge ok">${esc(p.active)}</span> <strong>${p.dataforseo.configured?'DataForSEO connected':'DataForSEO not configured'}</strong><div class="muted" style="margin-top:8px">WordPress: ${d.wordpress.configured?'connected':'not configured'}. Credentials are stored locally with restrictive permissions and are never returned to the browser.</div>`;renderCost(d.dataforseo,d.recent_projects);document.getElementById('projectsTable').innerHTML=d.recent_projects.length?`<table><tr><th>Project</th><th>Status</th><th>Draft</th><th>Article Cost</th></tr>${d.recent_projects.map(x=>`<tr><td><strong>${esc(x.project)}</strong><div class="muted">${esc(x.keyword)}</div></td><td>${esc(x.status||'created')}</td><td>${x.post_id?'#'+esc(x.post_id):'—'}</td><td>${x.dataforseo_cost&&x.dataforseo_cost.exact?money(x.dataforseo_cost.cost):'—'}</td></tr>`).join('')}</table>`:'<div class="muted">No projects yet.';const drafts=d.recent_projects.filter(x=>x.post_id&&x.remote_status==='draft');document.getElementById('draftsTable').innerHTML=drafts.length?`<table><tr><th>Project</th><th>Post</th><th>Action</th></tr>${drafts.map(x=>`<tr><td>${esc(x.project)}</td><td>#${esc(x.post_id)}</td><td><a href="${esc(x.edit_url)}" target="_blank">Open Draft</a></td></tr>`).join('')}</table>`:'<div class="muted">No WordPress drafts recorded.</div>'}
 document.getElementById('refreshCost').addEventListener('click',load);load();setInterval(load,15000);
 </script>'''
 )
 
 PROVIDER_HTML = page(
     "Provider Control",
-    "Configure and verify the research provider used by IRL AI Core.",
+    "Configure and verify DataForSEO and WordPress credentials used by IRL AI Core.",
     "operations",
-    '''<section class="card" style="margin-top:22px"><h3>DataForSEO Configuration</h3><p class="muted">Credentials are stored only in the local <span class="mono">.irl-ai-core.env</span> file with restrictive permissions. The dashboard never displays or returns the secret values.</p><div id="status" class="notice">Checking configuration…</div><form id="providerForm" class="form"><div><label>DataForSEO Base URL<input id="base_url" value="https://api.dataforseo.com" autocomplete="url"></label></div><div><label>DataForSEO Login<input id="login" autocomplete="username" placeholder="Enter API login"></label></div><div><label>DataForSEO Password<input id="password" type="password" autocomplete="new-password" placeholder="Enter API password"></label></div><div><button class="button" type="submit">Save &amp; Verify DataForSEO</button></div></form></section><section class="card" style="margin-top:18px"><h3>Security</h3><div class="muted">The credential file is ignored by Git, written with mode 0600 when supported, and secret values are never included in API responses or dashboard HTML.</div></section><script>
-const statusEl=document.getElementById('status');
-async function refresh(){const r=await fetch('/api/providers');const p=await r.json();if(p.dataforseo.configured){statusEl.className='notice';statusEl.textContent='DataForSEO credentials are configured. You can save new credentials below if needed.'}else{statusEl.className='notice error';statusEl.textContent='DataForSEO credentials are not configured.'}}
-document.getElementById('providerForm').addEventListener('submit',async e=>{e.preventDefault();statusEl.className='notice';statusEl.textContent='Saving and verifying…';const payload={base_url:document.getElementById('base_url').value,login:document.getElementById('login').value,password:document.getElementById('password').value};try{const r=await fetch('/api/providers/dataforseo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok){throw new Error(data.error||'Unable to save credentials')}statusEl.className='notice';statusEl.textContent=data.verified?'DataForSEO connected and verified.':'Credentials saved, but DataForSEO verification failed. Check the credentials.';document.getElementById('password').value='';}catch(err){statusEl.className='notice error';statusEl.textContent=err.message}});refresh();
+    '''
+<section class="card" style="margin-top:22px"><h3>DataForSEO Configuration</h3><p class="muted">Credentials are stored only in the local <span class="mono">.irl-ai-core.env</span> file with restrictive permissions. The dashboard never displays or returns the secret values.</p><div id="status" class="notice">Checking configuration…</div><form id="providerForm" class="form"><div><label>DataForSEO Base URL<input id="base_url" value="https://api.dataforseo.com" autocomplete="url"></label></div><div><label>DataForSEO Login<input id="login" autocomplete="username" placeholder="Enter API login"></label></div><div><label>DataForSEO Password<input id="password" type="password" autocomplete="new-password" placeholder="Enter API password"></label></div><div><button class="button" type="submit">Save &amp; Verify DataForSEO</button></div></form></section>
+<section class="card" style="margin-top:18px"><h3>WordPress Configuration</h3><p class="muted">WordPress credentials are stored in the same local <span class="mono">.irl-ai-core.env</span> file with restrictive permissions. The application password is never returned to the browser.</p><div id="wpStatus" class="notice">Checking configuration…</div><form id="wpForm" class="form"><div><label>WordPress Base URL<input id="wp_base_url" placeholder="https://insurancereviewlab.com" autocomplete="url"></label></div><div><label>WordPress Username<input id="wp_username" autocomplete="username" placeholder="Enter WordPress username"></label></div><div><label>WordPress Application Password<input id="wp_password" type="password" autocomplete="new-password" placeholder="Enter application password"></label></div><div><button class="button" type="submit">Save &amp; Verify WordPress</button></div></form></section>
+<section class="card" style="margin-top:18px"><h3>Security</h3><div class="muted">The credential file is ignored by Git, written with mode 0600 when supported, and secret values are never included in API responses or dashboard HTML.</div></section>
+<script>
+const statusEl=document.getElementById('status');const wpStatusEl=document.getElementById('wpStatus');
+async function refresh(){const r=await fetch('/api/providers');const p=await r.json();if(p.dataforseo.configured){statusEl.className='notice';statusEl.textContent='DataForSEO credentials are configured.'}else{statusEl.className='notice error';statusEl.textContent='DataForSEO credentials are not configured.'}if(p.wordpress.configured){wpStatusEl.className='notice';wpStatusEl.textContent='WordPress credentials are configured and available to the production pipeline.'}else{wpStatusEl.className='notice error';wpStatusEl.textContent='WordPress credentials are not configured.'}}
+document.getElementById('providerForm').addEventListener('submit',async e=>{e.preventDefault();statusEl.className='notice';statusEl.textContent='Saving and verifying…';const payload={base_url:document.getElementById('base_url').value,login:document.getElementById('login').value,password:document.getElementById('password').value};try{const r=await fetch('/api/providers/dataforseo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok)throw new Error(data.error||'Unable to save credentials');statusEl.className=data.verified?'notice':'notice error';statusEl.textContent=data.verified?'DataForSEO connected and verified.':'Credentials saved, but verification failed. Check the credentials.';document.getElementById('password').value='';}catch(err){statusEl.className='notice error';statusEl.textContent=err.message}});
+document.getElementById('wpForm').addEventListener('submit',async e=>{e.preventDefault();wpStatusEl.className='notice';wpStatusEl.textContent='Saving and verifying…';const payload={base_url:document.getElementById('wp_base_url').value,username:document.getElementById('wp_username').value,application_password:document.getElementById('wp_password').value};try{const r=await fetch('/api/providers/wordpress',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok)throw new Error(data.error||'Unable to save WordPress credentials');wpStatusEl.className=data.verified?'notice':'notice error';wpStatusEl.textContent=data.verified?'WordPress connected and verified.':'Credentials were not saved because verification failed.';if(data.verified)document.getElementById('wp_password').value='';}catch(err){wpStatusEl.className='notice error';wpStatusEl.textContent=err.message}});refresh();
 </script>'''
 )
 
@@ -76,7 +87,7 @@ HTML = PRODUCTION_HTML = page(
 )
 
 class DashboardHandler(web_ui.Handler):
-    server_version = "IRLAICoreDashboard/1.4"
+    server_version = "IRLAICoreDashboard/1.5"
 
     def _send_html(self, text: str) -> None:
         body = text.encode("utf-8")
@@ -112,7 +123,7 @@ class DashboardHandler(web_ui.Handler):
             return
         if path == "/api/providers":
             load_saved_environment()
-            self._send_json(web_ui.provider_status())
+            self._send_json({**web_ui.provider_status(), "wordpress": wordpress_configuration_status()})
             return
         if path == "/api/dashboard":
             load_saved_environment()
@@ -128,13 +139,13 @@ class DashboardHandler(web_ui.Handler):
             draft_ready = [p for p in enriched if p.get("status") in {"draft_ready", "wordpress_draft_ready"}]
             exact_costs = [p for p in enriched if p.get("dataforseo_cost", {}).get("exact")]
             dataforseo = fetch_account()
-            self._send(200, {"provider": web_ui.provider_status(), "dataforseo": dataforseo, "metrics": {"projects": len(enriched), "drafts": len(delivered), "draft_ready": len(draft_ready), "active_jobs": sum(1 for job in jobs if job.get("status") in {"queued", "running"}), "exact_cost_records": len(exact_costs)}, "recent_projects": enriched[:8]})
+            self._send(200, {"provider": web_ui.provider_status(), "wordpress": wordpress_configuration_status(), "dataforseo": dataforseo, "metrics": {"projects": len(enriched), "drafts": len(delivered), "draft_ready": len(draft_ready), "active_jobs": sum(1 for job in jobs if job.get("status") in {"queued", "running"}), "exact_cost_records": len(exact_costs)}, "recent_projects": enriched[:8]})
             return
         super().do_GET()
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
-        if path != "/api/providers/dataforseo":
+        if path not in {"/api/providers/dataforseo", "/api/providers/wordpress"}:
             self.send_error(404)
             return
         try:
@@ -144,13 +155,24 @@ class DashboardHandler(web_ui.Handler):
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("Invalid request payload")
-            save_dataforseo_credentials(str(payload.get("login", "")), str(payload.get("password", "")), str(payload.get("base_url", "")))
-            account = fetch_account()
-            self._send_json({"configured": True, "verified": not bool(account.get("error")), "error": account.get("error")})
+            if path.endswith("/dataforseo"):
+                save_dataforseo_credentials(str(payload.get("login", "")), str(payload.get("password", "")), str(payload.get("base_url", "")))
+                account = fetch_account()
+                self._send_json({"configured": True, "verified": not bool(account.get("error")), "error": account.get("error")})
+                return
+            base_url = str(payload.get("base_url", ""))
+            username = str(payload.get("username", ""))
+            application_password = str(payload.get("application_password", ""))
+            verification = verify_wordpress_credentials(base_url, username, application_password)
+            if not verification.get("verified"):
+                self._send_json({"configured": False, "verified": False, "error": f"WordPress verification failed (HTTP {verification.get('status_code', 'unknown')}). Credentials were not saved."}, status=401)
+                return
+            save_wordpress_credentials(base_url, username, application_password)
+            self._send_json({"configured": True, "verified": True, "user_id": verification.get("user_id")})
         except (ValueError, TypeError, json.JSONDecodeError) as exc:
             self._send_json({"configured": False, "verified": False, "error": str(exc)}, status=400)
         except Exception as exc:
-            self._send_json({"configured": True, "verified": False, "error": str(exc)}, status=500)
+            self._send_json({"configured": False, "verified": False, "error": str(exc)}, status=500)
 
 
 def main() -> int:
