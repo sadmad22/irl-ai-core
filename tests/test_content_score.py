@@ -41,6 +41,7 @@ def test_content_score_schema_and_total():
         serp_results=[{"title": "Consultant Insurance Costs", "domain": "example.com"}],
     )
     assert result["lifecycle_stage"] == "content_score_ready"
+    assert result["method_version"] == "v1.1"
     assert 0 <= result["score"] <= 100
     assert result["grade"] in {"A", "B", "C", "D", "F"}
     assert sum(v["score"] for v in result["components"].values()) == result["score"]
@@ -75,3 +76,28 @@ def test_content_score_requires_lineage_ids():
         assert "IDs are required" in str(exc)
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_v11_semantic_heading_matching_avoids_exact_string_dependency():
+    report, strategy, brief, draft = _inputs()
+    strategy["sections"] = ["Costs and Pricing Factors"]
+    draft["sections"] = [{"heading": "Costs, Pricing & Key Factors", "body": "Consultant insurance cost depends on business risk and coverage."}]
+    result = build_content_score(research_report=report, content_strategy=strategy, content_brief=brief, article_draft=draft)
+    assert result["components"]["topic_coverage"]["score"] == 15.0
+    assert result["components"]["heading_structure"]["score"] == 10.0
+
+
+def test_v11_question_matching_accepts_supported_partial_answers():
+    report, strategy, brief, draft = _inputs()
+    strategy["questions"] = [{"text": "What coverage do independent consultants need for professional liability?"}]
+    draft["sections"][-1]["body"] = "Independent consultants should consider professional liability coverage based on their services, contracts, and risk exposure."
+    result = build_content_score(research_report=report, content_strategy=strategy, content_brief=brief, article_draft=draft)
+    assert result["components"]["question_coverage"]["score"] == 10.0
+    assert not any("Uncovered questions" in gap for gap in result["gaps"])
+
+
+def test_v11_readability_accounts_for_long_sentences_and_paragraphs():
+    report, strategy, brief, draft = _inputs()
+    draft["sections"] = [{"heading": "Introduction", "body": "Short sentences improve clarity. " * 8}]
+    result = build_content_score(research_report=report, content_strategy=strategy, content_brief=brief, article_draft=draft)
+    assert result["components"]["readability_quality"]["score"] >= 4.0
