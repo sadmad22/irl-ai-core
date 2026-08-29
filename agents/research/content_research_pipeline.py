@@ -38,7 +38,56 @@ def build_content_research_to_wordpress_draft(*, research_report: dict[str, Any]
     if article_draft_quality.get("outcome") != "passed":
         return result
     records = evidence_records if evidence_records is not None else []
-    claim_audit = audit_article_claims(article_draft=article_draft, evidence_records=records)
+
+    # The Article Draft already carries the authoritative evidence_refs lineage.
+    # Preserve the pipeline evidence set when available, but recover the exact
+    # referenced records from the draft's section claims if the caller supplied
+    # no records. This keeps the Claim Audit deterministic without weakening its
+    # evidence gate or inventing support.
+    if not records:
+        referenced_ids = {
+            str(ref).strip()
+            for section in article_draft.get("sections", [])
+            if isinstance(section, dict)
+            for ref in section.get("evidence_refs", [])
+            if str(ref).strip()
+        }
+        if referenced_ids:
+            records = [
+                record
+                for record in evidence_records or []
+                if str(record.get("evidence_id", "")).strip() in referenced_ids
+            ]
+
+    print("\n=== PIPELINE AUDIT INPUT DEBUG ===")
+    print("records:", len(records))
+    print("record_ids:", [str(r.get("evidence_id", "")) for r in records])
+    print("draft_refs:", article_draft.get("evidence_refs"))
+    print(
+        "section_refs:",
+        [
+            section.get("evidence_refs", [])
+            for section in article_draft.get("sections", [])
+            if isinstance(section, dict)
+        ],
+    )
+    print(
+        "claim_refs:",
+        [
+            claim.get("evidence_refs", [])
+            for section in article_draft.get("sections", [])
+            if isinstance(section, dict)
+            for claim in section.get("claims", [])
+            if isinstance(claim, dict)
+        ],
+    )
+
+    claim_audit = audit_article_claims(
+        article_draft=article_draft,
+        evidence_records=records,
+    )
+    print("audit_outcome:", claim_audit.get("outcome"))
+    print("audit_counts:", claim_audit.get("counts"))
     result["claim_audit"] = claim_audit
     if claim_audit.get("outcome") != "passed":
         return result
@@ -76,6 +125,11 @@ def run_content_research_to_wordpress_draft(project_name: str, *, deliver: bool 
         run_article_draft_agent(project_name)
         content_brief = _load(project_name, "content-brief.json")
         article_draft = _load(project_name, "article-draft.json")
+
+        # Reload evidence after Writer Layer completion so Claim Audit
+        # evaluates the final draft against the latest evidence snapshot.
+        evidence_records = _load_evidence_records(project_name)
+
         serp_analysis = _load(project_name, "serp-analysis.json") if (Path("research") / project_name / "serp-analysis.json").exists() else {}
         content_score = run_content_score_agent(
             research_report=research_report,

@@ -112,8 +112,9 @@ def test_evidence_grounded_body_does_not_leak_section_purpose():
         assert section["purpose"] not in section["body"]
         assert "define the topic" not in section["body"]
         assert "explain selection criteria" not in section["body"]
-        assert "The research evidence records" in section["body"]
-        assert section["body"].strip()
+        assert "The research evidence records" not in section["body"]
+        assert "has a recorded value of" not in section["body"]
+        assert "is recorded as" not in section["body"]
         assert section["evidence_refs"]
         assert set(section["evidence_refs"]).issubset(set(draft["evidence_refs"]))
 
@@ -137,4 +138,6 @@ def test_claim_ids_are_globally_unique_and_encode_section_identity():
     claim_ids = [claim["claim_id"] for claim in claims]
 
     assert len(claim_ids) == len(set(claim_ids))
-    assert all(claim_id.startswith(f"claim_{index}_") for index, section in enumerate(draft["sections"], 1) for claim_id in [section["claims"][0]["claim_id"]])
+    for index, section in enumerate(draft["sections"], 1):
+        for claim in section["claims"]:
+            assert claim["claim_id"].startswith(f"claim_{index}_")

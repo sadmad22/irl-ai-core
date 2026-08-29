@@ -46,7 +46,27 @@ def test_end_to_end_article_reaches_wordpress_draft_ready(monkeypatch, tmp_path)
     assert result["content_brief"]["lifecycle_stage"] == "content_brief_ready"
     assert result["article_draft"]["lifecycle_stage"] == "draft_ready"
     assert result["article_draft"]["sections"][0]["claims"][0]["grounding_status"] == "grounded"
-    assert result["article_draft_quality"]["outcome"] == "passed"
+    print("\n=== PIPELINE ARTICLE DRAFT QUALITY ===")
+    quality = result["article_draft_quality"]
+    print("OUTCOME:", quality.get("outcome"))
+    print("CHECKS:", quality.get("checks"))
+    print("FINDINGS:")
+    for finding in quality.get("findings", []):
+        print(" ", finding)
+
+    print("\n=== DRAFT SECTION ===")
+    for section in result["article_draft"].get("sections", []):
+        print("heading:", section.get("heading"))
+        print("body:", repr(section.get("body")))
+        print("evidence_refs:", section.get("evidence_refs"))
+        print("claims:", section.get("claims"))
+
+    assert quality["outcome"] == "passed"
+
+    if result["claim_audit"]["outcome"] != "passed":
+        print("\\n=== CLAIM AUDIT DEBUG ===")
+        print(result["claim_audit"])
+
     assert result["claim_audit"]["outcome"] == "passed"
     assert result["seo_validation"]["outcome"] == "passed"
     assert result["editorial_review"]["outcome"] == "passed"

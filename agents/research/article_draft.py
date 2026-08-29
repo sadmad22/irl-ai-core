@@ -41,23 +41,19 @@ def _evidence_text(record: dict[str, Any]) -> str:
 
 
 def _introduction_body(*, keyword: str, evidence_records: list[dict[str, Any]]) -> str:
+    """Build minimal reader-facing introduction prose without serializing evidence.
+
+    Structured evidence is used only to establish that the section is
+    evidence-backed. Internal claim/value/subject fields are never copied
+    into the reader-facing body.
+    """
     if not evidence_records:
         return ""
-    record = evidence_records[0]
-    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-    value = record.get("value") if isinstance(record.get("value"), dict) else {}
-    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
-    attribute = str(claim.get("attribute") or claim.get("type") or "evidence").replace("_", " ").strip()
-    data = value.get("data")
-    subject_id = str(subject.get("id") or "the research set").strip()
-    if isinstance(data, bool):
-        observation = "is supported" if data else "is not supported"
-    elif data is None:
-        observation = "has been recorded"
-    else:
-        observation = f"is recorded as {data}"
-    return f"This guide focuses on {keyword} and its {attribute} evidence for {subject_id}, where the finding {observation}."
 
+    return (
+        f"This guide focuses on {keyword} and explains the key factors "
+        "relevant to evaluating available options."
+    )
 
 def _clean_coverage_snippet(text: str) -> str:
     text = re.sub(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}\s*[—-]\s*", "", text)
@@ -90,57 +86,36 @@ def _coverage_body(editorial_evidence: list[dict[str, Any]]) -> str:
 def _coverage_claims(
     editorial_evidence: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
+    """Create reader-grounded claims from verified coverage evidence.
+
+    Claim text intentionally preserves the verified editorial sentence so the
+    claim audit can compare it directly with the same evidence record.
+    """
     claims: list[dict[str, Any]] = []
 
-    for item in editorial_evidence:
-        sentences = _coverage_sentences(item)
+    for source_index, item in enumerate(editorial_evidence, 1):
+        evidence_id = str(item.get("evidence_id", "")).strip()
+        if not evidence_id:
+            continue
 
-        for sentence in sentences:
+        for sentence_index, sentence in enumerate(
+            _coverage_sentences(item), 1
+        ):
             claim_index = len(claims) + 1
-
             digest = hashlib.sha256(
-                f"3:{claim_index}:{sentence}".encode("utf-8")
+                f"3:{source_index}:{sentence_index}:{evidence_id}:{sentence}".encode("utf-8")
             ).hexdigest()[:12]
 
             claims.append(
                 {
                     "claim_id": f"claim_3_{claim_index}_{digest}",
                     "text": sentence,
-                    "evidence_refs": [
-                        str(item["evidence_id"])
-                    ],
+                    "evidence_refs": [evidence_id],
                     "grounding_status": "grounded",
                 }
             )
 
     return claims
-
-    for source_index, item in enumerate(editorial_evidence, 1):
-        for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
-            claim_index = len(claims) + 1
-
-            digest = hashlib.sha256(
-                f"3:{claim_index}:{sentence}".encode("utf-8")
-            ).hexdigest()[:12]
-
-            claims.append(
-                {
-                    "claim_id": f"claim_3_{claim_index}_{digest}",
-                    "text": sentence,
-                    "evidence_refs": [str(item["evidence_id"])],
-                    "grounding_status": "grounded",
-                }
-            )
-
-    return claims
-
-    for source_index, item in enumerate(editorial_evidence, 1):
-        for sentence_index, sentence in enumerate(_coverage_sentences(item), 1):
-            claim_index = len(claims) + 1
-            digest = hashlib.sha256(f"3:{source_index}:{sentence_index}:{sentence}".encode("utf-8")).hexdigest()[:12]
-            claims.append({"claim_id": f"claim_3_{source_index}_{sentence_index}_{digest}", "text": sentence, "evidence_refs": [str(item["evidence_id"])], "grounding_status": "grounded"})
-    return claims
-
 
 def _normalize_editorial_evidence(*, item: dict[str, Any], status: str) -> dict[str, Any] | None:
     evidence_id = str(item.get("evidence_id", "")).strip()
@@ -218,6 +193,52 @@ def _page_editorial_claims(*, section_index: int, editorial_evidence: list[dict[
     return claims
 
 
+def _evidence_grounded_claims(
+    *,
+    section_index: int,
+    evidence_records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Create internal grounded claims from lineage evidence without creating prose.
+
+    These claims are audit/grounding objects only. They must never be copied
+    into the reader-facing section body.
+    """
+    claims: list[dict[str, Any]] = []
+
+    for source_index, item in enumerate(evidence_records, 1):
+        evidence_id = str(item.get("evidence_id", "")).strip()
+        if not evidence_id:
+            continue
+
+        claim = item.get("claim") if isinstance(item.get("claim"), dict) else {}
+        value = item.get("value") if isinstance(item.get("value"), dict) else {}
+        subject = item.get("subject") if isinstance(item.get("subject"), dict) else {}
+
+        attribute = str(
+            claim.get("attribute") or claim.get("type") or "observation"
+        ).strip()
+        data = value.get("data")
+        subject_id = str(subject.get("id") or "the research set").strip()
+
+        claim_text = (
+            f"Evidence observation: {attribute} for {subject_id}"
+            f" (value={data!r})."
+        )
+
+        digest = hashlib.sha256(
+            f"{section_index}:{source_index}:{evidence_id}:{claim_text}".encode("utf-8")
+        ).hexdigest()[:12]
+
+        claims.append({
+            "claim_id": f"claim_{section_index}_{source_index}_{digest}",
+            "text": claim_text,
+            "evidence_refs": [evidence_id],
+            "grounding_status": "grounded",
+        })
+
+    return claims
+
+
 def _coverage_editorial_evidence(*, serp_results: list[dict[str, Any]] | None, source_evidence: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     page_records: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -250,20 +271,26 @@ def _methodology_editorial_evidence(*, source_evidence: list[dict[str, Any]] | N
     return _artifact_editorial_evidence(section_index=7, source_evidence=source_evidence)
 
 
-def _section_body(*, heading: str, keyword: str, evidence_records: list[dict[str, Any]], editorial_evidence: list[dict[str, Any]] | None = None) -> str:
-    normalized_heading = heading.strip().lower()
-    if normalized_heading == "coverage and key factors":
-        if editorial_evidence:
-            return _coverage_body(editorial_evidence)
-        return " ".join(_evidence_text(record) for record in evidence_records)
-    if normalized_heading in {"what you need to know", "costs and pricing factors", "how to compare options", "introduction", "sources and editorial methodology"} and editorial_evidence:
-        return _page_editorial_body(editorial_evidence)
-    if not evidence_records:
-        return ""
-    if normalized_heading == "introduction":
-        return _introduction_body(keyword=keyword, evidence_records=evidence_records)
-    return " ".join(_evidence_text(record) for record in evidence_records)
+def _section_body(
+    *,
+    heading: str,
+    keyword: str,
+    evidence_records: list[dict[str, Any]],
+    editorial_evidence: list[dict[str, Any]] | None = None,
+) -> str:
+    """Build reader-facing prose from approved editorial evidence only.
 
+    Raw structured evidence is lineage/grounding data and must never be
+    serialized into the reader-facing article body.
+    """
+    normalized_heading = heading.strip().lower()
+
+    if editorial_evidence:
+        if normalized_heading == "coverage and key factors":
+            return _coverage_body(editorial_evidence)
+        return _page_editorial_body(editorial_evidence)
+
+    return ""
 
 def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None, serp_results: list[dict[str, Any]] | None = None, source_evidence: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     brief_id = str(content_brief.get("brief_id", "")).strip()
@@ -324,21 +351,64 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         if section_editorial:
             editorial_evidence.extend(section_editorial)
             refs_for_section = [record["evidence_id"] for record in section_editorial]
-        body = _section_body(heading=heading, keyword=keyword, evidence_records=section_editorial or section_records, editorial_evidence=section_editorial)
-        sections.append({"heading": heading, "purpose": str(item["purpose"]).strip(), "body": body, "evidence_refs": refs_for_section})
+        body = _section_body(
+            heading=heading,
+            keyword=keyword,
+            evidence_records=section_editorial or section_records,
+            editorial_evidence=section_editorial,
+        )
+
+        # The Introduction has a dedicated deterministic fallback for
+        # minimal/vertical-slice inputs that contain structured evidence but
+        # no verified editorial prose. Other sections remain empty unless
+        # approved editorial evidence is available.
+        if not body and index == 1 and section_records:
+            body = _introduction_body(
+                keyword=keyword,
+                evidence_records=section_records,
+            )
+
+        sections.append({
+            "heading": heading,
+            "purpose": str(item["purpose"]).strip(),
+            "body": body,
+            "evidence_refs": refs_for_section,
+        })
         section_evidence_contracts.append({"section_index": index, "heading": heading, "status": "ready" if section_editorial else "insufficient", "evidence_refs": [record["evidence_id"] for record in section_editorial] if section_editorial else refs_for_section})
 
     all_grounding_records = list(grounded_records.values()) + introduction_editorial_evidence + coverage_editorial_evidence + section2_editorial_evidence + cost_editorial_evidence + comparison_editorial_evidence + methodology_editorial_evidence
     claims_by_section = ground_claims_by_section(sections=sections, evidence_records=all_grounding_records, per_claim=1, require_match=True)
     for index, (section, claims) in enumerate(zip(sections, claims_by_section), 1):
         normalized_heading = section["heading"].lower()
+
         if normalized_heading == "coverage and key factors":
-            section["claims"] = (
-                _coverage_claims(coverage_editorial_evidence)
-                if coverage_editorial_evidence
-                else claims
-            )
-        elif normalized_heading in {"introduction", "what you need to know", "costs and pricing factors", "how to compare options", "sources and editorial methodology"}:
+            if coverage_editorial_evidence:
+                section["claims"] = _coverage_claims(
+                    coverage_editorial_evidence
+                )
+            elif claims and any(
+                claim.get("grounding_status") == "grounded"
+                and claim.get("evidence_refs")
+                for claim in claims
+            ):
+                section["claims"] = claims
+            else:
+                section["claims"] = _evidence_grounded_claims(
+                    section_index=index,
+                    evidence_records=[
+                        grounded_records[ref]
+                        for ref in section.get("evidence_refs", [])
+                        if ref in grounded_records
+                    ],
+                )
+
+        elif normalized_heading in {
+            "introduction",
+            "what you need to know",
+            "costs and pricing factors",
+            "how to compare options",
+            "sources and editorial methodology",
+        }:
             if index == 1:
                 editorial = introduction_editorial_evidence
             elif index == 2:
@@ -349,9 +419,44 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
                 editorial = comparison_editorial_evidence
             else:
                 editorial = methodology_editorial_evidence
-            section["claims"] = _page_editorial_claims(section_index=index, editorial_evidence=editorial) if editorial else claims
+
+            if editorial:
+                section["claims"] = _page_editorial_claims(
+                    section_index=index,
+                    editorial_evidence=editorial,
+                )
+            elif claims and any(
+                claim.get("grounding_status") == "grounded"
+                and claim.get("evidence_refs")
+                for claim in claims
+            ):
+                section["claims"] = claims
+            else:
+                section["claims"] = _evidence_grounded_claims(
+                    section_index=index,
+                    evidence_records=[
+                        grounded_records[ref]
+                        for ref in section.get("evidence_refs", [])
+                        if ref in grounded_records
+                    ],
+                )
+
         else:
-            section["claims"] = claims
+            if claims and any(
+                claim.get("grounding_status") == "grounded"
+                and claim.get("evidence_refs")
+                for claim in claims
+            ):
+                section["claims"] = claims
+            else:
+                section["claims"] = _evidence_grounded_claims(
+                    section_index=index,
+                    evidence_records=[
+                        grounded_records[ref]
+                        for ref in section.get("evidence_refs", [])
+                        if ref in grounded_records
+                    ],
+                )
 
     top_level_refs = list(dict.fromkeys(normalized_refs + [str(item["evidence_id"]).strip() for item in editorial_evidence if str(item.get("evidence_id", "")).strip()]))
     payload = {

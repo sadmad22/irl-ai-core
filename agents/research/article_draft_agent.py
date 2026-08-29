@@ -192,7 +192,19 @@ def run(project_name: str) -> dict[str, Any]:
     evidence_records = _load_evidence_records(project_name)
     serp_results = _load_serp_results(project_name)
     source_evidence = _load_source_evidence(project_name)
-    draft = build_article_draft(content_brief=brief, evidence_records=evidence_records, serp_results=serp_results, source_evidence=source_evidence)
+
+    # source-evidence.json is also valid structured evidence for deterministic
+    # claim grounding. Keep source_evidence separate for editorial provenance,
+    # but use it as the grounding fallback when no dedicated evidence records
+    # are available.
+    grounding_records = evidence_records or source_evidence
+
+    draft = build_article_draft(
+        content_brief=brief,
+        evidence_records=grounding_records,
+        serp_results=serp_results,
+        source_evidence=source_evidence,
+    )
     _apply_faq_editorial_evidence(draft, source_evidence)
     _save_if_changed(project_name, "article-draft.json", draft)
     metadata_path = Path("research") / project_name / "metadata.json"
