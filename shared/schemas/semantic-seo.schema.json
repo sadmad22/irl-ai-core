@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/semantic-seo.schema.json",
+  "title": "IRL Semantic SEO Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["semantic_id", "strategy_id", "report_id", "decision_id", "schema_version", "lifecycle_stage", "primary_keyword", "secondary_keywords", "semantic_keywords", "entities", "questions", "section_keyword_map", "keyword_metrics", "audit"],
+  "properties": {
+    "semantic_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "semantic_seo_ready"},
+    "primary_keyword": {"type": "string", "minLength": 1},
+    "secondary_keywords": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "semantic_keywords": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "entities": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "questions": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "section_keyword_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["section", "keywords"],
+        "properties": {
+          "section": {"type": "string", "minLength": 1},
+          "keywords": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+        }
+      }
+    },
+    "keyword_metrics": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status", "metrics_enrichment"],
+      "properties": {
+        "method": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "validation_status": {"const": "validated"},
+        "metrics_enrichment": {"type": "boolean"}
+      }
+    }
+  }
+}
