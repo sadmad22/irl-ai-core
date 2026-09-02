@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IRL SERP Analysis Layer Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "analysis_id",
+    "brief_id",
+    "report_id",
+    "decision_id",
+    "strategy_id",
+    "schema_version",
+    "lifecycle_stage",
+    "keyword",
+    "language",
+    "country",
+    "serp",
+    "competitor_analysis",
+    "audit"
+  ],
+  "properties": {
+    "analysis_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "serp_analysis_ready"},
+    "keyword": {"type": "string", "minLength": 1},
+    "language": {"type": "string", "minLength": 1},
+    "country": {"type": "string", "minLength": 1},
+    "serp": {
+      "type": "object",
+      "required": ["keyword", "language", "country", "results"],
+      "properties": {
+        "keyword": {"type": "string"},
+        "language": {"type": "string"},
+        "country": {"type": "string"},
+        "results": {"type": "array"}
+      }
+    },
+    "competitor_analysis": {
+      "type": "object",
+      "required": ["keyword", "country", "language", "competitors", "domain_counts", "average_position", "top_competitors"],
+      "properties": {
+        "keyword": {"type": "string"},
+        "country": {"type": "string"},
+        "language": {"type": "string"},
+        "competitors": {"type": "array"},
+        "domain_counts": {"type": "object"},
+        "average_position": {"type": ["number", "null"]},
+        "top_competitors": {"type": "array"}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["method", "version", "validation_status", "provider"],
+      "properties": {
+        "method": {"type": "string"},
+        "version": {"type": "string"},
+        "validation_status": {"const": "validated"},
+        "provider": {"type": "string"}
+      }
+    }
+  }
+}
