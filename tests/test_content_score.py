@@ -108,7 +108,7 @@ def test_content_score_matches_schema():
 
 def test_builds_weighted_score_from_non_overlapping_checks():
     document = _build()
-    assert document["score"] == 91.0
+    assert document["score"] == 88.33
     assert document["components"]["quality"]["score"] == 100.0
     assert document["components"]["seo"]["score"] == 66.67
     assert document["components"]["quality"]["weight"] == 0.65
