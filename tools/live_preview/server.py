@@ -66,14 +66,14 @@ def _computed_contract(project: str, label: str) -> dict[str, object]:
         brief = _load_json(brief_path)
         report_path = _find_artifact(project, "research-report.json")
         report = _load_json(report_path) if report_path else {}
-        metadata = report.get("metadata", {}) if isinstance(report, dict) else {}
-        country = metadata.get("country") if isinstance(metadata, dict) else None
+        keyword = report.get("keyword", {}) if isinstance(report, dict) else {}
+        country = keyword.get("country") if isinstance(keyword, dict) else None
         if not isinstance(country, str) or not country.strip():
             return {
                 "name": label,
                 "status": "blocked",
                 "source": "core_contract",
-                "reason": "Article Config requires an explicit target_country; no country is present in the current upstream artifacts",
+                "reason": "Article Config requires an explicit target_country; no country is present in the current upstream keyword data",
             }
         try:
             data = build_article_config(content_brief=brief, target_country=country)
