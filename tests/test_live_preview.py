@@ -51,7 +51,12 @@ def _report(country=""):
         "report_id": "report-1",
         "schema_version": "1.0",
         "lifecycle_stage": "research_complete",
-        "metadata": {"country": country, "project_name": "preview-test"},
+        "metadata": {"country": "", "project_name": "preview-test"},
+        "keyword": {
+            "keyword": "expat health insurance",
+            "language": "en",
+            "country": country,
+        },
     }
 
 
@@ -88,7 +93,7 @@ def test_article_config_is_blocked_when_country_is_not_explicit(tmp_path, monkey
     assert "target_country" in config["reason"]
 
 
-def test_article_config_is_computed_from_real_core_contract(tmp_path, monkeypatch):
+def test_article_config_uses_research_keyword_country(tmp_path, monkeypatch):
     _write_project(tmp_path, country="US")
     monkeypatch.setattr(server, "RESEARCH_ROOT", tmp_path)
 
@@ -99,6 +104,20 @@ def test_article_config_is_computed_from_real_core_contract(tmp_path, monkeypatc
     assert config["source"] == "core_contract"
     assert config["data"]["lifecycle_stage"] == "article_config_ready"
     assert config["data"]["target_country"] == "US"
+
+
+def test_article_config_does_not_fall_back_to_metadata_country(tmp_path, monkeypatch):
+    project = _write_project(tmp_path, country="")
+    report = _report("")
+    report["metadata"]["country"] = "US"
+    (project / "research-report.json").write_text(json.dumps(report), encoding="utf-8")
+    monkeypatch.setattr(server, "RESEARCH_ROOT", tmp_path)
+
+    payload = server._project_payload("preview-test")
+    config = next(item for item in payload["artifacts"] if item["name"] == "Article Configuration")
+
+    assert config["status"] == "blocked"
+    assert "target_country" in config["reason"]
 
 
 def test_materialized_artifact_remains_the_source_of_truth(tmp_path, monkeypatch):
