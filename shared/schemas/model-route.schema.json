@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/model-route.schema.json",
+  "title": "IRL Model Route",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["route_id", "schema_version", "lifecycle_stage", "task", "policy", "model", "provider", "audit"],
+  "properties": {
+    "route_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "model_route_ready"},
+    "task": {"enum": ["research", "drafting", "revision", "editorial"]},
+    "policy": {"type": "string", "minLength": 1},
+    "model": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "network_access", "validation_status"],
+      "properties": {
+        "method": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "network_access": {"const": false},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
