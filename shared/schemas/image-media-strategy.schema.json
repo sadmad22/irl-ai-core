@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/image-media-strategy.schema.json",
+  "title": "IRL AI Core Image Placement and Media Strategy Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["media_strategy_id", "brief_id", "report_id", "decision_id", "strategy_id", "config_id", "draft_id", "image_spec_id", "image_style_id", "schema_version", "lifecycle_stage", "strategy", "placements", "constraints", "audit"],
+  "properties": {
+    "media_strategy_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "draft_id": {"type": "string", "minLength": 1},
+    "image_spec_id": {"type": "string", "minLength": 1},
+    "image_style_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "image_media_strategy_ready"},
+    "strategy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["density", "max_images", "hero_required", "avoid_repetition", "visual_breaks"],
+      "properties": {
+        "density": {"enum": ["low", "moderate", "high"]},
+        "max_images": {"type": "integer", "minimum": 1, "maximum": 50},
+        "hero_required": {"type": "boolean"},
+        "avoid_repetition": {"type": "boolean"},
+        "visual_breaks": {"type": "boolean"}
+      }
+    },
+    "placements": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["image_id", "section_index", "section_heading", "placement", "media_role", "reason"],
+        "properties": {
+          "image_id": {"type": "string", "minLength": 1},
+          "section_index": {"type": "integer", "minimum": 0},
+          "section_heading": {"type": "string", "minLength": 1},
+          "placement": {"enum": ["hero", "section", "inline"]},
+          "media_role": {"enum": ["hero", "explain", "illustrate", "compare", "break", "support"]},
+          "reason": {"type": "string", "minLength": 1, "maxLength": 300}
+        }
+      }
+    },
+    "constraints": {
+      "type": "object", "additionalProperties": false,
+      "required": ["network_access", "provider_call", "wordpress_write", "media_upload", "html_generation", "source_mutation"],
+      "properties": {
+        "network_access": {"const": false},
+        "provider_call": {"const": false},
+        "wordpress_write": {"const": false},
+        "media_upload": {"const": false},
+        "html_generation": {"const": false},
+        "source_mutation": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "image_style_to_media_strategy"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
