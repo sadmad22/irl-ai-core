@@ -59,6 +59,37 @@ def test_infographic_gets_section_placement_and_explain_role():
     assert item["media_role"] == "explain"
 
 
+def test_section_image_gets_section_placement_and_illustrate_role():
+    source = _style()
+    source["styled_images"] = [
+        {"image_id": "image_2", "section_index": 1, "section_heading": "Coverage", "image_type": "section", "styled_prompt": "coverage"},
+        {"image_id": "image_3", "section_index": 2, "section_heading": "Claims", "image_type": "section", "styled_prompt": "claims"},
+    ]
+    result = build_image_media_strategy(image_style=source)
+    assert result["placements"][0]["placement"] == "section"
+    assert result["placements"][0]["media_role"] == "illustrate"
+    assert result["placements"][1]["media_role"] == "illustrate"
+
+
+def test_first_section_image_gets_support_role():
+    source = _style()
+    source["styled_images"] = [
+        {"image_id": "image_2", "section_index": 0, "section_heading": "Coverage", "image_type": "section", "styled_prompt": "coverage"},
+    ]
+    result = build_image_media_strategy(image_style=source)
+    assert result["placements"][0]["media_role"] == "support"
+
+
+def test_comparison_gets_section_placement_and_compare_role():
+    source = _style()
+    source["styled_images"] = [
+        {"image_id": "image_3", "section_index": 2, "section_heading": "Compare Plans", "image_type": "comparison", "styled_prompt": "comparison"},
+    ]
+    result = build_image_media_strategy(image_style=source)
+    assert result["placements"][0]["placement"] == "section"
+    assert result["placements"][0]["media_role"] == "compare"
+
+
 def test_strategy_density_and_image_limit_are_deterministic():
     result = build_image_media_strategy(image_style=_style())
     assert result["strategy"] == {"density": "low", "max_images": 2, "hero_required": True, "avoid_repetition": True, "visual_breaks": True}
@@ -93,6 +124,13 @@ def test_rejects_duplicate_image_ids():
 def test_rejects_invalid_section_index():
     source = _style()
     source["styled_images"][0]["section_index"] = -1
+    with pytest.raises(ValueError, match="non-negative"):
+        build_image_media_strategy(image_style=source)
+
+
+def test_rejects_boolean_section_index():
+    source = _style()
+    source["styled_images"][0]["section_index"] = True
     with pytest.raises(ValueError, match="non-negative"):
         build_image_media_strategy(image_style=source)
 
