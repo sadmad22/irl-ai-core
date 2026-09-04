@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 from typing import Any
@@ -11,6 +10,7 @@ METHOD_VERSION = "v1"
 _PLACEMENTS = {"hero", "section", "inline"}
 _ROLES = {"hero", "explain", "illustrate", "compare", "break", "support"}
 _DENSITIES = {"low", "moderate", "high"}
+_IMAGE_TYPES = {"hero", "section", "infographic", "comparison"}
 
 
 def _clean(value: Any) -> str:
@@ -23,7 +23,10 @@ def _ready(document: dict[str, Any], lifecycle: str, label: str) -> None:
 
 
 def _lineage(image_style: dict[str, Any]) -> dict[str, str]:
-    fields = ("brief_id", "report_id", "decision_id", "strategy_id", "config_id", "draft_id", "image_spec_id", "image_style_id")
+    fields = (
+        "brief_id", "report_id", "decision_id", "strategy_id",
+        "config_id", "draft_id", "image_spec_id", "image_style_id",
+    )
     result: dict[str, str] = {}
     for field in fields:
         value = _clean(image_style.get(field))
@@ -36,6 +39,8 @@ def _lineage(image_style: dict[str, Any]) -> dict[str, str]:
 def _strategy(images: list[dict[str, Any]]) -> dict[str, Any]:
     count = len(images)
     density = "low" if count <= 2 else "moderate" if count <= 6 else "high"
+    if density not in _DENSITIES:
+        raise ValueError(f"Unsupported media density: {density}")
     return {
         "density": density,
         "max_images": max(1, min(50, count)),
@@ -47,28 +52,39 @@ def _strategy(images: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _role(image_type: str, index: int) -> str:
     if image_type == "hero":
-        return "hero"
-    if image_type == "infographic":
-        return "explain"
-    if image_type == "comparison":
-        return "compare"
-    if index > 0:
-        return "illustrate"
-    return "support"
+        role = "hero"
+    elif image_type == "infographic":
+        role = "explain"
+    elif image_type == "comparison":
+        role = "compare"
+    elif index > 0:
+        role = "illustrate"
+    else:
+        role = "support"
+    if role not in _ROLES:
+        raise ValueError(f"Unsupported media role: {role}")
+    return role
 
 
 def _placement(image_type: str) -> str:
-    return "hero" if image_type == "hero" else "section"
+    placement = "hero" if image_type == "hero" else "section"
+    if placement not in _PLACEMENTS:
+        raise ValueError(f"Unsupported media placement: {placement}")
+    return placement
 
 
-def _reason(image_type: str, placement: str, role: str) -> str:
+def _reason(placement: str, role: str) -> str:
     if placement == "hero":
         return "Use as the article's primary visual anchor."
     return f"Place with the associated section to {role} the section without introducing a separate publishing dependency."
 
 
 def _strategy_id(lineage: dict[str, str], strategy: dict[str, Any], placements: list[dict[str, Any]]) -> str:
-    raw = json.dumps({**lineage, "strategy": strategy, "placements": placements}, sort_keys=True, separators=(",", ":"))
+    raw = json.dumps(
+        {**lineage, "strategy": strategy, "placements": placements},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return f"mediastrategy_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
@@ -94,9 +110,9 @@ def build_image_media_strategy(*, image_style: dict[str, Any]) -> dict[str, Any]
         if image_id in seen:
             raise ValueError(f"Duplicate styled image_id: {image_id}")
         seen.add(image_id)
-        if image_type not in {"hero", "section", "infographic", "comparison"}:
+        if image_type not in _IMAGE_TYPES:
             raise ValueError(f"Unsupported styled image type: {image_type}")
-        if not isinstance(section_index, int) or section_index < 0:
+        if not isinstance(section_index, int) or isinstance(section_index, bool) or section_index < 0:
             raise ValueError("Each styled image requires a non-negative integer section_index")
         placement = _placement(image_type)
         role = _role(image_type, section_index)
@@ -106,7 +122,7 @@ def build_image_media_strategy(*, image_style: dict[str, Any]) -> dict[str, Any]
             "section_heading": heading,
             "placement": placement,
             "media_role": role,
-            "reason": _reason(image_type, placement, role),
+            "reason": _reason(placement, role),
         })
 
     strategy = _strategy(styled_images)
