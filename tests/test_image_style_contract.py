@@ -14,7 +14,7 @@ SCHEMA_PATH = Path(__file__).resolve().parents[1] / "shared" / "schemas" / "imag
 def _valid_contract() -> dict:
     style = {
         "brand": "Insurance Review Lab",
-        "color_palette": {"deep_navy": "#0F172A", "modern_blue": "#2563EB", "cyan_accent": "#06B6D4", "white": "#FFFFFF"},
+        "palette": {"deep_navy": "#0F172A", "modern_blue": "#2563EB", "cyan_accent": "#06B6D4", "white": "#FFFFFF"},
         "visual_language": ["professional", "editorial", "research-oriented", "clean", "modern", "trustworthy"],
         "composition": ["clear focal point", "structured composition", "generous whitespace", "restrained visual hierarchy"],
         "illustration_direction": ["premium editorial illustration", "clean geometric elements", "subtle analytical/data motifs"],
@@ -45,7 +45,7 @@ def test_valid_contract_matches_schema():
 
 def test_brand_palette_is_fixed():
     document = _valid_contract()
-    document["visual_style"]["color_palette"]["modern_blue"] = "#000000"
+    document["visual_style"]["palette"]["modern_blue"] = "#000000"
     assert _validate(document)
 
 
