@@ -2,7 +2,7 @@
 
 ## Roadmap position
 
-This implements Final Implementation Roadmap **#15 — AI Content Cleaning / Editorial Cleanup (P1)**. The roadmap specifies an LLM-backed capability. Humanize Text is not implemented as a separate feature; it is folded into this editorial-cleanup layer.
+This implements Final Implementation Roadmap **#15 — AI Content Cleaning / Editorial Cleanup (P1)**. Humanize Text is not implemented as a separate feature; it is folded into this editorial-cleanup layer.
 
 ## Purpose
 
