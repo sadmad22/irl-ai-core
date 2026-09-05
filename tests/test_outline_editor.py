@@ -17,7 +17,7 @@ def upstreams():
 
 
 def test_default_outline_is_deterministic_and_preserves_strategy_order():
-    args = upstreams()
+    args = list(upstreams())
     first = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     second = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     assert first == second
@@ -26,7 +26,7 @@ def test_default_outline_is_deterministic_and_preserves_strategy_order():
 
 
 def test_custom_outline_is_normalized_and_keeps_editability():
-    args = upstreams()
+    args = list(upstreams())
     custom = [{"order":1,"heading":"Introduction","level":"H2","required":True,"purpose":"Set context"},{"order":2,"heading":"Coverage","level":"H3","required":True,"notes":"Explain major exposures"}]
     result = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3], outline=custom)
     assert result["sections"][1]["level"] == "H3"
@@ -41,40 +41,40 @@ def test_rejects_lineage_mismatch():
 
 
 def test_rejects_h3_out_of_structure_bounds():
-    args = upstreams()
+    args = list(upstreams())
     args[2] = dict(args[2], h3={"min":2,"max":2})
     with pytest.raises(ValueError, match="H3 count"):
         build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
 
 
 def test_rejects_duplicate_or_noncontiguous_order():
-    args = upstreams()
+    args = list(upstreams())
     with pytest.raises(ValueError, match="unique"):
         build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3], outline=[{"order":1,"heading":"A","level":"H2","required":True},{"order":1,"heading":"B","level":"H2","required":True}])
 
 
 def test_rejects_unknown_heading_level():
-    args = upstreams()
+    args = list(upstreams())
     with pytest.raises(ValueError, match="H2 or H3"):
         build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3], outline=[{"order":1,"heading":"A","level":"H4","required":True}])
 
 
 def test_does_not_mutate_inputs():
-    args = upstreams()
+    args = list(upstreams())
     before = copy.deepcopy(args)
     build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     assert args == before
 
 
 def test_output_validates_against_schema():
-    args = upstreams()
+    args = list(upstreams())
     output = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     schema = json.loads(Path("shared/schemas/outline-editor.schema.json").read_text())
     Draft202012Validator(schema).validate(output)
 
 
 def test_no_writer_or_provider_fields():
-    args = upstreams()
+    args = list(upstreams())
     output = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     forbidden = {"prompt","llm","provider","model","prose","body","generated_text"}
     assert forbidden.isdisjoint(output)
