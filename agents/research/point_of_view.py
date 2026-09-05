@@ -10,6 +10,9 @@ METHOD_VERSION = "v1"
 
 _INTENTS = {"informational", "commercial", "transactional", "navigational"}
 _ARTICLE_TYPES = {"guide", "comparison", "buyer_guide", "article"}
+_PRIMARY = {"first_person_singular", "first_person_plural", "second_person", "third_person"}
+_STANCES = {"direct_reader", "editorial_neutral", "expert_explanatory"}
+_PRONOUN_POLICIES = {"use_you", "use_we", "avoid_first_person"}
 
 
 def _clean(value: Any) -> str:
@@ -42,12 +45,16 @@ def _lineage(strategy: dict[str, Any], config: dict[str, Any]) -> dict[str, str]
 
 def _select(intent: str, article_type: str) -> dict[str, str]:
     if article_type == "comparison":
-        return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
-    if article_type in {"guide", "buyer_guide"} or intent in {"informational", "transactional"}:
-        return {"primary": "second_person", "stance": "expert_explanatory", "pronoun_policy": "use_you"}
-    if intent == "commercial":
-        return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
-    return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
+        pov = {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
+    elif article_type in {"guide", "buyer_guide"} or intent in {"informational", "transactional"}:
+        pov = {"primary": "second_person", "stance": "expert_explanatory", "pronoun_policy": "use_you"}
+    elif intent == "commercial":
+        pov = {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
+    else:
+        pov = {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
+    if pov["primary"] not in _PRIMARY or pov["stance"] not in _STANCES or pov["pronoun_policy"] not in _PRONOUN_POLICIES:
+        raise ValueError("Selected point of view contains an unsupported value")
+    return pov
 
 
 def _guidance(pov: dict[str, str]) -> dict[str, list[str]]:
