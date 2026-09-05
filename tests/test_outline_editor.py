@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, ValidationError
 
 from agents.research.outline_editor import build_outline_editor_contract
 
@@ -40,6 +40,13 @@ def test_rejects_lineage_mismatch():
         build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
 
 
+def test_rejects_details_brief_lineage_mismatch():
+    args = list(upstreams())
+    args[3] = dict(args[3], brief_id="other-brief")
+    with pytest.raises(ValueError, match="Details to Include.brief_id"):
+        build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
+
+
 def test_rejects_h3_out_of_structure_bounds():
     args = list(upstreams())
     args[2] = dict(args[2], h3={"min":2,"max":2})
@@ -71,6 +78,15 @@ def test_output_validates_against_schema():
     output = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
     schema = json.loads(Path("shared/schemas/outline-editor.schema.json").read_text())
     Draft202012Validator(schema).validate(output)
+
+
+def test_schema_rejects_unknown_nested_constraint_field():
+    args = list(upstreams())
+    output = build_outline_editor_contract(content_strategy=args[0], article_configuration=args[1], article_structure=args[2], details_to_include=args[3])
+    output["constraints"]["tables"]["unexpected"] = True
+    schema = json.loads(Path("shared/schemas/outline-editor.schema.json").read_text())
+    with pytest.raises(ValidationError):
+        Draft202012Validator(schema).validate(output)
 
 
 def test_no_writer_or_provider_fields():
