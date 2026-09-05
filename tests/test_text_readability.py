@@ -1,15 +1,14 @@
 from agents.research.text_readability import analyze_readability, build_text_readability
 
 
-def _strategy_lineage():
+def _lineage():
     return {"brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1"}
 
 
 def _draft(**overrides):
     data = {
         "draft_id": "draft_1",
-        **_strategy_lineage(),
-        "config_id": "config_1",
+        **_lineage(),
         "lifecycle_stage": "draft_ready",
         "sections": [
             {"heading": "Intro", "body": "Insurance helps people manage financial risk. A clear policy explains what is covered and what is excluded."},
@@ -29,25 +28,22 @@ def test_local_analyzer_returns_expected_metrics():
 
 
 def test_engine_is_deterministic():
-    first = build_text_readability(article_draft=_draft())
-    second = build_text_readability(article_draft=_draft())
-    assert first == second
+    assert build_text_readability(article_draft=_draft()) == build_text_readability(article_draft=_draft())
 
 
 def test_output_lifecycle_and_lineage():
     result = build_text_readability(article_draft=_draft())
     assert result["lifecycle_stage"] == "text_readability_ready"
-    for key, value in _strategy_lineage().items():
+    for key, value in _lineage().items():
         assert result[key] == value
     assert result["draft_id"] == "draft_1"
-    assert result["config_id"] == "config_1"
 
 
 def test_local_metrics_are_present():
-    result = build_text_readability(article_draft=_draft())
-    assert result["local_metrics"]["word_count"] > 0
-    assert result["local_metrics"]["sentence_count"] > 0
-    assert result["local_metrics"]["flesch_kincaid_grade"] >= 0
+    metrics = build_text_readability(article_draft=_draft())["local_metrics"]
+    assert metrics["word_count"] > 0
+    assert metrics["sentence_count"] > 0
+    assert metrics["flesch_kincaid_grade"] >= 0
 
 
 def test_default_llm_assessment_is_not_requested():
@@ -81,11 +77,8 @@ def test_provider_result_is_copied():
 
 
 def test_provider_must_expose_assess():
-    class BadProvider:
-        pass
-
     try:
-        build_text_readability(article_draft=_draft(), llm_provider=BadProvider())
+        build_text_readability(article_draft=_draft(), llm_provider=object())
     except ValueError as exc:
         assert "assess" in str(exc)
     else:
@@ -105,6 +98,19 @@ def test_provider_must_return_object():
         raise AssertionError("Expected provider result validation error")
 
 
+def test_provider_fields_are_strict():
+    class BadProvider:
+        def assess(self, *, text, local_metrics):
+            return {"status": "provided", "unexpected": True}
+
+    try:
+        build_text_readability(article_draft=_draft(), llm_provider=BadProvider())
+    except ValueError as exc:
+        assert "fields" in str(exc)
+    else:
+        raise AssertionError("Expected field validation error")
+
+
 def test_provider_status_is_validated():
     class BadProvider:
         def assess(self, *, text, local_metrics):
@@ -119,9 +125,8 @@ def test_provider_status_is_validated():
 
 
 def test_missing_lifecycle_is_rejected():
-    draft = _draft(lifecycle_stage="drafting")
     try:
-        build_text_readability(article_draft=draft)
+        build_text_readability(article_draft=_draft(lifecycle_stage="drafting"))
     except ValueError as exc:
         assert "draft_ready" in str(exc)
     else:
@@ -189,14 +194,13 @@ def test_input_draft_is_not_mutated():
 
 
 def test_network_access_is_always_false():
-    result = build_text_readability(article_draft=_draft())
-    assert result["constraints"]["network_access"] is False
+    assert build_text_readability(article_draft=_draft())["constraints"]["network_access"] is False
 
 
 def test_source_and_draft_mutation_are_false():
-    result = build_text_readability(article_draft=_draft())
-    assert result["constraints"]["source_mutation"] is False
-    assert result["constraints"]["draft_mutation"] is False
+    constraints = build_text_readability(article_draft=_draft())["constraints"]
+    assert constraints["source_mutation"] is False
+    assert constraints["draft_mutation"] is False
 
 
 def test_id_changes_when_input_text_changes():
@@ -220,8 +224,7 @@ def test_id_changes_when_llm_assessment_changes():
 
 
 def test_audit_metadata():
-    result = build_text_readability(article_draft=_draft())
-    assert result["audit"] == {
+    assert build_text_readability(article_draft=_draft())["audit"] == {
         "method": "local_readability_metrics_plus_injected_llm_assessment",
         "version": "v1",
         "validation_status": "validated",

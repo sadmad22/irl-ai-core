@@ -13,6 +13,7 @@ METHOD_VERSION = "v1"
 _WORD_RE = re.compile(r"[A-Za-z]+(?:['’-][A-Za-z]+)*")
 _SENTENCE_RE = re.compile(r"[^.!?]+(?:[.!?]+|$)")
 _VOWEL_RE = re.compile(r"[aeiouy]+")
+_LLM_KEYS = {"status", "summary", "strengths", "issues"}
 
 
 class ReadabilityLLMProviderProtocol:
@@ -39,9 +40,6 @@ def _lineage(article_draft: dict[str, Any]) -> dict[str, str]:
         if not value:
             raise ValueError(f"Article Draft requires {field}")
         result[field] = value
-    config_id = _clean(article_draft.get("config_id"))
-    if config_id:
-        result["config_id"] = config_id
     return result
 
 
@@ -97,8 +95,6 @@ def analyze_readability(text: str) -> dict[str, Any]:
 def _local_outcome(metrics: dict[str, Any], *, target_grade: float = 10.0) -> str:
     if metrics["word_count"] == 0:
         return "needs_revision"
-    # Insurance content can legitimately be technical; the local gate is a
-    # diagnostic threshold, not a publication-quality verdict.
     return "passed" if metrics["flesch_kincaid_grade"] <= target_grade else "needs_revision"
 
 
@@ -111,9 +107,17 @@ def _provider_assessment(provider: Any, text: str, metrics: dict[str, Any]) -> d
     result = assessor(text=text, local_metrics=copy.deepcopy(metrics))
     if not isinstance(result, dict):
         raise ValueError("Text Readability LLM provider must return an object")
+    unknown = set(result) - _LLM_KEYS
+    if unknown:
+        raise ValueError(f"Unsupported Text Readability LLM assessment fields: {sorted(unknown)}")
     status = _clean(result.get("status")) or "provided"
     if status not in {"provided", "not_requested"}:
         raise ValueError("Unsupported Text Readability LLM assessment status")
+    for field in ("strengths", "issues"):
+        if field in result and (not isinstance(result[field], list) or not all(isinstance(item, str) and item.strip() for item in result[field])):
+            raise ValueError(f"Text Readability LLM assessment {field} must be an array of non-empty strings")
+    if "summary" in result and not isinstance(result["summary"], str):
+        raise ValueError("Text Readability LLM assessment summary must be a string")
     return copy.deepcopy(result) | {"status": status}
 
 
@@ -123,10 +127,7 @@ def _id(lineage: dict[str, str], local_metrics: dict[str, Any], outcome: str, ll
 
 
 def build_text_readability(*, article_draft: dict[str, Any], llm_provider: Any = None, target_grade: float = 10.0) -> dict[str, Any]:
-    """Build a readability contract from local metrics plus an optional injected LLM assessment.
-
-    The engine performs no network access and never selects or instantiates an LLM.
-    """
+    """Build a readability contract from local metrics plus an optional injected LLM assessment."""
     _ready(article_draft, "draft_ready", "Article Draft")
     lineage = _lineage(article_draft)
     if isinstance(target_grade, bool) or not isinstance(target_grade, (int, float)) or not math.isfinite(target_grade) or target_grade <= 0:
