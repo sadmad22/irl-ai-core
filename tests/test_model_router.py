@@ -192,8 +192,17 @@ def test_unsupported_policy_is_rejected():
 
 
 def test_invalid_provider_type_is_rejected():
-    registry = copy.deepcopy(DEFAULT_PROVIDER_REGISTRY)
-    registry["bad"]["provider_type"] = "unknown"
+    registry = {
+        "bad": {
+            "provider": "openai",
+            "provider_type": "unknown",
+            "model": "test-model",
+            "adapter": "openai",
+            "capabilities": ["quality"],
+            "available": True,
+            "priority": 10,
+        }
+    }
     with pytest.raises(ValueError, match="Unsupported provider type"):
         build_model_route("research", registry=registry)
 
@@ -205,15 +214,33 @@ def test_incomplete_registry_entry_is_rejected():
 
 
 def test_invalid_capabilities_are_rejected():
-    registry = copy.deepcopy(DEFAULT_PROVIDER_REGISTRY)
-    registry["bad"]["capabilities"] = ["unknown"]
+    registry = {
+        "bad": {
+            "provider": "openai",
+            "provider_type": "openai",
+            "model": "test-model",
+            "adapter": "openai",
+            "capabilities": ["unknown"],
+            "available": True,
+            "priority": 10,
+        }
+    }
     with pytest.raises(ValueError, match="Invalid capabilities"):
         build_model_route("research", registry=registry)
 
 
 def test_invalid_priority_is_rejected():
-    registry = copy.deepcopy(DEFAULT_PROVIDER_REGISTRY)
-    registry["bad"]["priority"] = -1
+    registry = {
+        "bad": {
+            "provider": "openai",
+            "provider_type": "openai",
+            "model": "test-model",
+            "adapter": "openai",
+            "capabilities": ["quality"],
+            "available": True,
+            "priority": -1,
+        }
+    }
     with pytest.raises(ValueError, match="Priority"):
         build_model_route("research", registry=registry)
 
