@@ -84,7 +84,8 @@ def _guidance(pov: dict[str, str]) -> dict[str, list[str]]:
 
 def _id(lineage: dict[str, str], pov: dict[str, str], guidance: dict[str, Any]) -> str:
     raw = json.dumps({**lineage, "point_of_view": pov, "editorial_guidance": guidance}, sort_keys=True, separators=(",", ":"))
-    return f"pov_{hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]}"
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return f"pov_{digest}"
 
 
 def build_point_of_view(*, content_strategy: dict[str, Any], article_config: dict[str, Any]) -> dict[str, Any]:
