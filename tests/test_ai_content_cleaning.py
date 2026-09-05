@@ -130,7 +130,7 @@ def test_rejects_non_object_provider_result():
 
 def test_rejects_unknown_provider_fields():
     result = Provider().result | {"extra": True}
-    with pytest.raises(ValueError, match="[Uu]nsupported fields"):
+    with pytest.raises(ValueError, match="[Uu]nsupported.*fields"):
         build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(result=result))
 
 
