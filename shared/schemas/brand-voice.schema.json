@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/brand-voice.schema.json",
+  "title": "IRL Brand Voice",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brand_voice_id",
+    "brief_id",
+    "report_id",
+    "decision_id",
+    "strategy_id",
+    "config_id",
+    "schema_version",
+    "lifecycle_stage",
+    "brand_voice",
+    "llm_guidance",
+    "constraints",
+    "audit"
+  ],
+  "properties": {
+    "brand_voice_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "brand_voice_ready"},
+    "brand_voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "core_traits",
+        "expression_style",
+        "vocabulary",
+        "confidence_policy",
+        "editorial_principles",
+        "promotional_boundaries",
+        "insurance_language_rules",
+        "human_writing_rules",
+        "sentence_paragraph_style",
+        "audience",
+        "mission"
+      ],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "role", "archetype", "reader_relationship"],
+          "properties": {
+            "name": {"const": "Insurance Review Lab"},
+            "role": {"const": "independent_insurance_research_and_education_platform"},
+            "archetype": {"const": "trusted_research_advisor"},
+            "reader_relationship": {"const": "advisor_not_salesperson"}
+          }
+        },
+        "core_traits": {
+          "type": "array",
+          "const": ["calm", "confident", "clear", "practical", "evidence_aware", "human"]
+        },
+        "expression_style": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["register", "clarity", "structure", "human_quality"],
+          "properties": {
+            "register": {"const": "professional_conversational"},
+            "clarity": {"const": "plain_english"},
+            "structure": {"const": "clear_practical_scannable"},
+            "human_quality": {"const": "experienced_human_editor"}
+          }
+        },
+        "vocabulary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["preferred", "avoid"],
+          "properties": {
+            "preferred": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "avoid": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        "confidence_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["principle", "preferred_qualifiers", "prohibited_behavior"],
+          "properties": {
+            "principle": {"type": "string", "minLength": 1},
+            "preferred_qualifiers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "prohibited_behavior": {"type": "string", "minLength": 1}
+          }
+        },
+        "editorial_principles": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "promotional_boundaries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["position", "avoid", "affiliate_neutrality"],
+          "properties": {
+            "position": {"const": "non_promotional"},
+            "avoid": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "affiliate_neutrality": {"type": "string", "minLength": 1}
+          }
+        },
+        "insurance_language_rules": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "human_writing_rules": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "sentence_paragraph_style": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paragraphs", "voice", "sentence_length", "headings", "bullets", "tables", "whitespace"],
+          "properties": {
+            "paragraphs": {"const": "concise"},
+            "voice": {"const": "active_where_appropriate"},
+            "sentence_length": {"const": "meaningful_variation"},
+            "headings": {"const": "descriptive"},
+            "bullets": {"const": "use_when_they_improve_scanning"},
+            "tables": {"const": "use_when_comparison_is_genuinely_useful"},
+            "whitespace": {"const": "generous"}
+          }
+        },
+        "audience": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary", "examples", "reader_priorities"],
+          "properties": {
+            "primary": {"const": "busy U.S. professionals seeking practical insurance guidance"},
+            "examples": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "reader_priorities": {"type": "array", "const": ["clarity", "accuracy", "practical usefulness", "time efficiency"]}
+          }
+        },
+        "mission": {"const": "Simplify insurance decisions through clear, practical education and independent, evidence-aware guidance."}
+      }
+    },
+    "llm_guidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["apply_to", "preserve", "do_not_override"],
+      "properties": {
+        "apply_to": {"type": "array", "const": ["drafting", "revision", "editorial"]},
+        "preserve": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "do_not_override": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_access", "provider_call", "llm_invocation", "source_mutation"],
+      "properties": {
+        "network_access": {"const": false},
+        "provider_call": {"const": false},
+        "llm_invocation": {"const": false},
+        "source_mutation": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "irl_brand_voice_semantic_definition"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
