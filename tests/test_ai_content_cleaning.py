@@ -29,7 +29,7 @@ def draft(**overrides):
 
 class Provider:
     def __init__(self, result=None):
-        self.result = result or {
+        self.result = result if result is not None else {
             "status": "cleaned",
             "sections": [
                 {"section_index": 0, "cleaned_body": "This policy covers common professional risks. The wording should remain clear."},
@@ -130,7 +130,7 @@ def test_rejects_non_object_provider_result():
 
 def test_rejects_unknown_provider_fields():
     result = Provider().result | {"extra": True}
-    with pytest.raises(ValueError, match="unsupported fields"):
+    with pytest.raises(ValueError, match="[Uu]nsupported fields"):
         build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(result=result))
 
 
