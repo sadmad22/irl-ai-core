@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/point-of-view.schema.json",
+  "title": "IRL Point of View Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "point_of_view_id",
+    "brief_id",
+    "report_id",
+    "decision_id",
+    "strategy_id",
+    "config_id",
+    "schema_version",
+    "lifecycle_stage",
+    "point_of_view",
+    "editorial_guidance",
+    "constraints",
+    "audit"
+  ],
+  "properties": {
+    "point_of_view_id": {"type": "string", "pattern": "^pov_[a-f0-9]{16}$"},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "point_of_view_ready"},
+    "point_of_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "stance", "pronoun_policy"],
+      "properties": {
+        "primary": {"enum": ["first_person_singular", "first_person_plural", "second_person", "third_person"]},
+        "stance": {"enum": ["direct_reader", "editorial_neutral", "expert_explanatory"]},
+        "pronoun_policy": {"enum": ["use_you", "use_we", "avoid_first_person"]}
+      }
+    },
+    "editorial_guidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preferred_patterns", "avoid_patterns", "consistency_rules"],
+      "properties": {
+        "preferred_patterns": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+        "avoid_patterns": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+        "consistency_rules": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_access", "provider_call", "tone_of_voice_included", "brand_voice_included", "source_mutation"],
+      "properties": {
+        "network_access": {"const": false},
+        "provider_call": {"const": false},
+        "tone_of_voice_included": {"const": false},
+        "brand_voice_included": {"const": false},
+        "source_mutation": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "content_strategy_to_point_of_view"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
