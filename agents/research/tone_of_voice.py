@@ -33,17 +33,15 @@ def _lineage(strategy: dict[str, Any], config: dict[str, Any]) -> dict[str, str]
     result: dict[str, str] = {}
     for field in fields:
         strategy_value = _clean(strategy.get(field))
+        config_value = _clean(config.get(field))
         if not strategy_value:
             raise ValueError(f"Content Strategy requires {field}")
-        result[field] = strategy_value
-    config_id = _clean(config.get("config_id"))
-    if not config_id:
-        raise ValueError("Article Configuration requires config_id")
-    result["config_id"] = config_id
-    for field in fields[:3]:
-        if _clean(config.get(field)) != result[field]:
+        if not config_value:
+            raise ValueError(f"Article Configuration requires {field}")
+        if config_value != strategy_value:
             raise ValueError(f"Lineage mismatch for {field}")
-    return result
+        result[field] = strategy_value
+    return result | {"config_id": _clean(_require(config, "config_id", "Article Configuration"))}
 
 
 def _select_primary(intent: str, content_type: str) -> str:
@@ -111,16 +109,6 @@ def build_tone_of_voice(*, content_strategy: dict[str, Any], article_config: dic
         "lifecycle_stage": "tone_of_voice_ready",
         "tone": tone,
         "editorial_guidance": copy.deepcopy(guidance),
-        "constraints": {
-            "network_access": False,
-            "provider_call": False,
-            "brand_voice_included": False,
-            "point_of_view_included": False,
-            "source_mutation": False,
-        },
-        "audit": {
-            "method": "content_strategy_to_tone_of_voice",
-            "version": METHOD_VERSION,
-            "validation_status": "validated",
-        },
+        "constraints": {"network_access": False, "provider_call": False, "brand_voice_included": False, "point_of_view_included": False, "source_mutation": False},
+        "audit": {"method": "content_strategy_to_tone_of_voice", "version": METHOD_VERSION, "validation_status": "validated"},
     }
