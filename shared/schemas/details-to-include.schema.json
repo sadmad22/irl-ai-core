@@ -5,63 +5,24 @@
   "description": "Deterministic editorial configuration for key takeaways, quotes, and bold formatting.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "details_to_include_id",
-    "brief_id",
-    "report_id",
-    "decision_id",
-    "strategy_id",
-    "config_id",
-    "schema_version",
-    "lifecycle_stage",
-    "details_to_include",
-    "audit"
-  ],
+  "required": ["details_to_include_id", "brief_id", "report_id", "decision_id", "strategy_id", "config_id", "schema_version", "lifecycle_stage", "details_to_include", "audit"],
   "properties": {
-    "details_to_include_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "brief_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "report_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "decision_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "strategy_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "config_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "schema_version": {
-      "const": "1.0"
-    },
-    "lifecycle_stage": {
-      "const": "details_to_include_ready"
-    },
-    "details_to_include": {
-      "$ref": "#/$defs/details"
-    },
+    "details_to_include_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "details_to_include_ready"},
+    "details_to_include": {"$ref": "#/$defs/details"},
     "audit": {
       "type": "object",
       "additionalProperties": false,
       "required": ["method", "method_version"],
       "properties": {
-        "method": {
-          "const": "deterministic-details-to-include"
-        },
-        "method_version": {
-          "const": "v1"
-        }
+        "method": {"const": "deterministic-details-to-include"},
+        "method_version": {"const": "v1"}
       }
     }
   },
@@ -71,134 +32,49 @@
       "additionalProperties": false,
       "required": ["min", "target", "max"],
       "properties": {
-        "min": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "target": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "max": {
-          "type": "integer",
-          "minimum": 0
-        }
-      }
+        "min": {"type": "integer", "minimum": 0},
+        "target": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0}
+      },
+      "allOf": [
+        {"if": {"properties": {"min": {"type": "integer"}}}, "then": {"properties": {"target": {"type": "integer"}}}},
+        {"if": {"properties": {"target": {"type": "integer"}}}, "then": {"properties": {"max": {"type": "integer"}}}},
+        {"if": {"properties": {"min": {"const": 0}}}, "then": {}},
+        {"not": {"anyOf": [
+          {"required": ["min", "target"], "properties": {"min": {"exclusiveMinimum": 0}, "target": {"const": 0}}},
+          {"required": ["target", "max"], "properties": {"target": {"exclusiveMinimum": 0}, "max": {"const": 0}}}
+        ]}
+      ]
     },
     "takeaways": {
       "type": "object",
       "additionalProperties": false,
       "required": ["enabled", "required", "count"],
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "count": {
-          "$ref": "#/$defs/count"
-        }
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count"}
       },
       "allOf": [
-        {
-          "if": {
-            "properties": {
-              "enabled": {"const": false}
-            }
-          },
-          "then": {
-            "properties": {
-              "required": {"const": false},
-              "count": {
-                "const": {"min": 0, "target": 0, "max": 0}
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "required": {"const": true}
-            }
-          },
-          "then": {
-            "properties": {
-              "enabled": {"const": true},
-              "count": {
-                "properties": {
-                  "min": {"minimum": 1}
-                }
-              }
-            }
-          }
-        }
+        {"if": {"properties": {"enabled": {"const": false}}}, "then": {"properties": {"required": {"const": false}, "count": {"const": {"min": 0, "target": 0, "max": 0}}}}},
+        {"if": {"properties": {"required": {"const": true}}}, "then": {"properties": {"enabled": {"const": true}, "count": {"properties": {"min": {"minimum": 1}}}}}}
       ]
     },
     "quotes": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "enabled",
-        "required",
-        "count",
-        "source_requirement",
-        "attribution_required",
-        "evidence_gate"
-      ],
+      "required": ["enabled", "required", "count", "source_requirement", "attribution_required", "evidence_gate"],
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "count": {
-          "$ref": "#/$defs/count"
-        },
-        "source_requirement": {
-          "const": "verified_source_evidence"
-        },
-        "attribution_required": {
-          "const": true
-        },
-        "evidence_gate": {
-          "const": "verified_evidence_required"
-        }
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count"},
+        "source_requirement": {"const": "verified_source_evidence"},
+        "attribution_required": {"const": true},
+        "evidence_gate": {"const": "verified_evidence_required"}
       },
       "allOf": [
-        {
-          "if": {
-            "properties": {
-              "enabled": {"const": false}
-            }
-          },
-          "then": {
-            "properties": {
-              "required": {"const": false},
-              "count": {
-                "const": {"min": 0, "target": 0, "max": 0}
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "required": {"const": true}
-            }
-          },
-          "then": {
-            "properties": {
-              "enabled": {"const": true},
-              "count": {
-                "properties": {
-                  "min": {"minimum": 1}
-                }
-              }
-            }
-          }
-        }
+        {"if": {"properties": {"enabled": {"const": false}}}, "then": {"properties": {"required": {"const": false}, "count": {"const": {"min": 0, "target": 0, "max": 0}}}}},
+        {"if": {"properties": {"required": {"const": true}}}, "then": {"properties": {"enabled": {"const": true}, "count": {"properties": {"min": {"minimum": 1}}}}}}
       ]
     },
     "bold": {
@@ -206,46 +82,14 @@
       "additionalProperties": false,
       "required": ["enabled", "required", "max_per_section", "policy"],
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "max_per_section": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "policy": {
-          "const": "editorial_emphasis_only"
-        }
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "max_per_section": {"type": "integer", "minimum": 0},
+        "policy": {"const": "editorial_emphasis_only"}
       },
       "allOf": [
-        {
-          "if": {
-            "properties": {
-              "enabled": {"const": false}
-            }
-          },
-          "then": {
-            "properties": {
-              "required": {"const": false},
-              "max_per_section": {"const": 0}
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "enabled": {"const": true}
-            }
-          },
-          "then": {
-            "properties": {
-              "max_per_section": {"minimum": 1}
-            }
-          }
-        }
+        {"if": {"properties": {"enabled": {"const": false}}}, "then": {"properties": {"required": {"const": false}, "max_per_section": {"const": 0}}}},
+        {"if": {"properties": {"enabled": {"const": true}}}, "then": {"properties": {"max_per_section": {"minimum": 1}}}}
       ]
     },
     "details": {
@@ -253,15 +97,9 @@
       "additionalProperties": false,
       "required": ["key_takeaways", "quotes", "bold"],
       "properties": {
-        "key_takeaways": {
-          "$ref": "#/$defs/takeaways"
-        },
-        "quotes": {
-          "$ref": "#/$defs/quotes"
-        },
-        "bold": {
-          "$ref": "#/$defs/bold"
-        }
+        "key_takeaways": {"$ref": "#/$defs/takeaways"},
+        "quotes": {"$ref": "#/$defs/quotes"},
+        "bold": {"$ref": "#/$defs/bold"}
       }
     }
   }
