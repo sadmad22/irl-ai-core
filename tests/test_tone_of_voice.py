@@ -23,7 +23,7 @@ def strategy(**overrides):
 def config(**overrides):
     value = {
         "brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1",
-        "config_id": "config_1", "lifecycle_stage": "article_config_ready", "content_type": "guide"
+        "config_id": "config_1", "lifecycle_stage": "article_config_ready", "article_type": "guide"
     }
     value.update(overrides)
     return value
@@ -31,8 +31,7 @@ def config(**overrides):
 
 def test_valid_output_matches_schema():
     output = build_tone_of_voice(content_strategy=strategy(), article_config=config())
-    errors = list(Draft202012Validator(SCHEMA).iter_errors(output))
-    assert errors == []
+    assert list(Draft202012Validator(SCHEMA).iter_errors(output)) == []
 
 
 def test_lifecycle_and_lineage_preserved():
@@ -49,13 +48,13 @@ def test_guide_information_is_educational():
 
 
 def test_comparison_is_analytical():
-    output = build_tone_of_voice(content_strategy=strategy(intent="informational"), article_config=config(content_type="comparison"))
+    output = build_tone_of_voice(content_strategy=strategy(), article_config=config(article_type="comparison"))
     assert output["tone"]["primary"] == "analytical"
     assert output["tone"]["technicality"] == "technical"
 
 
 def test_buyer_guide_is_authoritative():
-    output = build_tone_of_voice(content_strategy=strategy(intent="commercial"), article_config=config(content_type="buyer_guide"))
+    output = build_tone_of_voice(content_strategy=strategy(intent="commercial"), article_config=config(article_type="buyer_guide"))
     assert output["tone"]["primary"] == "authoritative"
 
 
@@ -96,29 +95,25 @@ def test_rejects_invalid_intent():
 def test_schema_rejects_unknown_top_level_property():
     output = build_tone_of_voice(content_strategy=strategy(), article_config=config())
     output["llm_call"] = True
-    errors = list(Draft202012Validator(SCHEMA).iter_errors(output))
-    assert any("Additional properties" in error.message for error in errors)
+    assert any("Additional properties" in error.message for error in Draft202012Validator(SCHEMA).iter_errors(output))
 
 
 def test_schema_rejects_brand_voice_scope():
     output = build_tone_of_voice(content_strategy=strategy(), article_config=config())
     output["constraints"]["brand_voice_included"] = True
-    errors = list(Draft202012Validator(SCHEMA).iter_errors(output))
-    assert errors
+    assert list(Draft202012Validator(SCHEMA).iter_errors(output))
 
 
 def test_schema_rejects_invalid_primary_enum():
     output = build_tone_of_voice(content_strategy=strategy(), article_config=config())
     output["tone"]["primary"] = "marketing"
-    errors = list(Draft202012Validator(SCHEMA).iter_errors(output))
-    assert errors
+    assert list(Draft202012Validator(SCHEMA).iter_errors(output))
 
 
 def test_schema_rejects_empty_preferred_traits():
     output = build_tone_of_voice(content_strategy=strategy(), article_config=config())
     output["editorial_guidance"]["preferred_traits"] = []
-    errors = list(Draft202012Validator(SCHEMA).iter_errors(output))
-    assert errors
+    assert list(Draft202012Validator(SCHEMA).iter_errors(output))
 
 
 def test_execution_scope_excludes_network_provider_and_source_mutation():
