@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/outline-editor.schema.json",
+  "title": "IRL Outline Editor Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["outline_editor_id","brief_id","report_id","decision_id","strategy_id","config_id","structure_id","details_to_include_id","schema_version","lifecycle_stage","article_type","primary_keyword","sections","constraints","audit"],
+  "properties": {
+    "outline_editor_id":{"type":"string","minLength":1},"brief_id":{"type":"string","minLength":1},"report_id":{"type":"string","minLength":1},"decision_id":{"type":"string","minLength":1},"strategy_id":{"type":"string","minLength":1},"config_id":{"type":"string","minLength":1},"structure_id":{"type":"string","minLength":1},"details_to_include_id":{"type":"string","minLength":1},"schema_version":{"const":"1.0"},"lifecycle_stage":{"const":"outline_editor_ready"},"article_type":{"enum":["guide","comparison","buyer_guide","article"]},"primary_keyword":{"type":"string","minLength":1},
+    "sections":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["order","heading","level","required"],"properties":{"order":{"type":"integer","minimum":1},"heading":{"type":"string","minLength":1},"level":{"enum":["H2","H3"]},"required":{"type":"boolean"},"purpose":{"type":"string","minLength":1},"notes":{"type":"string","minLength":1}}}},
+    "constraints":{"type":"object","additionalProperties":false,"required":["h3","tables","lists","faq","details_to_include"],"properties":{"h3":{"type":"object","additionalProperties":false,"required":["min","max"],"properties":{"min":{"type":"integer","minimum":0},"max":{"type":"integer","minimum":0}}},"tables":{"type":"object"},"lists":{"type":"object"},"faq":{"type":"object"},"details_to_include":{"type":"object"}}},
+    "audit":{"type":"object","additionalProperties":false,"required":["method","method_version","validation_status"],"properties":{"method":{"const":"content_strategy_to_outline_editor"},"method_version":{"const":"v1"},"validation_status":{"const":"validated"}}}
+  }
+}
