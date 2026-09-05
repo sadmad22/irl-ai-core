@@ -62,6 +62,8 @@ def _validate_lineage(strategy: dict[str, Any], config: dict[str, Any], structur
 
     if structure.get("brief_id") != config.get("brief_id"):
         raise ValueError("Article Structure.brief_id must match Article Configuration.brief_id")
+    if details.get("brief_id") != config.get("brief_id"):
+        raise ValueError("Details to Include.brief_id must match Article Configuration.brief_id")
     if config.get("article_type") != strategy.get("content_type"):
         raise ValueError("Article Configuration.article_type must match Content Strategy.content_type")
 
