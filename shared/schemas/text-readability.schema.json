@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/text-readability.schema.json",
+  "title": "Text Readability Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["text_readability_id", "draft_id", "brief_id", "report_id", "decision_id", "strategy_id", "schema_version", "lifecycle_stage", "outcome", "local_metrics", "llm_assessment", "target_grade", "constraints", "audit"],
+  "properties": {
+    "text_readability_id": {"type": "string", "minLength": 1},
+    "draft_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "text_readability_ready"},
+    "outcome": {"enum": ["passed", "needs_revision"]},
+    "local_metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["word_count", "sentence_count", "syllable_count", "average_sentence_words", "average_syllables_per_word", "flesch_reading_ease", "flesch_kincaid_grade"],
+      "properties": {
+        "word_count": {"type": "integer", "minimum": 1},
+        "sentence_count": {"type": "integer", "minimum": 1},
+        "syllable_count": {"type": "integer", "minimum": 1},
+        "average_sentence_words": {"type": "number", "minimum": 0},
+        "average_syllables_per_word": {"type": "number", "minimum": 0},
+        "flesch_reading_ease": {"type": "number"},
+        "flesch_kincaid_grade": {"type": "number"}
+      }
+    },
+    "llm_assessment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["not_requested", "provided"]},
+        "summary": {"type": "string"},
+        "strengths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "issues": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "target_grade": {"type": "number", "exclusiveMinimum": 0},
+    "constraints": {
+      "type": "object", "additionalProperties": false,
+      "required": ["network_access", "provider_call", "source_mutation", "draft_mutation"],
+      "properties": {
+        "network_access": {"const": false},
+        "provider_call": {"type": "boolean"},
+        "source_mutation": {"const": false},
+        "draft_mutation": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "local_readability_metrics_plus_injected_llm_assessment"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
