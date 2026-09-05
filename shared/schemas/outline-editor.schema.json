@@ -4,11 +4,153 @@
   "title": "IRL Outline Editor Contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["outline_editor_id","brief_id","report_id","decision_id","strategy_id","config_id","structure_id","details_to_include_id","schema_version","lifecycle_stage","article_type","primary_keyword","sections","constraints","audit"],
+  "required": ["outline_editor_id", "brief_id", "report_id", "decision_id", "strategy_id", "config_id", "structure_id", "details_to_include_id", "schema_version", "lifecycle_stage", "article_type", "primary_keyword", "sections", "constraints", "audit"],
   "properties": {
-    "outline_editor_id":{"type":"string","minLength":1},"brief_id":{"type":"string","minLength":1},"report_id":{"type":"string","minLength":1},"decision_id":{"type":"string","minLength":1},"strategy_id":{"type":"string","minLength":1},"config_id":{"type":"string","minLength":1},"structure_id":{"type":"string","minLength":1},"details_to_include_id":{"type":"string","minLength":1},"schema_version":{"const":"1.0"},"lifecycle_stage":{"const":"outline_editor_ready"},"article_type":{"enum":["guide","comparison","buyer_guide","article"]},"primary_keyword":{"type":"string","minLength":1},
-    "sections":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["order","heading","level","required"],"properties":{"order":{"type":"integer","minimum":1},"heading":{"type":"string","minLength":1},"level":{"enum":["H2","H3"]},"required":{"type":"boolean"},"purpose":{"type":"string","minLength":1},"notes":{"type":"string","minLength":1}}}},
-    "constraints":{"type":"object","additionalProperties":false,"required":["h3","tables","lists","faq","details_to_include"],"properties":{"h3":{"type":"object","additionalProperties":false,"required":["min","max"],"properties":{"min":{"type":"integer","minimum":0},"max":{"type":"integer","minimum":0}}},"tables":{"type":"object"},"lists":{"type":"object"},"faq":{"type":"object"},"details_to_include":{"type":"object"}}},
-    "audit":{"type":"object","additionalProperties":false,"required":["method","method_version","validation_status"],"properties":{"method":{"const":"content_strategy_to_outline_editor"},"method_version":{"const":"v1"},"validation_status":{"const":"validated"}}}
+    "outline_editor_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "structure_id": {"type": "string", "minLength": 1},
+    "details_to_include_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "outline_editor_ready"},
+    "article_type": {"enum": ["guide", "comparison", "buyer_guide", "article"]},
+    "primary_keyword": {"type": "string", "minLength": 1},
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["order", "heading", "level", "required"],
+        "properties": {
+          "order": {"type": "integer", "minimum": 1},
+          "heading": {"type": "string", "minLength": 1},
+          "level": {"enum": ["H2", "H3"]},
+          "required": {"type": "boolean"},
+          "purpose": {"type": "string", "minLength": 1},
+          "notes": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["h3", "tables", "lists", "faq", "details_to_include"],
+      "properties": {
+        "h3": {"$ref": "#/$defs/h3"},
+        "tables": {"$ref": "#/$defs/structure_feature"},
+        "lists": {"$ref": "#/$defs/structure_feature"},
+        "faq": {"$ref": "#/$defs/faq"},
+        "details_to_include": {"$ref": "#/$defs/details"}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "method_version", "validation_status"],
+      "properties": {
+        "method": {"const": "content_strategy_to_outline_editor"},
+        "method_version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  },
+  "$defs": {
+    "h3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0}
+      }
+    },
+    "count_min_max": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0}
+      }
+    },
+    "structure_feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "required", "count"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count_min_max"}
+      }
+    },
+    "faq": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "required", "count", "answer_required"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "answer_required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count_min_max"}
+      }
+    },
+    "count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "target", "max"],
+      "properties": {
+        "min": {"type": "integer", "minimum": 0},
+        "target": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0}
+      }
+    },
+    "takeaways": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "required", "count"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "quotes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "required", "count", "source_requirement", "attribution_required", "evidence_gate"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "count": {"$ref": "#/$defs/count"},
+        "source_requirement": {"const": "verified_source_evidence"},
+        "attribution_required": {"const": true},
+        "evidence_gate": {"const": "verified_evidence_required"}
+      }
+    },
+    "bold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "required", "max_per_section", "policy"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "max_per_section": {"type": "integer", "minimum": 0},
+        "policy": {"const": "editorial_emphasis_only"}
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_takeaways", "quotes", "bold"],
+      "properties": {
+        "key_takeaways": {"$ref": "#/$defs/takeaways"},
+        "quotes": {"$ref": "#/$defs/quotes"},
+        "bold": {"$ref": "#/$defs/bold"}
+      }
+    }
   }
 }
