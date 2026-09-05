@@ -20,7 +20,7 @@ The Outline Editor converts the approved IRL Content Strategy into a determinist
 
 1. All upstream lifecycle stages must be correct.
 2. `report_id`, `decision_id`, and `strategy_id` must remain aligned across upstream contracts.
-3. `brief_id` must match Article Configuration and Article Structure.
+3. `brief_id` must match Article Configuration, Article Structure, and Details to Include.
 4. `article_type` must match Content Strategy `content_type`.
 5. Section order is unique, contiguous, and starts at 1.
 6. Only H2 and H3 are allowed.
