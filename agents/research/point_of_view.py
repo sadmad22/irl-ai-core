@@ -41,9 +41,11 @@ def _lineage(strategy: dict[str, Any], config: dict[str, Any]) -> dict[str, str]
 
 
 def _select(intent: str, article_type: str) -> dict[str, str]:
+    if article_type == "comparison":
+        return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
     if article_type in {"guide", "buyer_guide"} or intent in {"informational", "transactional"}:
         return {"primary": "second_person", "stance": "expert_explanatory", "pronoun_policy": "use_you"}
-    if article_type == "comparison" or intent == "commercial":
+    if intent == "commercial":
         return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
     return {"primary": "third_person", "stance": "editorial_neutral", "pronoun_policy": "avoid_first_person"}
 
