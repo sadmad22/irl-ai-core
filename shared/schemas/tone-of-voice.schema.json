@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/tone-of-voice.schema.json",
+  "title": "IRL Tone of Voice Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tone_of_voice_id", "brief_id", "report_id", "decision_id", "strategy_id", "config_id",
+    "schema_version", "lifecycle_stage", "tone", "editorial_guidance", "constraints", "audit"
+  ],
+  "properties": {
+    "tone_of_voice_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "tone_of_voice_ready"},
+    "tone": {
+      "type": "object", "additionalProperties": false,
+      "required": ["primary", "formality", "directness", "warmth", "technicality"],
+      "properties": {
+        "primary": {"enum": ["professional", "conversational", "educational", "authoritative", "reassuring", "analytical"]},
+        "formality": {"enum": ["formal", "professional", "neutral", "conversational"]},
+        "directness": {"enum": ["direct", "balanced", "gentle"]},
+        "warmth": {"enum": ["low", "moderate", "high"]},
+        "technicality": {"enum": ["plain", "moderate", "technical"]}
+      }
+    },
+    "editorial_guidance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["preferred_traits", "avoid_traits", "sentence_guidance", "reader_address"],
+      "properties": {
+        "preferred_traits": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "avoid_traits": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "sentence_guidance": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "reader_address": {"enum": ["you", "reader", "third_person"]}
+      }
+    },
+    "constraints": {
+      "type": "object", "additionalProperties": false,
+      "required": ["network_access", "provider_call", "brand_voice_included", "point_of_view_included", "source_mutation"],
+      "properties": {
+        "network_access": {"const": false}, "provider_call": {"const": false},
+        "brand_voice_included": {"const": false}, "point_of_view_included": {"const": false}, "source_mutation": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "content_strategy_to_tone_of_voice"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
