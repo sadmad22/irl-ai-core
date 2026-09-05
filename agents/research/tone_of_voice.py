@@ -8,7 +8,6 @@ from typing import Any
 SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
 
-_PRIMARY = {"professional", "conversational", "educational", "authoritative", "reassuring", "analytical"}
 _INTENT = {"informational", "commercial", "transactional", "navigational"}
 _CONTENT_TYPES = {"guide", "comparison", "buyer_guide", "article"}
 
@@ -41,15 +40,16 @@ def _lineage(strategy: dict[str, Any], config: dict[str, Any]) -> dict[str, str]
         if config_value != strategy_value:
             raise ValueError(f"Lineage mismatch for {field}")
         result[field] = strategy_value
-    return result | {"config_id": _clean(_require(config, "config_id", "Article Configuration"))}
+    config_id = _clean(_require(config, "config_id", "Article Configuration"))
+    return result | {"config_id": config_id}
 
 
-def _select_primary(intent: str, content_type: str) -> str:
-    if content_type == "comparison":
+def _select_primary(intent: str, article_type: str) -> str:
+    if article_type == "comparison":
         return "analytical"
-    if content_type == "buyer_guide" or intent in {"commercial", "transactional"}:
+    if article_type == "buyer_guide" or intent in {"commercial", "transactional"}:
         return "authoritative"
-    if content_type == "guide" or intent == "informational":
+    if article_type == "guide" or intent == "informational":
         return "educational"
     return "professional"
 
@@ -75,9 +75,17 @@ def _guidance(primary: str) -> dict[str, Any]:
         "conversational": ["clear", "accessible", "natural", "helpful"],
         "reassuring": ["clear", "calm", "supportive", "measured"],
     }[primary]
-    avoid = ["hype", "sensationalism", "fear-based language", "unsupported certainty"]
-    sentences = ["Prefer active voice.", "Keep sentences clear and information-dense.", "Explain specialized insurance terms when first introduced.", "Use concrete language over promotional phrasing."]
-    return {"preferred_traits": preferred, "avoid_traits": avoid, "sentence_guidance": sentences, "reader_address": "you"}
+    return {
+        "preferred_traits": preferred,
+        "avoid_traits": ["hype", "sensationalism", "fear-based language", "unsupported certainty"],
+        "sentence_guidance": [
+            "Prefer active voice.",
+            "Keep sentences clear and information-dense.",
+            "Explain specialized insurance terms when first introduced.",
+            "Use concrete language over promotional phrasing.",
+        ],
+        "reader_address": "you",
+    }
 
 
 def _id(lineage: dict[str, str], tone: dict[str, Any], guidance: dict[str, Any]) -> str:
@@ -92,13 +100,13 @@ def build_tone_of_voice(*, content_strategy: dict[str, Any], article_config: dic
     lineage = _lineage(content_strategy, article_config)
 
     intent = _clean(content_strategy.get("intent"))
-    content_type = _clean(article_config.get("content_type")) or _clean(content_strategy.get("content_type"))
+    article_type = _clean(article_config.get("article_type")) or _clean(content_strategy.get("content_type"))
     if intent and intent not in _INTENT:
         raise ValueError(f"Unsupported content strategy intent: {intent}")
-    if content_type and content_type not in _CONTENT_TYPES:
-        raise ValueError(f"Unsupported content type: {content_type}")
+    if article_type and article_type not in _CONTENT_TYPES:
+        raise ValueError(f"Unsupported article type: {article_type}")
 
-    primary = _select_primary(intent, content_type)
+    primary = _select_primary(intent, article_type)
     tone = _tone(primary)
     guidance = _guidance(primary)
 
@@ -109,6 +117,16 @@ def build_tone_of_voice(*, content_strategy: dict[str, Any], article_config: dic
         "lifecycle_stage": "tone_of_voice_ready",
         "tone": tone,
         "editorial_guidance": copy.deepcopy(guidance),
-        "constraints": {"network_access": False, "provider_call": False, "brand_voice_included": False, "point_of_view_included": False, "source_mutation": False},
-        "audit": {"method": "content_strategy_to_tone_of_voice", "version": METHOD_VERSION, "validation_status": "validated"},
+        "constraints": {
+            "network_access": False,
+            "provider_call": False,
+            "brand_voice_included": False,
+            "point_of_view_included": False,
+            "source_mutation": False,
+        },
+        "audit": {
+            "method": "content_strategy_to_tone_of_voice",
+            "version": METHOD_VERSION,
+            "validation_status": "validated",
+        },
     }
