@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/external-linking.schema.json",
+  "title": "IRL External Linking Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["external_linking_id", "brief_id", "report_id", "decision_id", "strategy_id", "config_id", "outline_editor_id", "details_to_include_id", "schema_version", "lifecycle_stage", "external_linking", "audit"],
+  "properties": {
+    "external_linking_id": {"type": "string", "minLength": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "outline_editor_id": {"type": "string", "minLength": 1},
+    "details_to_include_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "external_linking_ready"},
+    "external_linking": {"$ref": "#/$defs/settings"},
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "method_version", "validation_status"],
+      "properties": {
+        "method": {"const": "deterministic-external-link-contract"},
+        "method_version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  },
+  "$defs": {
+    "link": {
+      "type": "object", "additionalProperties": false,
+      "required": ["url", "title", "domain", "relevance_score", "source", "link_type"],
+      "properties": {
+        "url": {"type": "string", "pattern": "^https://[^\\s]+$"},
+        "title": {"type": "string", "minLength": 1},
+        "domain": {"type": "string", "minLength": 1, "pattern": "^[^/\\s]+$"},
+        "relevance_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "source": {"enum": ["dataforseo", "search"]},
+        "link_type": {"enum": ["official", "research", "reference", "guidance"]}
+      }
+    },
+    "settings": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "required", "max_links", "placement", "source_requirement", "links"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "required": {"type": "boolean"},
+        "max_links": {"type": "integer", "minimum": 0},
+        "placement": {"enum": ["intro", "body", "conclusion"]},
+        "source_requirement": {"enum": ["dataforseo", "search"]},
+        "links": {"type": "array", "items": {"$ref": "#/$defs/link"}}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"external_linking": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"external_linking": {"properties": {"max_links": {"const": 0}, "links": {"maxItems": 0}}}}}
+    },
+    {
+      "if": {"properties": {"external_linking": {"properties": {"required": {"const": true}}}}},
+      "then": {"properties": {"external_linking": {"properties": {"enabled": {"const": true}, "links": {"minItems": 1}}}}}
+    },
+    {
+      "if": {"properties": {"external_linking": {"properties": {"enabled": {"const": true}}}}},
+      "then": {"properties": {"external_linking": {"properties": {"max_links": {"minimum": 1}}}}}
+    }
+  ]
+}
