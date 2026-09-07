@@ -12,7 +12,7 @@
     "report_id": {"type": "string", "minLength": 1},
     "decision_id": {"type": "string", "minLength": 1},
     "strategy_id": {"type": "string", "minLength": 1},
-    "schema_version": {"const": "1.0"},
+    "schema_version": {"const": "1.1"},
     "lifecycle_stage": {"const": "editorial_cleanup_ready"},
     "status": {"enum": ["cleaned", "unchanged", "needs_review"]},
     "cleaned_sections": {
@@ -35,7 +35,7 @@
         "required": ["section_index", "category", "description"],
         "properties": {
           "section_index": {"type": "integer", "minimum": 0},
-          "category": {"enum": ["grammar", "clarity", "redundancy", "formatting", "ai_artifact"]},
+          "category": {"enum": ["grammar", "clarity", "redundancy", "formatting", "ai_artifact", "humanization"]},
           "description": {"type": "string", "minLength": 1}
         }
       }
@@ -59,7 +59,7 @@
       "required": ["method", "version", "validation_status"],
       "properties": {
         "method": {"const": "injected_llm_editorial_cleanup"},
-        "version": {"const": "v1"},
+        "version": {"const": "v1.1"},
         "validation_status": {"const": "validated"}
       }
     }
