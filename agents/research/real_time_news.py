@@ -76,7 +76,7 @@ def build_real_time_news(*, article: dict[str, Any], outline_editor: dict[str, A
         if isinstance(score, bool) or not isinstance(score, (int, float)) or not 0 <= score <= 1:
             raise ValueError("news.items[].relevance_score must be between 0 and 1")
         selected.append({"news_id": news_id, "url": url, "title": title, "published_at": item["published_at"], "summary": summary, "relevance_score": score})
-    selected.sort(key=lambda x: (-float(x["relevance_score"]), x["published_at"], x["news_id"]))
+    selected.sort(key=lambda x: (-float(x["relevance_score"]), x["news_id"]))
     selected = selected[:max_items]
     payload = {"lineage": lineage, "as_of": as_of, "freshness_hours": freshness_hours, "items": selected, "schema_version": SCHEMA_VERSION, "method_version": METHOD_VERSION}
     return {"real_time_news_id": _id(payload), **lineage, "schema_version": SCHEMA_VERSION, "method_version": METHOD_VERSION, "lifecycle_stage": LIFECYCLE_STAGE, "as_of": as_of, "freshness_hours": freshness_hours, "items": selected, "audit": {"method": "verified_news_selection", "source": SOURCE, "validation_status": "validated"}}
