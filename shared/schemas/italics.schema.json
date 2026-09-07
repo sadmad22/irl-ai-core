@@ -28,6 +28,20 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {"properties": {"italics": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"italics": {"properties": {"max_per_section": {"const": 0}}}}
+    },
+    {
+      "if": {"properties": {"italics": {"properties": {"required": {"const": true}}}}},
+      "then": {"properties": {"italics": {"properties": {"enabled": {"const": true}}}}
+    },
+    {
+      "if": {"properties": {"italics": {"properties": {"enabled": {"const": true}}}}},
+      "then": {"properties": {"italics": {"properties": {"max_per_section": {"minimum": 1}}}}
+    }
+  ],
   "$defs": {
     "italics": {
       "type": "object",
