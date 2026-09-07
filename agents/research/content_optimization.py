@@ -21,16 +21,28 @@ def _text(value: Any, field: str) -> str:
     return value.strip()
 
 
+def _normalized_phrase(text: str) -> str:
+    return " ".join(token.casefold() for token in TOKEN_RE.findall(text))
+
+
 def _tokens(text: str) -> set[str]:
     return {token.casefold() for token in TOKEN_RE.findall(text)}
 
 
 def _coverage(target: str, article_text: str) -> float:
-    target_tokens = _tokens(target)
-    if not target_tokens:
+    """Return coverage for a target phrase.
+
+    v1 treats a target as covered only when its normalized phrase occurs in the
+    article. Partial token overlap is not sufficient: e.g. "consultant insurance"
+    must not count as coverage for the distinct concept "consultant cyber insurance".
+    """
+    normalized_target = _normalized_phrase(target)
+    if not normalized_target:
         return 0.0
-    article_tokens = _tokens(article_text)
-    return round(len(target_tokens & article_tokens) / len(target_tokens), 4)
+    normalized_article = _normalized_phrase(article_text)
+    if normalized_target in normalized_article:
+        return 1.0
+    return 0.0
 
 
 def _severity(score: float, threshold: float) -> str:
