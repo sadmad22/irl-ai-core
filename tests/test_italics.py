@@ -28,6 +28,10 @@ def outline():
     }
 
 
+def schema():
+    return json.loads(Path("shared/schemas/italics.schema.json").read_text())
+
+
 def test_default_italics_contract_is_disabled_and_deterministic():
     first = build_italics_contract(outline_editor=outline())
     second = build_italics_contract(outline_editor=outline())
@@ -88,16 +92,29 @@ def test_does_not_mutate_inputs():
 
 def test_output_validates_against_schema():
     output = build_italics_contract(outline_editor=outline(), italics={"enabled": True, "required": False, "max_per_section": 2})
-    schema = json.loads(Path("shared/schemas/italics.schema.json").read_text())
-    Draft202012Validator(schema).validate(output)
+    Draft202012Validator(schema()).validate(output)
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {"enabled": False, "required": False, "max_per_section": 1},
+        {"enabled": False, "required": True, "max_per_section": 0},
+        {"enabled": True, "required": False, "max_per_section": 0},
+    ],
+)
+def test_schema_rejects_cross_field_invariant_violations(settings):
+    output = build_italics_contract(outline_editor=outline())
+    output["italics"].update(settings)
+    with pytest.raises(ValidationError):
+        Draft202012Validator(schema()).validate(output)
 
 
 def test_schema_rejects_unknown_nested_field():
     output = build_italics_contract(outline_editor=outline())
     output["italics"]["unexpected"] = True
-    schema = json.loads(Path("shared/schemas/italics.schema.json").read_text())
     with pytest.raises(ValidationError):
-        Draft202012Validator(schema).validate(output)
+        Draft202012Validator(schema()).validate(output)
 
 
 def test_no_prose_or_llm_fields():
