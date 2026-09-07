@@ -68,10 +68,6 @@
     {
       "if": {"properties": {"youtube_videos": {"properties": {"enabled": {"const": true}}}}},
       "then": {"properties": {"youtube_videos": {"properties": {"max_videos": {"minimum": 1}}}}}
-    },
-    {
-      "if": {"properties": {"youtube_videos": {"properties": {"enabled": {"const": true}}}}},
-      "then": {"properties": {"youtube_videos": {"properties": {"videos": {"maxItems": {"$data": "1/max_videos"}}}}}
     }
   ]
 }
