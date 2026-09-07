@@ -1,12 +1,14 @@
-# AI Content Cleaning / Editorial Cleanup v1
+# AI Content Cleaning / Editorial Cleanup v1.1
 
 ## Roadmap position
 
-This implements Final Implementation Roadmap **#15 — AI Content Cleaning / Editorial Cleanup (P1)**. Humanize Text is not implemented as a separate feature; it is folded into this editorial-cleanup layer.
+This implements Final Implementation Roadmap **#15 — AI Content Cleaning / Editorial Cleanup (P1)** and closes **#25 — Humanize Text (P3)** by integrating humanization into the existing editorial-cleanup layer. Humanize Text is not a separate feature, engine, lifecycle, or schema.
 
 ## Purpose
 
-The layer performs controlled editorial cleanup of an approved Article Draft through an explicitly injected LLM provider. It is intended to remove common AI/editorial artifacts, improve grammar and clarity, reduce redundancy, and improve formatting without changing the article's factual or structural contract.
+The layer performs controlled editorial cleanup of an approved Article Draft through an explicitly injected LLM provider. It removes common AI/editorial artifacts, improves grammar and clarity, reduces redundancy, improves formatting, and can humanize formulaic or unnatural phrasing while preserving the article's factual and structural contract.
+
+Humanization is enabled by default through the `humanize_text` editorial rule and can be explicitly disabled by the caller. It is an editorial instruction to the same cleanup provider, not a second processing pipeline.
 
 ## Inputs
 
@@ -14,8 +16,22 @@ The layer performs controlled editorial cleanup of an approved Article Draft thr
 - Explicitly injected LLM provider exposing `clean(sections=..., editorial_rules=...)`.
 - Optional `Tone of Voice` contract with lifecycle `tone_of_voice_ready`.
 - Optional `Point of View` contract with lifecycle `point_of_view_ready`.
+- Optional `humanize_text` boolean control; defaults to `true`.
 
 Tone of Voice and Point of View guide cleanup only. Brand Voice remains a later roadmap capability (#17).
+
+## Humanization rules
+
+When `humanize_text` is enabled, the provider is instructed to:
+
+- make phrasing more natural and less formulaic
+- reduce detectable AI-style artifacts as an editorial-quality objective
+- preserve claims and their meaning
+- preserve evidence and citation references
+- add no new facts
+- avoid structural rewriting
+
+The provider may report a `humanization` change category in its typed change log. Any declared risk flag still changes the output status to `needs_review`.
 
 ## Provider boundary
 
@@ -41,7 +57,9 @@ A provider can return risk flags for `claim_change`, `new_fact`, `citation_chang
 
 Lifecycle: `editorial_cleanup_ready`
 
-The contract records the original and cleaned body for each section, a typed change log, risk flags, fixed constraints, lineage, deterministic ID, and audit metadata.
+Schema version: `1.1`.
+
+The contract records the original and cleaned body for each section, a typed change log, risk flags, fixed constraints, lineage, deterministic ID, and audit metadata. Humanization remains represented inside this same Editorial Cleanup contract.
 
 ## Change categories
 
@@ -50,6 +68,7 @@ The contract records the original and cleaned body for each section, a typed cha
 - `redundancy`
 - `formatting`
 - `ai_artifact`
+- `humanization`
 
 ## Status
 
@@ -59,4 +78,4 @@ The contract records the original and cleaned body for each section, a typed cha
 
 ## Scope boundary
 
-This layer does not implement Brand Voice, model selection, factual verification, source retrieval, WordPress writes, or autonomous publication. It is an editorial transformation contract around an explicitly supplied LLM evaluator.
+This layer does not implement Brand Voice, model selection, factual verification, source retrieval, WordPress writes, or autonomous publication. It remains one editorial transformation contract around an explicitly supplied LLM evaluator; Humanize Text does not introduce a separate pipeline.
