@@ -76,6 +76,36 @@ def test_provider_receives_deep_copies():
     assert source["sections"][0]["body"] != "mutated"
 
 
+def test_humanization_is_integrated_and_enabled_by_default():
+    provider = Provider()
+    result = build_ai_content_cleaning(article_draft=draft(), llm_provider=provider)
+    rules = provider.calls[0][1]
+    assert rules["humanize_text"] is True
+    assert rules["humanize_without_changing_meaning"] is True
+    assert result["schema_version"] == "1.1"
+
+
+def test_humanization_can_be_explicitly_disabled_without_creating_a_separate_feature():
+    provider = Provider()
+    build_ai_content_cleaning(article_draft=draft(), llm_provider=provider, humanize_text=False)
+    rules = provider.calls[0][1]
+    assert rules["humanize_text"] is False
+    assert rules["humanize_without_changing_meaning"] is True
+
+
+def test_humanization_category_is_supported():
+    result = Provider().result | {
+        "changes": [{"section_index": 0, "category": "humanization", "description": "Reduced formulaic phrasing."}]
+    }
+    output = build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(result=result))
+    assert output["changes"][0]["category"] == "humanization"
+
+
+def test_rejects_non_boolean_humanization_flag():
+    with pytest.raises(ValueError, match="humanize_text must be a boolean"):
+        build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(), humanize_text="yes")
+
+
 def test_accepts_tone_and_point_of_view_configuration():
     provider = Provider()
     result = build_ai_content_cleaning(
@@ -188,6 +218,12 @@ def test_changes_change_id():
     assert first["editorial_cleanup_id"] != second["editorial_cleanup_id"]
 
 
+def test_humanization_configuration_changes_id():
+    first = build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(), humanize_text=True)
+    second = build_ai_content_cleaning(article_draft=draft(), llm_provider=Provider(), humanize_text=False)
+    assert first["editorial_cleanup_id"] != second["editorial_cleanup_id"]
+
+
 def test_does_not_mutate_source():
     source = draft()
     before = copy.deepcopy(source)
@@ -208,6 +244,6 @@ def test_constraints_and_audit_are_fixed():
     }
     assert result["audit"] == {
         "method": "injected_llm_editorial_cleanup",
-        "version": "v1",
+        "version": "v1.1",
         "validation_status": "validated",
     }
