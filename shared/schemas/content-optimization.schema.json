@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/content-optimization.schema.json",
+  "title": "IRL AI Core Content Optimization v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["content_optimization_id", "brief_id", "report_id", "decision_id", "strategy_id", "schema_version", "lifecycle_stage", "analysis_mode", "threshold", "article", "gaps", "recommendations", "summary", "audit"],
+  "properties": {
+    "content_optimization_id": {"type": "string", "pattern": "^optimization_[a-f0-9]{16}$"},
+    "brief_id": {"type": "string", "minLength": 1},
+    "report_id": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "strategy_id": {"type": "string", "minLength": 1},
+    "config_id": {"type": "string", "minLength": 1},
+    "outline_editor_id": {"type": "string", "minLength": 1},
+    "semantic_id": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "content_optimization_ready"},
+    "analysis_mode": {"enum": ["coverage", "competitive", "combined"]},
+    "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    "article": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "content", "word_count", "headings"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "content": {"type": "string", "minLength": 1},
+        "word_count": {"type": "integer", "minimum": 1},
+        "headings": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["gap_id", "category", "target", "severity", "coverage_score", "source"],
+        "properties": {
+          "gap_id": {"type": "string", "pattern": "^gap_[a-f0-9]{16}$"},
+          "category": {"enum": ["keyword", "semantic", "topic", "heading", "coverage", "entity", "question"]},
+          "target": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["low", "medium", "high"]},
+          "coverage_score": {"type": "number", "minimum": 0, "maximum": 1},
+          "source": {"enum": ["semantic_seo", "outline_editor", "details_to_include", "dataforseo"]},
+          "evidence": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["recommendation_id", "type", "target", "priority"],
+        "properties": {
+          "recommendation_id": {"type": "string", "pattern": "^rec_[a-f0-9]{16}$"},
+          "type": {"enum": ["add_section", "expand_section", "add_keyword", "add_entity", "add_question", "improve_coverage", "adjust_heading"]},
+          "target": {"type": "string", "minLength": 1},
+          "priority": {"enum": ["low", "medium", "high"]}
+        }
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gap_count", "high_priority_count", "coverage_score"],
+      "properties": {
+        "gap_count": {"type": "integer", "minimum": 0},
+        "high_priority_count": {"type": "integer", "minimum": 0},
+        "coverage_score": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "method_version", "validation_status"],
+      "properties": {
+        "method": {"const": "content_coverage_and_gap_analysis"},
+        "method_version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
