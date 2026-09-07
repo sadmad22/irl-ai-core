@@ -5,10 +5,10 @@ import hashlib
 import json
 from typing import Any, Callable
 
-SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v1"
+SCHEMA_VERSION = "1.1"
+METHOD_VERSION = "v1.1"
 
-_CHANGE_CATEGORIES = {"grammar", "clarity", "redundancy", "formatting", "ai_artifact"}
+_CHANGE_CATEGORIES = {"grammar", "clarity", "redundancy", "formatting", "ai_artifact", "humanization"}
 _RISK_FLAGS = {"claim_change", "new_fact", "citation_change", "structural_change", "meaning_change"}
 _PROVIDER_KEYS = {"status", "sections", "changes", "risk_flags"}
 
@@ -56,13 +56,19 @@ def _input_sections(draft: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
-def _editorial_rules(tone_of_voice: dict[str, Any] | None, point_of_view: dict[str, Any] | None) -> dict[str, Any]:
+def _editorial_rules(
+    tone_of_voice: dict[str, Any] | None,
+    point_of_view: dict[str, Any] | None,
+    humanize_text: bool,
+) -> dict[str, Any]:
     rules: dict[str, Any] = {
         "preserve_claims": True,
         "preserve_evidence_and_citations": True,
         "preserve_section_structure": True,
         "add_new_facts": False,
         "rewrite_only_for_editorial_quality": True,
+        "humanize_text": humanize_text,
+        "humanize_without_changing_meaning": True,
     }
     if tone_of_voice is not None:
         _require_ready(tone_of_voice, "tone_of_voice_ready", "Tone of Voice")
@@ -127,17 +133,26 @@ def _provider_result(provider: Any, sections: list[dict[str, Any]], rules: dict[
     return {"status": status, "sections": copy.deepcopy(returned_sections), "changes": copy.deepcopy(changes), "risk_flags": copy.deepcopy(risk_flags)}
 
 
-def _id(lineage: dict[str, str], sections: list[dict[str, Any]], provider_result: dict[str, Any]) -> str:
-    raw = json.dumps({"lineage": lineage, "sections": sections, "provider_result": provider_result}, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+def _id(lineage: dict[str, str], sections: list[dict[str, Any]], provider_result: dict[str, Any], rules: dict[str, Any]) -> str:
+    raw = json.dumps({"lineage": lineage, "sections": sections, "provider_result": provider_result, "rules": rules}, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return f"editorial_cleanup_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
-def build_ai_content_cleaning(*, article_draft: dict[str, Any], llm_provider: Any, tone_of_voice: dict[str, Any] | None = None, point_of_view: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Build an editorial-cleanup contract without mutating the source draft."""
+def build_ai_content_cleaning(
+    *,
+    article_draft: dict[str, Any],
+    llm_provider: Any,
+    tone_of_voice: dict[str, Any] | None = None,
+    point_of_view: dict[str, Any] | None = None,
+    humanize_text: bool = True,
+) -> dict[str, Any]:
+    """Build an editorial-cleanup contract with humanization integrated into cleanup."""
+    if not isinstance(humanize_text, bool):
+        raise ValueError("humanize_text must be a boolean")
     _require_ready(article_draft, "draft_ready", "Article Draft")
     lineage = _lineage(article_draft)
     sections = _input_sections(article_draft)
-    rules = _editorial_rules(tone_of_voice, point_of_view)
+    rules = _editorial_rules(tone_of_voice, point_of_view, humanize_text)
     provider_result = _provider_result(llm_provider, sections, rules)
     cleaned_sections = []
     source_by_index = {section["section_index"]: section for section in sections}
@@ -151,7 +166,7 @@ def build_ai_content_cleaning(*, article_draft: dict[str, Any], llm_provider: An
         })
     cleaned_sections.sort(key=lambda item: item["section_index"])
     output = {
-        "editorial_cleanup_id": _id(lineage, cleaned_sections, provider_result),
+        "editorial_cleanup_id": _id(lineage, cleaned_sections, provider_result, rules),
         **lineage,
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "editorial_cleanup_ready",
