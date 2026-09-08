@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/production-orchestrator.schema.json",
+  "title": "IRL Production Orchestrator",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["orchestration_id", "project_name", "schema_version", "lifecycle_stage", "current_stage", "completed_stages", "remaining_stages", "lineage", "article_package", "error", "audit"],
+  "properties": {
+    "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
+    "project_name": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"enum": ["running", "completed", "failed"]},
+    "current_stage": {"type": ["string", "null"], "enum": ["research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa", "article_package", null]},
+    "completed_stages": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "remaining_stages": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"],
+      "properties": {
+        "report_id": {"type": "string", "minLength": 1},
+        "decision_id": {"type": "string", "minLength": 1},
+        "strategy_id": {"type": "string", "minLength": 1},
+        "brief_id": {"type": "string", "minLength": 1},
+        "draft_id": {"type": "string", "minLength": 1},
+        "quality_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "article_package": {"type": ["object", "null"]},
+    "error": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["stage", "type", "message"],
+      "properties": {
+        "stage": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "irl_production_orchestrator"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
