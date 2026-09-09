@@ -37,7 +37,17 @@
         "edit_url": {"type": ["string", "null"]},
         "remote_status": {"const": "draft"},
         "error": {"type": ["object", "null"], "additionalProperties": false, "required": ["type", "message"], "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"delivery_status": {"const": "delivered"}}},
+          "then": {"required": ["post_id", "remote_status"], "properties": {"error": {"const": null}}}
+        },
+        {
+          "if": {"properties": {"delivery_status": {"const": "failed"}}},
+          "then": {"required": ["error"]}
+        }
+      ]
     },
     "audit": {
       "type": "object",
