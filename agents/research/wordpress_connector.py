@@ -30,7 +30,7 @@ def _article_content(article: dict[str, Any]) -> str:
 
 
 def build_wordpress_connector_request(production: dict[str, Any]) -> dict[str, Any]:
-    """Map a validated Article Production Contract to the Connector boundary."""
+    """Map a validated Article Production Contract to a WordPress Draft request."""
     if not isinstance(production, dict):
         raise TypeError("production must be a dictionary")
     if production.get("lifecycle_stage") != "production_ready":
@@ -64,7 +64,6 @@ def build_wordpress_connector_request(production: dict[str, Any]) -> dict[str, A
         "operation": "create_draft",
         "source": {"production_id": production_id},
         "request_payload": {"title": title, "content": content, "status": "draft"},
-        "response": {"delivery_status": "failed", "error": None},
         "audit": {"method": "wordpress_connector", "version": "v1", "validation_status": "validated"},
     }
 
