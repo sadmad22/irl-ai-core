@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/production-job.schema.json",
+  "title": "IRL Production Job State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["job_id", "schema_version", "status", "current_stage", "lineage", "error", "ready_to_publish", "audit"],
+  "properties": {
+    "job_id": {"type": "string", "pattern": "^job_[a-f0-9]{16}$"},
+    "schema_version": {"const": "1.0"},
+    "status": {"enum": ["queued", "researching", "building", "drafting", "editing", "optimizing", "qa", "ready", "published", "failed"]},
+    "current_stage": {"type": ["string", "null"], "enum": ["research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa", "article_package", null]},
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_name"],
+      "properties": {
+        "project_name": {"type": "string", "minLength": 1},
+        "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
+        "production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"}
+      }
+    },
+    "error": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["stage", "type", "message"],
+      "properties": {
+        "stage": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "ready_to_publish": {"type": "boolean"},
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "production_job_state"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
