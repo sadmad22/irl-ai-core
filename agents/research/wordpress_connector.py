@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
+import re
 from typing import Any, Callable
 
 from .wordpress_draft_delivery_client import WordPressConnection, deliver_wordpress_draft
@@ -21,7 +23,7 @@ def _article_content(article: dict[str, Any]) -> str:
         heading = str(section.get("heading", "")).strip()
         body = str(section.get("body", "")).strip()
         if heading:
-            parts.append(f"<h2>{heading}</h2>")
+            parts.append(f"<h2>{html.escape(heading)}</h2>")
         if body:
             parts.append(body)
     return "\n\n".join(parts)
@@ -44,8 +46,8 @@ def build_wordpress_connector_request(production: dict[str, Any]) -> dict[str, A
         raise ValueError("WordPress Connector requires human approval")
 
     production_id = str(production.get("production_id", "")).strip()
-    if not production_id:
-        raise ValueError("production_id is required")
+    if not re.fullmatch(r"production_[a-f0-9]{16}", production_id):
+        raise ValueError("production_id must match ^production_[a-f0-9]{16}$")
     article = production.get("article")
     if not isinstance(article, dict):
         raise ValueError("Article Production article is required")
@@ -82,14 +84,11 @@ def deliver_wordpress_draft_from_production(
         "request_payload": connector["request_payload"],
         "evidence_refs": [connector["source"]["production_id"]],
     }
-    try:
-        result = deliver_wordpress_draft(
-            delivery=delivery,
-            connection=connection,
-            transport=transport,
-        )
-    except Exception:
-        raise
+    result = deliver_wordpress_draft(
+        delivery=delivery,
+        connection=connection,
+        transport=transport,
+    )
 
     connector["response"] = {
         "delivery_status": "delivered",
