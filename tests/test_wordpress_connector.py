@@ -54,6 +54,21 @@ def test_builds_connector_request_from_production():
     assert "<h2>What You Need to Know</h2>" in result["request_payload"]["content"]
 
 
+def test_escapes_section_heading_markup():
+    value = production()
+    value["article"]["sections"][0]["heading"] = "<script>alert(1)</script>"
+    result = build_wordpress_connector_request(value)
+    assert "<script>" not in result["request_payload"]["content"]
+    assert "&lt;script&gt;" in result["request_payload"]["content"]
+
+
+def test_rejects_invalid_production_id():
+    value = production()
+    value["production_id"] = "production_invalid"
+    with pytest.raises(ValueError, match="production_id"):
+        build_wordpress_connector_request(value)
+
+
 def test_connector_id_is_deterministic():
     first = build_wordpress_connector_request(production())
     second = build_wordpress_connector_request(production())
