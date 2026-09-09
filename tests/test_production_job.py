@@ -57,6 +57,14 @@ def test_status_machine_follows_roadmap():
 
 def test_ready_job_can_be_recorded_as_published_without_publishing():
     job = create_production_job("topic", job_id="job_0123456789abcdef")
+    job = advance_production_job(job, status="researching", current_stage="research")
+    job = advance_production_job(job, status="building", current_stage="intelligence")
+    job = advance_production_job(job, status="drafting", current_stage="draft")
+    job = advance_production_job(job, status="editing", current_stage="editorial_cleanup")
+    job = advance_production_job(job, status="optimizing", current_stage="media")
+    job = advance_production_job(job, status="optimizing", current_stage="linking")
+    job = advance_production_job(job, status="optimizing", current_stage="optimization")
+    job = advance_production_job(job, status="qa", current_stage="qa")
     job = advance_production_job(job, status="ready", current_stage="article_package")
     job = advance_production_job(job, status="published", current_stage=None)
     assert job["status"] == "published"
