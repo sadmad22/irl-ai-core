@@ -12,7 +12,7 @@ LIFECYCLE_STAGE = "wordpress_connector_ready"
 
 def _connector_id(production_id: str) -> str:
     raw = json.dumps({"production_id": production_id, "schema_version": SCHEMA_VERSION}, sort_keys=True)
-    return f"wpconn_{hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]}"
+    return f"wpconn_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
 def _article_content(article: dict[str, Any]) -> str:
@@ -88,11 +88,7 @@ def deliver_wordpress_draft_from_production(
             connection=connection,
             transport=transport,
         )
-    except Exception as exc:
-        connector["response"] = {
-            "delivery_status": "failed",
-            "error": {"type": type(exc).__name__, "message": str(exc)},
-        }
+    except Exception:
         raise
 
     connector["response"] = {
