@@ -32,6 +32,10 @@ def _endpoint(base_url: str) -> str:
     return base_url.rstrip("/") + "/wp-json/wp/v2/posts"
 
 
+def _edit_url(base_url: str, post_id: int | str) -> str:
+    return f"{base_url.rstrip('/')}/wp-admin/post.php?post={post_id}&action=edit"
+
+
 def _auth(username: str, password: str) -> str:
     token = base64.b64encode(f"{username}:{password}".encode()).decode()
     return f"Basic {token}"
@@ -83,10 +87,9 @@ def deliver_wordpress_draft(
     try:
         response = sender(request, connection.timeout)
         if hasattr(response, "content"):
-         raw = response.content
+            raw = response.content
         else:
-         raw = response.read()
-
+            raw = response.read()
         data = json.loads(raw.decode("utf-8"))
     except (HTTPError, requests.HTTPError) as exc:
         status = getattr(getattr(exc, "response", None), "status_code", None)
@@ -106,7 +109,7 @@ def deliver_wordpress_draft(
         "platform": "wordpress",
         "post_id": post_id,
         "status": "draft",
-        "edit_url": data.get("link"),
+        "edit_url": _edit_url(connection.base_url, post_id),
         "remote_status": data.get("status"),
         "delivery_status": "delivered",
         "evidence_refs": list(delivery.get("evidence_refs", [])),
