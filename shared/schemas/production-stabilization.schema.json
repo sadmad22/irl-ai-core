@@ -81,7 +81,13 @@
       "then": {
         "properties": {
           "checks": {
-            "minProperties": 5
+            "anyOf": [
+              {"properties": {"article_package": {"properties": {"status": {"const": "failed"}}}}},
+              {"properties": {"orchestration": {"properties": {"status": {"const": "failed"}}}}},
+              {"properties": {"production_job": {"properties": {"status": {"const": "failed"}}}}},
+              {"properties": {"controlled_production": {"properties": {"status": {"const": "failed"}}}}},
+              {"properties": {"publication_boundary": {"properties": {"status": {"const": "failed"}}}}}
+            ]
           }
         }
       }
