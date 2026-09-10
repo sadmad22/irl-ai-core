@@ -84,7 +84,6 @@ def create_controlled_production_run(
         "production_id": production,
         "orchestration_id": orchestration,
         "status": "queued",
-        "error": None,
         "delivery": {
             "status": "not_started",
             "delivery_id": None,
@@ -149,7 +148,9 @@ def mark_controlled_production_failed(
         raise ValueError("error_type and message are required")
     updated = dict(run)
     updated["status"] = "failed"
-    updated["error"] = _error(error_type, message)
+    updated["delivery"] = dict(updated.get("delivery", {}))
+    updated["delivery"]["status"] = "failed"
+    updated["delivery"]["error"] = _error(error_type, message)
     updated["audit"] = _audit()
     return updated
 
@@ -165,27 +166,6 @@ def run_controlled_production(
     """Run one controlled production cycle without permitting WordPress publication."""
     run = None
     try:
-        run = {
-            "run_id": "run_pending",
-            "schema_version": SCHEMA_VERSION,
-            "project_name": str(project_name).strip(),
-            "topic": str(topic).strip(),
-            "production_id": "production_pending",
-            "orchestration_id": "orchestration_pending",
-            "status": "queued",
-            "error": None,
-            "delivery": {
-                "status": "not_started",
-                "delivery_id": None,
-                "post_id": None,
-                "edit_url": None,
-                "remote_status": None,
-                "error": None,
-            },
-            "human_review": {"required": True, "status": "pending"},
-            "publication": {"mode": "wordpress_draft", "publish": False, "human_approval_required": True},
-            "audit": _audit(),
-        }
         orchestration = run_production_orchestrator(project_name, deliver=False, connection=None, transport=None)
         package = orchestration.get("article_package")
         if not isinstance(package, dict):
