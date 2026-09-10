@@ -4,7 +4,7 @@
   "title": "IRL Controlled Production Run",
   "type": "object",
   "additionalProperties": false,
-  "required": ["run_id", "schema_version", "project_name", "topic", "production_id", "orchestration_id", "status", "error", "delivery", "human_review", "publication", "audit"],
+  "required": ["run_id", "schema_version", "project_name", "topic", "production_id", "orchestration_id", "status", "delivery", "human_review", "publication", "audit"],
   "properties": {
     "run_id": {"type": "string", "pattern": "^run_[a-f0-9]{16}$"},
     "schema_version": {"const": "1.0"},
@@ -13,15 +13,8 @@
     "production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"},
     "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
     "status": {"enum": ["queued", "running", "ready_for_delivery", "draft_delivered", "human_review", "approved", "rejected", "failed"]},
-    "error": {
-      "type": ["object", "null"],
-      "additionalProperties": false,
-      "required": ["type", "message"],
-      "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}
-    },
     "delivery": {
-      "type": "object",
-      "additionalProperties": false,
+      "type": "object", "additionalProperties": false,
       "required": ["status", "delivery_id", "post_id", "edit_url", "remote_status", "error"],
       "properties": {
         "status": {"enum": ["not_started", "delivered", "failed"]},
@@ -29,41 +22,30 @@
         "post_id": {"type": ["integer", "null"], "minimum": 1},
         "edit_url": {"type": ["string", "null"]},
         "remote_status": {"type": ["string", "null"], "enum": ["draft", null]},
-        "error": {
-          "type": ["object", "null"],
-          "additionalProperties": false,
-          "required": ["type", "message"],
-          "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}
-        }
+        "error": {"type": ["object", "null"], "additionalProperties": false, "required": ["type", "message"], "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}}
       }
     },
     "human_review": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["required", "status"],
+      "type": "object", "additionalProperties": false, "required": ["required", "status"],
       "properties": {"required": {"const": true}, "status": {"enum": ["pending", "approved", "rejected"]}}
     },
     "publication": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["mode", "publish", "human_approval_required"],
+      "type": "object", "additionalProperties": false, "required": ["mode", "publish", "human_approval_required"],
       "properties": {"mode": {"const": "wordpress_draft"}, "publish": {"const": false}, "human_approval_required": {"const": true}}
     },
     "audit": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["method", "version", "validation_status"],
+      "type": "object", "additionalProperties": false, "required": ["method", "version", "validation_status"],
       "properties": {"method": {"const": "controlled_production"}, "version": {"const": "v1"}, "validation_status": {"const": "validated"}}
     }
   },
   "allOf": [
-    {"if": {"properties": {"status": {"const": "queued"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"properties": {"status": {"const": "running"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"properties": {"status": {"const": "ready_for_delivery"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"properties": {"status": {"const": "draft_delivered"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"properties": {"status": {"const": "human_review"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"properties": {"status": {"const": "approved"}}}, "then": {"properties": {"error": {"const": null}, "delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "approved"}}}}},
-    {"if": {"properties": {"status": {"const": "rejected"}}}, "then": {"properties": {"error": {"const": null}, "human_review": {"properties": {"status": {"const": "rejected"}}}}},
-    {"if": {"properties": {"status": {"const": "failed"}}, "required": ["status"]}, "then": {"required": ["error"], "properties": {"error": {"type": "object", "required": ["type", "message"]}}}
+    {"if": {"required": ["status"], "properties": {"status": {"const": "queued"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "running"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "ready_for_delivery"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "draft_delivered"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "human_review"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "approved"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "approved"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "rejected"}}}, "then": {"properties": {"human_review": {"properties": {"status": {"const": "rejected"}}}}},
+    {"if": {"required": ["status"], "properties": {"status": {"const": "failed"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "failed"}, "error": {"type": "object", "required": ["type", "message"]}}}}}
   ]
 }
