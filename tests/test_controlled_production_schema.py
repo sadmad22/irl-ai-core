@@ -19,7 +19,6 @@ def _base_run() -> dict:
         "run_id": "run_0123456789abcdef",
         "schema_version": "1.0",
         "project_name": "m7-consultant-liability",
-        "topic": "Consultant Liability Insurance",
         "production_id": "production_0123456789abcdef",
         "orchestration_id": "orchestration_0123456789abcdef",
         "status": "queued",
@@ -128,11 +127,34 @@ def test_unexpected_field_is_rejected() -> None:
         validate(instance, _schema())
 
 
-def test_rejected_run_requires_rejected_human_review() -> None:
+def test_detached_topic_field_is_rejected() -> None:
+    instance = _base_run()
+    instance["topic"] = "Consultant Liability Insurance"
+    with pytest.raises(ValidationError):
+        validate(instance, _schema())
+
+
+def test_rejected_run_requires_delivered_draft_and_rejected_human_review() -> None:
     instance = _base_run()
     instance["status"] = "rejected"
     instance["human_review"]["status"] = "rejected"
+    instance["delivery"] = {
+        "status": "delivered",
+        "delivery_id": "wpconn_0123456789abcdef",
+        "post_id": 123,
+        "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit",
+        "remote_status": "draft",
+        "error": None,
+    }
     validate(instance, _schema())
+
+
+def test_rejected_without_draft_delivery_is_rejected() -> None:
+    instance = _base_run()
+    instance["status"] = "rejected"
+    instance["human_review"]["status"] = "rejected"
+    with pytest.raises(ValidationError):
+        validate(instance, _schema())
 
 
 def test_failed_run_requires_delivery_error() -> None:
