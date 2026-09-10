@@ -106,6 +106,7 @@ def test_delivers_as_draft_only():
     assert result["response"]["delivery_status"] == "delivered"
     assert result["response"]["post_id"] == 321
     assert result["response"]["remote_status"] == "draft"
+    assert result["response"]["edit_url"] == "https://example.com/wp-admin/post.php?post=321&action=edit"
     assert seen["method"] == "POST"
     assert seen["body"]["status"] == "draft"
     assert "publish" not in seen["body"] or seen["body"]["publish"] is not True
