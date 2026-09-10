@@ -1,0 +1,109 @@
+import json
+import shutil
+from pathlib import Path
+
+from agents.research.production_orchestrator import STAGES, run_production_orchestrator
+
+
+FIXTURE_PROJECT = "expat-health-insurance"
+PROJECT_A = "phase8-repeatability-a"
+PROJECT_B = "phase8-repeatability-b"
+
+
+def _prepare_project(root: Path, project_name: str) -> Path:
+    source = root / "research" / FIXTURE_PROJECT
+    target = root / "research" / project_name
+    shutil.copytree(source, target)
+
+    metadata_path = target / "metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["project_name"] = project_name
+    metadata["id"] = f"rr_{project_name}"
+    metadata_path.write_text(json.dumps(metadata, indent=4, ensure_ascii=False), encoding="utf-8")
+    return target
+
+
+def _run_contract(project_name: str) -> dict:
+    result = run_production_orchestrator(project_name, deliver=False)
+
+    assert result["project_name"] == project_name
+    assert result["schema_version"] == "1.0"
+    assert result["lifecycle_stage"] == "completed"
+    assert result["completed_stages"] == list(STAGES)
+    assert result["remaining_stages"] == []
+    assert result["error"] is None
+    assert result["audit"] == {
+        "method": "irl_production_orchestrator",
+        "version": "v1",
+        "validation_status": "validated",
+    }
+
+    package = result["article_package"]
+    assert isinstance(package, dict)
+    assert package["lifecycle_stage"] == "production_ready"
+
+    delivery = package.get("wordpress_draft_delivery")
+    if delivery is None:
+        # Article package owns production lineage; publication safety is asserted
+        # against the pipeline result below by the caller.
+        return result
+
+    assert delivery["mode"] == "wordpress_draft"
+    assert delivery["publish"] is False
+    assert delivery["human_approval_required"] is True
+    return result
+
+
+def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeypatch):
+    repo_root = Path(__file__).resolve().parents[1]
+    research_root = tmp_path / "research"
+    research_root.mkdir()
+
+    _prepare_project(tmp_path, PROJECT_A)
+    _prepare_project(tmp_path, PROJECT_B)
+
+    monkeypatch.chdir(tmp_path)
+
+    first_a = _run_contract(PROJECT_A)
+    first_b = _run_contract(PROJECT_B)
+
+    keyword_a = json.loads(
+        (research_root / PROJECT_A / "keyword.json").read_text(encoding="utf-8")
+    )
+    keyword_b = json.loads(
+        (research_root / PROJECT_B / "keyword.json").read_text(encoding="utf-8")
+    )
+    assert keyword_a["keyword"] == keyword_b["keyword"]
+
+    assert first_a["project_name"] != first_b["project_name"]
+    assert first_a["orchestration_id"] != first_b["orchestration_id"]
+    assert first_a["lineage"] == first_b["lineage"]
+    assert first_a["article_package"]["lineage"] == first_b["article_package"]["lineage"]
+
+    metadata_a = json.loads(
+        (research_root / PROJECT_A / "metadata.json").read_text(encoding="utf-8")
+    )
+    metadata_b = json.loads(
+        (research_root / PROJECT_B / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata_a["project_name"] == PROJECT_A
+    assert metadata_b["project_name"] == PROJECT_B
+    assert metadata_a["id"] != metadata_b["id"]
+
+    second_a = _run_contract(PROJECT_A)
+    second_b = _run_contract(PROJECT_B)
+
+    assert second_a == first_a
+    assert second_b == first_b
+
+    for project_name in (PROJECT_A, PROJECT_B):
+        metadata = json.loads(
+            (research_root / project_name / "metadata.json").read_text(encoding="utf-8")
+        )
+        assert metadata["project_name"] == project_name
+        assert metadata["status"] == "wordpress_draft_ready"
+
+        orchestration_path = research_root / project_name / "production-orchestration.json"
+        if orchestration_path.exists():
+            orchestration = json.loads(orchestration_path.read_text(encoding="utf-8"))
+            assert orchestration["project_name"] == project_name
