@@ -16,7 +16,6 @@ ORCHESTRATION_ID = "orchestration_0123456789abcdef"
 def _run() -> dict:
     return create_controlled_production_run(
         project_name="m7-consultant-liability",
-        topic="Consultant Liability Insurance",
         production_id=PRODUCTION_ID,
         orchestration_id=ORCHESTRATION_ID,
     )
@@ -27,11 +26,22 @@ def test_create_run_is_deterministic_and_queued() -> None:
     second = _run()
     assert first == second
     assert first["status"] == "queued"
+    assert "topic" not in first
     assert first["publication"] == {
         "mode": "wordpress_draft",
         "publish": False,
         "human_approval_required": True,
     }
+
+
+def test_controlled_production_does_not_accept_detached_topic() -> None:
+    with pytest.raises(TypeError):
+        create_controlled_production_run(
+            project_name="m7-consultant-liability",
+            topic="Consultant Liability Insurance",
+            production_id=PRODUCTION_ID,
+            orchestration_id=ORCHESTRATION_ID,
+        )
 
 
 def test_primary_lifecycle_reaches_human_review() -> None:
@@ -92,14 +102,12 @@ def test_invalid_identifiers_are_rejected() -> None:
     with pytest.raises(ValueError):
         create_controlled_production_run(
             project_name="project",
-            topic="topic",
             production_id="production_bad",
             orchestration_id=ORCHESTRATION_ID,
         )
     with pytest.raises(ValueError):
         create_controlled_production_run(
             project_name="project",
-            topic="topic",
             production_id=PRODUCTION_ID,
             orchestration_id="orchestration_bad",
         )
@@ -124,7 +132,6 @@ def test_run_controlled_production_without_delivery_reaches_ready(monkeypatch: p
 
     result = controlled_production.run_controlled_production(
         "m7-consultant-liability",
-        topic="Consultant Liability Insurance",
         deliver=False,
     )
 
@@ -159,7 +166,6 @@ def test_run_controlled_production_delivery_reaches_human_review(monkeypatch: py
 
     result = controlled_production.run_controlled_production(
         "m7-consultant-liability",
-        topic="Consultant Liability Insurance",
         deliver=True,
     )
 
@@ -193,7 +199,6 @@ def test_run_controlled_production_incomplete_orchestration_fails_with_lineage(m
 
     result = controlled_production.run_controlled_production(
         "m7-consultant-liability",
-        topic="Consultant Liability Insurance",
         deliver=False,
     )
 
@@ -223,7 +228,6 @@ def test_run_controlled_production_delivery_failure_fails_without_publication(mo
 
     result = controlled_production.run_controlled_production(
         "m7-consultant-liability",
-        topic="Consultant Liability Insurance",
         deliver=True,
     )
 
