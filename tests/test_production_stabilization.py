@@ -51,6 +51,10 @@ def _records() -> tuple[dict, dict, dict, dict]:
             "post_id": 123,
             "remote_status": "draft",
         },
+        "human_review": {
+            "required": True,
+            "status": "pending",
+        },
         "publication": {
             "mode": "wordpress_draft",
             "publish": False,
@@ -141,6 +145,39 @@ def test_invalid_job_projection_blocks_stabilization() -> None:
 def test_invalid_delivered_wordpress_state_blocks_stabilization() -> None:
     package, orchestration, job, controlled = _records()
     controlled["delivery"]["remote_status"] = "publish"
+    result = run_production_stabilization_audit(
+        project_name="m7-consultant-liability",
+        article_package=package,
+        orchestration=orchestration,
+        production_job=job,
+        controlled_production=controlled,
+    )
+    assert result["outcome"] == "blocked"
+    assert result["checks"]["controlled_production"]["status"] == "failed"
+
+
+def test_rejected_run_requires_delivered_wordpress_draft() -> None:
+    package, orchestration, job, controlled = _records()
+    controlled["status"] = "rejected"
+    controlled["human_review"]["status"] = "rejected"
+    controlled["delivery"]["status"] = "not_started"
+    controlled["delivery"]["post_id"] = None
+    controlled["delivery"]["remote_status"] = None
+    result = run_production_stabilization_audit(
+        project_name="m7-consultant-liability",
+        article_package=package,
+        orchestration=orchestration,
+        production_job=job,
+        controlled_production=controlled,
+    )
+    assert result["outcome"] == "blocked"
+    assert result["checks"]["controlled_production"]["status"] == "failed"
+
+
+def test_human_review_state_must_match_controlled_status() -> None:
+    package, orchestration, job, controlled = _records()
+    controlled["status"] = "approved"
+    controlled["human_review"]["status"] = "pending"
     result = run_production_stabilization_audit(
         project_name="m7-consultant-liability",
         article_package=package,
