@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/wordpress-connector.schema.json",
+  "title": "IRL WordPress Connector Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["connector_id", "schema_version", "lifecycle_stage", "platform", "operation", "source", "request_payload", "response", "audit"],
+  "properties": {
+    "connector_id": {"type": "string", "pattern": "^wpconn_[a-f0-9]{16}$"},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"const": "wordpress_connector_ready"},
+    "platform": {"const": "wordpress"},
+    "operation": {"const": "create_draft"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["production_id"],
+      "properties": {"production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"}}
+    },
+    "request_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "content", "status"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "content": {"type": "string", "minLength": 1},
+        "status": {"const": "draft"}
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delivery_status"],
+      "properties": {
+        "delivery_status": {"enum": ["delivered", "failed"]},
+        "post_id": {"type": ["integer", "string"]},
+        "edit_url": {"type": ["string", "null"]},
+        "remote_status": {"const": "draft"},
+        "error": {"type": ["object", "null"], "additionalProperties": false, "required": ["type", "message"], "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"delivery_status": {"const": "delivered"}}},
+          "then": {"required": ["post_id", "remote_status"], "properties": {"error": {"const": null}}}
+        },
+        {
+          "if": {"properties": {"delivery_status": {"const": "failed"}}},
+          "then": {"required": ["error"]}
+        }
+      ]
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "wordpress_connector"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  }
+}
