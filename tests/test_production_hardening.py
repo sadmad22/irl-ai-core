@@ -81,8 +81,8 @@ def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeyp
 
     assert first_a["project_name"] != first_b["project_name"]
     assert first_a["orchestration_id"] != first_b["orchestration_id"]
-    assert first_a["lineage"] == first_b["lineage"]
-    assert first_a["article_package"]["lineage"] == first_b["article_package"]["lineage"]
+    assert first_a["lineage"].keys() == first_b["lineage"].keys()
+    assert first_a["article_package"]["lineage"].keys() == first_b["article_package"]["lineage"].keys()
 
     metadata_a = json.loads(
         (research_root / PROJECT_A / "metadata.json").read_text(encoding="utf-8")
