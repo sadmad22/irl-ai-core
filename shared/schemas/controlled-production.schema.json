@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/controlled-production.schema.json",
+  "title": "IRL Controlled Production Run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "schema_version",
+    "project_name",
+    "topic",
+    "production_id",
+    "orchestration_id",
+    "status",
+    "delivery",
+    "human_review",
+    "publication",
+    "audit"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-f0-9]{16}$"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "project_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "production_id": {
+      "type": "string",
+      "pattern": "^production_[a-f0-9]{16}$"
+    },
+    "orchestration_id": {
+      "type": "string",
+      "pattern": "^orchestration_[a-f0-9]{16}$"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "running",
+        "ready_for_delivery",
+        "draft_delivered",
+        "human_review",
+        "approved",
+        "rejected",
+        "failed"
+      ]
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "delivery_id",
+        "post_id",
+        "edit_url",
+        "remote_status",
+        "error"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["not_started", "delivered", "failed"]
+        },
+        "delivery_id": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "post_id": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "edit_url": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "remote_status": {
+          "type": ["string", "null"],
+          "enum": ["draft", null]
+        },
+        "error": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["type", "message"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "human_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "status"],
+      "properties": {
+        "required": {
+          "const": true
+        },
+        "status": {
+          "enum": ["pending", "approved", "rejected"]
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "publish", "human_approval_required"],
+      "properties": {
+        "mode": {
+          "const": "wordpress_draft"
+        },
+        "publish": {
+          "const": false
+        },
+        "human_approval_required": {
+          "const": true
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {
+          "const": "controlled_production"
+        },
+        "version": {
+          "const": "v1"
+        },
+        "validation_status": {
+          "const": "validated"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "queued"}
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "not_started"},
+              "post_id": {"const": null},
+              "remote_status": {"const": null}
+            }
+          },
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "draft_delivered"}
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "human_review"}
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "approved"}
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
+          "human_review": {
+            "properties": {"status": {"const": "approved"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "rejected"}
+        }
+      },
+      "then": {
+        "properties": {
+          "human_review": {
+            "properties": {"status": {"const": "rejected"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "failed"}
+        }
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "error": {
+                "type": "object",
+                "required": ["type", "message"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
