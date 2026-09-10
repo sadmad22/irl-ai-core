@@ -10,9 +10,9 @@ PROJECT_A = "phase8-repeatability-a"
 PROJECT_B = "phase8-repeatability-b"
 
 
-def _prepare_project(root: Path, project_name: str) -> Path:
-    source = root / "research" / FIXTURE_PROJECT
-    target = root / "research" / project_name
+def _prepare_project(source_root: Path, target_root: Path, project_name: str) -> Path:
+    source = source_root / "research" / FIXTURE_PROJECT
+    target = target_root / "research" / project_name
     shutil.copytree(source, target)
 
     metadata_path = target / "metadata.json"
@@ -63,8 +63,8 @@ def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeyp
     research_root = tmp_path / "research"
     research_root.mkdir()
 
-    _prepare_project(tmp_path, PROJECT_A)
-    _prepare_project(tmp_path, PROJECT_B)
+    _prepare_project(repo_root, tmp_path, PROJECT_A)
+    _prepare_project(repo_root, tmp_path, PROJECT_B)
 
     monkeypatch.chdir(tmp_path)
 
