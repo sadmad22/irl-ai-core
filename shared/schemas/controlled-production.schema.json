@@ -66,7 +66,10 @@
   },
   "allOf": [
     {
-      "if": {"required": ["status"], "properties": {"status": {"enum": ["queued", "running", "ready_for_delivery"]}}},
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"enum": ["queued", "running", "ready_for_delivery"]}}
+      },
       "then": {
         "properties": {
           "delivery": {
@@ -76,12 +79,17 @@
               "remote_status": {"const": null}
             }
           },
-          "human_review": {"properties": {"status": {"const": "pending"}}}
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
+          }
         }
       }
     },
     {
-      "if": {"required": ["status"], "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}},
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}
+      },
       "then": {
         "properties": {
           "delivery": {
@@ -91,13 +99,17 @@
               "remote_status": {"const": "draft"}
             }
           },
-          "human_review": {"properties": {"status": {"const": "pending"}}
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
           }
         }
       }
     },
     {
-      "if": {"required": ["status"], "properties": {"status": {"const": "approved"}}},
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"const": "approved"}}
+      },
       "then": {
         "properties": {
           "delivery": {
@@ -107,17 +119,30 @@
               "remote_status": {"const": "draft"}
             }
           },
-          "human_review": {"properties": {"status": {"const": "approved"}}
+          "human_review": {
+            "properties": {"status": {"const": "approved"}}
           }
         }
       }
     },
     {
-      "if": {"required": ["status"], "properties": {"status": {"const": "rejected"}}},
-      "then": {"properties": {"human_review": {"properties": {"status": {"const": "rejected"}}}}
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"const": "rejected"}}
+      },
+      "then": {
+        "properties": {
+          "human_review": {
+            "properties": {"status": {"const": "rejected"}}
+          }
+        }
+      }
     },
     {
-      "if": {"required": ["status"], "properties": {"status": {"const": "failed"}}},
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"const": "failed"}}
+      },
       "then": {
         "properties": {
           "delivery": {
