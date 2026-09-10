@@ -34,9 +34,13 @@ _ALLOWED_TRANSITIONS = {
 }
 
 
-def _run_id(project_name: str, topic: str, production_id: str) -> str:
+def _run_id(project_name: str, production_id: str) -> str:
     raw = json.dumps(
-        {"project_name": project_name, "topic": topic, "production_id": production_id, "schema_version": SCHEMA_VERSION},
+        {
+            "project_name": project_name,
+            "production_id": production_id,
+            "schema_version": SCHEMA_VERSION,
+        },
         sort_keys=True,
         ensure_ascii=False,
     )
@@ -58,29 +62,24 @@ def _error(error_type: str, message: str) -> dict[str, str]:
 def create_controlled_production_run(
     *,
     project_name: str,
-    topic: str,
     production_id: str,
     orchestration_id: str,
 ) -> dict[str, Any]:
     project = str(project_name).strip()
-    topic_value = str(topic).strip()
     production = str(production_id).strip()
     orchestration = str(orchestration_id).strip()
 
     if not project:
         raise ValueError("project_name is required")
-    if not topic_value:
-        raise ValueError("topic is required")
     if not re.fullmatch(r"production_[a-f0-9]{16}", production):
         raise ValueError("production_id must match ^production_[a-f0-9]{16}$")
     if not re.fullmatch(r"orchestration_[a-f0-9]{16}", orchestration):
         raise ValueError("orchestration_id must match ^orchestration_[a-f0-9]{16}$")
 
     return {
-        "run_id": _run_id(project, topic_value, production),
+        "run_id": _run_id(project, production),
         "schema_version": SCHEMA_VERSION,
         "project_name": project,
-        "topic": topic_value,
         "production_id": production,
         "orchestration_id": orchestration,
         "status": "queued",
@@ -158,7 +157,6 @@ def mark_controlled_production_failed(
 def run_controlled_production(
     project_name: str,
     *,
-    topic: str,
     deliver: bool = False,
     connection: Any = None,
     transport: Callable[..., Any] | None = None,
@@ -174,7 +172,6 @@ def run_controlled_production(
         orchestration_id = str(orchestration.get("orchestration_id", "")).strip()
         run = create_controlled_production_run(
             project_name=project_name,
-            topic=topic,
             production_id=production_id,
             orchestration_id=orchestration_id,
         )
