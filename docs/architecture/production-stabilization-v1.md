@@ -68,12 +68,13 @@ Each check status:
 8. Production Job lineage must preserve the production and orchestration identifiers when present.
 9. A completed orchestration must have an Article Package and no orchestration error.
 10. A ready Production Job must correspond to an Article Package and `article_package` stage.
-11. A delivered Controlled Production run must report `delivery.status=delivered`, `post_id>=1`, and `remote_status=draft`.
-12. Controlled Production publication remains draft-only regardless of human-review state.
-13. `approved` means human review was satisfied; it does not authorize or execute WordPress publication.
-14. Failed checks produce `outcome=blocked` and preserve the identifiers needed for diagnosis.
-15. The stabilization result contains no credentials.
-16. The audit does not mutate any input record.
+11. A Controlled Production run after `ready_for_delivery` must report `delivery.status=delivered`, `post_id>=1`, and `remote_status=draft`.
+12. `human_review.required` is always `true`, and its status must match the Controlled Production lifecycle state.
+13. Controlled Production publication remains draft-only regardless of human-review state.
+14. `approved` means human review was satisfied; it does not authorize or execute WordPress publication.
+15. Failed checks produce `outcome=blocked` and preserve the identifiers needed for diagnosis.
+16. The stabilization result contains no credentials.
+17. The audit does not mutate any input record.
 
 ## Determinism
 
