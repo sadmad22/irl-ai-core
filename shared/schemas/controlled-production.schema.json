@@ -4,12 +4,11 @@
   "title": "IRL Controlled Production Run",
   "type": "object",
   "additionalProperties": false,
-  "required": ["run_id", "schema_version", "project_name", "topic", "production_id", "orchestration_id", "status", "delivery", "human_review", "publication", "audit"],
+  "required": ["run_id", "schema_version", "project_name", "production_id", "orchestration_id", "status", "delivery", "human_review", "publication", "audit"],
   "properties": {
     "run_id": {"type": "string", "pattern": "^run_[a-f0-9]{16}$"},
     "schema_version": {"const": "1.0"},
     "project_name": {"type": "string", "minLength": 1},
-    "topic": {"type": "string", "minLength": 1},
     "production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"},
     "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
     "status": {"enum": ["queued", "running", "ready_for_delivery", "draft_delivered", "human_review", "approved", "rejected", "failed"]},
@@ -132,6 +131,13 @@
       },
       "then": {
         "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
           "human_review": {
             "properties": {"status": {"const": "rejected"}}
           }
