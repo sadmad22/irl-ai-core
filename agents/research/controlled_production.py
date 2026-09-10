@@ -106,11 +106,29 @@ def transition_controlled_production_run(run: dict[str, Any], *, status: str) ->
         raise ValueError(f"Invalid existing controlled production status: {previous}")
     if status not in _ALLOWED_TRANSITIONS[previous]:
         raise ValueError(f"Invalid controlled production transition: {previous} -> {status}")
+
+    if status == "draft_delivered":
+        delivery = run.get("delivery")
+        if not isinstance(delivery, dict) or delivery.get("status") != "delivered" or delivery.get("remote_status") != "draft":
+            raise ValueError("draft_delivered requires a delivered WordPress draft")
+        if not isinstance(delivery.get("post_id"), int) or delivery["post_id"] < 1:
+            raise ValueError("draft_delivered requires a valid WordPress post_id")
+
+    if status == "human_review":
+        delivery = run.get("delivery")
+        if not isinstance(delivery, dict) or delivery.get("status") != "delivered" or delivery.get("remote_status") != "draft":
+            raise ValueError("human_review requires a delivered WordPress draft")
+
+    if status == "approved" and run.get("human_review", {}).get("status") != "pending":
+        raise ValueError("approved requires pending human_review state")
+
     updated = dict(run)
     updated["status"] = status
     if status == "approved":
         updated["human_review"] = {"required": True, "status": "approved"}
     elif status == "rejected":
+        if run.get("human_review", {}).get("status") != "pending":
+            raise ValueError("rejected requires pending human_review state")
         updated["human_review"] = {"required": True, "status": "rejected"}
     elif status == "human_review":
         updated["human_review"] = {"required": True, "status": "pending"}
@@ -130,8 +148,9 @@ def mark_controlled_production_failed(
         raise ValueError("error_type and message are required")
     updated = dict(run)
     updated["status"] = "failed"
-    updated["delivery"] = dict(updated["delivery"])
-    updated["delivery"]["error"] = _error(error_type, message)
+    delivery = dict(updated.get("delivery", {}))
+    delivery["error"] = _error(error_type, message)
+    updated["delivery"] = delivery
     updated["human_review"] = {"required": True, "status": "pending"}
     updated["audit"] = _audit()
     return updated
@@ -140,85 +159,64 @@ def mark_controlled_production_failed(
 def run_controlled_production(
     project_name: str,
     *,
-    topic: str | None = None,
+    topic: str,
     deliver: bool = False,
     connection: Any = None,
     transport: Callable[..., Any] | None = None,
 ) -> dict[str, Any]:
     """Run one controlled production cycle without permitting WordPress publication."""
-    try:
-        orchestration = run_production_orchestrator(
-            project_name,
-            deliver=False,
-            connection=None,
-            transport=None,
-        )
-        package = orchestration.get("article_package")
-        if not isinstance(package, dict):
-            raise ValueError("Production orchestrator did not return an article package")
-        production_id = str(package.get("production_id", "")).strip()
-        orchestration_id = str(orchestration.get("orchestration_id", "")).strip()
-        topic_value = str(topic or project_name).strip()
-        run = create_controlled_production_run(
-            project_name=project_name,
-            topic=topic_value,
-            production_id=production_id,
-            orchestration_id=orchestration_id,
-        )
-        run = transition_controlled_production_run(run, status="running")
-        if orchestration.get("lifecycle_stage") != "completed":
-            return mark_controlled_production_failed(
-                run,
-                error_type="ProductionOrchestrationIncomplete",
-                message="Production orchestrator did not complete the article package.",
-            )
-        run = transition_controlled_production_run(run, status="ready_for_delivery")
+    orchestration = run_production_orchestrator(
+        project_name,
+        deliver=False,
+        connection=None,
+        transport=None,
+    )
+    package = orchestration.get("article_package")
+    if not isinstance(package, dict):
+        raise ValueError("Production orchestrator did not return an article package")
 
-        if not deliver:
-            return run
+    production_id = str(package.get("production_id", "")).strip()
+    orchestration_id = str(orchestration.get("orchestration_id", "")).strip()
+    run = create_controlled_production_run(
+        project_name=project_name,
+        topic=topic,
+        production_id=production_id,
+        orchestration_id=orchestration_id,
+    )
+    run = transition_controlled_production_run(run, status="running")
 
-        connector = deliver_wordpress_draft_from_production(
-            package,
-            connection=connection,
-            transport=transport,
-        )
-        response = connector.get("response")
-        if not isinstance(response, dict) or response.get("delivery_status") != "delivered":
-            return mark_controlled_production_failed(
-                run,
-                error_type="WordPressDeliveryFailed",
-                message="WordPress draft delivery did not return a delivered response.",
-            )
-
-        run["delivery"] = {
-            "status": "delivered",
-            "delivery_id": str(connector.get("connector_id")),
-            "post_id": response.get("post_id"),
-            "edit_url": response.get("edit_url"),
-            "remote_status": response.get("remote_status"),
-            "error": response.get("error"),
-        }
-        run = transition_controlled_production_run(run, status="draft_delivered")
-        run = transition_controlled_production_run(run, status="human_review")
-        return run
-    except Exception as exc:
-        production_id = "production_0000000000000000"
-        orchestration_id = "orchestration_0000000000000000"
-        try:
-            package = orchestration.get("article_package")  # type: ignore[name-defined]
-            if isinstance(package, dict):
-                production_id = str(package.get("production_id", production_id))
-            orchestration_id = str(orchestration.get("orchestration_id", orchestration_id))  # type: ignore[name-defined]
-        except Exception:
-            pass
-        run = create_controlled_production_run(
-            project_name=project_name,
-            topic=str(topic or project_name).strip() or project_name,
-            production_id=production_id,
-            orchestration_id=orchestration_id,
-        )
+    if orchestration.get("lifecycle_stage") != "completed":
         return mark_controlled_production_failed(
-            transition_controlled_production_run(run, status="running"),
-            error_type=type(exc).__name__,
-            message=str(exc),
+            run,
+            error_type="ProductionOrchestrationIncomplete",
+            message="Production orchestrator did not complete the article package.",
         )
+
+    run = transition_controlled_production_run(run, status="ready_for_delivery")
+
+    if not deliver:
+        return run
+
+    connector = deliver_wordpress_draft_from_production(
+        package,
+        connection=connection,
+        transport=transport,
+    )
+    response = connector.get("response")
+    if not isinstance(response, dict) or response.get("delivery_status") != "delivered":
+        return mark_controlled_production_failed(
+            run,
+            error_type="WordPressDeliveryFailed",
+            message="WordPress draft delivery did not return a delivered response.",
+        )
+
+    run["delivery"] = {
+        "status": "delivered",
+        "delivery_id": str(connector.get("connector_id")),
+        "post_id": response.get("post_id"),
+        "edit_url": response.get("edit_url"),
+        "remote_status": response.get("remote_status"),
+        "error": response.get("error"),
+    }
+    run = transition_controlled_production_run(run, status="draft_delivered")
+    return transition_controlled_production_run(run, status="human_review")
