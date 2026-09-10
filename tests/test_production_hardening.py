@@ -40,22 +40,26 @@ def _run_contract(project_name: str) -> dict:
 
     package = result["article_package"]
     assert isinstance(package, dict)
+    assert package["production_id"].startswith("production_")
     assert package["lifecycle_stage"] == "production_ready"
-
-    delivery = package.get("wordpress_draft_delivery")
-    if delivery is None:
-        # Article package owns production lineage; publication safety is asserted
-        # against the pipeline result below by the caller.
-        return result
-
-    assert delivery["mode"] == "wordpress_draft"
-    assert delivery["publish"] is False
-    assert delivery["human_approval_required"] is True
+    assert package["publication"] == {
+        "mode": "wordpress_draft",
+        "publish": False,
+        "human_approval_required": True,
+    }
+    assert package["audit"] == {
+        "method": "article_production_contract",
+        "version": "v1",
+        "validation_status": "validated",
+    }
     return result
 
 
 def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeypatch):
     repo_root = Path(__file__).resolve().parents[1]
+    source = repo_root / "research" / FIXTURE_PROJECT
+    assert source.is_dir()
+
     research_root = tmp_path / "research"
     research_root.mkdir()
 
@@ -102,8 +106,3 @@ def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeyp
         )
         assert metadata["project_name"] == project_name
         assert metadata["status"] == "wordpress_draft_ready"
-
-        orchestration_path = research_root / project_name / "production-orchestration.json"
-        if orchestration_path.exists():
-            orchestration = json.loads(orchestration_path.read_text(encoding="utf-8"))
-            assert orchestration["project_name"] == project_name
