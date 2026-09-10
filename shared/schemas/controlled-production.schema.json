@@ -14,7 +14,8 @@
     "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
     "status": {"enum": ["queued", "running", "ready_for_delivery", "draft_delivered", "human_review", "approved", "rejected", "failed"]},
     "delivery": {
-      "type": "object", "additionalProperties": false,
+      "type": "object",
+      "additionalProperties": false,
       "required": ["status", "delivery_id", "post_id", "edit_url", "remote_status", "error"],
       "properties": {
         "status": {"enum": ["not_started", "delivered", "failed"]},
@@ -22,30 +23,119 @@
         "post_id": {"type": ["integer", "null"], "minimum": 1},
         "edit_url": {"type": ["string", "null"]},
         "remote_status": {"type": ["string", "null"], "enum": ["draft", null]},
-        "error": {"type": ["object", "null"], "additionalProperties": false, "required": ["type", "message"], "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}}
+        "error": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["type", "message"],
+          "properties": {
+            "type": {"type": "string", "minLength": 1},
+            "message": {"type": "string", "minLength": 1}
+          }
+        }
       }
     },
     "human_review": {
-      "type": "object", "additionalProperties": false, "required": ["required", "status"],
-      "properties": {"required": {"const": true}, "status": {"enum": ["pending", "approved", "rejected"]}}
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "status"],
+      "properties": {
+        "required": {"const": true},
+        "status": {"enum": ["pending", "approved", "rejected"]}
+      }
     },
     "publication": {
-      "type": "object", "additionalProperties": false, "required": ["mode", "publish", "human_approval_required"],
-      "properties": {"mode": {"const": "wordpress_draft"}, "publish": {"const": false}, "human_approval_required": {"const": true}}
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "publish", "human_approval_required"],
+      "properties": {
+        "mode": {"const": "wordpress_draft"},
+        "publish": {"const": false},
+        "human_approval_required": {"const": true}
+      }
     },
     "audit": {
-      "type": "object", "additionalProperties": false, "required": ["method", "version", "validation_status"],
-      "properties": {"method": {"const": "controlled_production"}, "version": {"const": "v1"}, "validation_status": {"const": "validated"}}
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "controlled_production"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
     }
   },
   "allOf": [
-    {"if": {"required": ["status"], "properties": {"status": {"const": "queued"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "running"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "ready_for_delivery"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "draft_delivered"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "human_review"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "approved"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "approved"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "rejected"}}}, "then": {"properties": {"human_review": {"properties": {"status": {"const": "rejected"}}}}},
-    {"if": {"required": ["status"], "properties": {"status": {"const": "failed"}}}, "then": {"properties": {"delivery": {"properties": {"status": {"const": "failed"}, "error": {"type": "object", "required": ["type", "message"]}}}}}
+    {
+      "if": {"required": ["status"], "properties": {"status": {"enum": ["queued", "running", "ready_for_delivery"]}}},
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "not_started"},
+              "post_id": {"const": null},
+              "remote_status": {"const": null}
+            }
+          },
+          "human_review": {"properties": {"status": {"const": "pending"}}}
+        }
+      }
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}},
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
+          "human_review": {"properties": {"status": {"const": "pending"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"const": "approved"}}},
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "delivered"},
+              "post_id": {"type": "integer", "minimum": 1},
+              "remote_status": {"const": "draft"}
+            }
+          },
+          "human_review": {"properties": {"status": {"const": "approved"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"const": "rejected"}}},
+      "then": {"properties": {"human_review": {"properties": {"status": {"const": "rejected"}}}}
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"const": "failed"}}},
+      "then": {
+        "properties": {
+          "delivery": {
+            "properties": {
+              "status": {"const": "failed"},
+              "error": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "message"],
+                "properties": {
+                  "type": {"type": "string", "minLength": 1},
+                  "message": {"type": "string", "minLength": 1}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 }
