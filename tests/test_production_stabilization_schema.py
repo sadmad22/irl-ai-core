@@ -44,6 +44,16 @@ def test_valid_passed_result() -> None:
     validate(_base_result(), _schema())
 
 
+def test_blocked_result_requires_failed_check() -> None:
+    instance = _base_result()
+    instance["outcome"] = "blocked"
+    with pytest.raises(ValidationError):
+        validate(instance, _schema())
+
+    instance["checks"]["production_job"]["status"] = "failed"
+    validate(instance, _schema())
+
+
 def test_invalid_stabilization_id_is_rejected() -> None:
     instance = _base_result()
     instance["stabilization_id"] = "stabilization_bad"
