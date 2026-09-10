@@ -131,8 +131,9 @@ def run_production_stabilization_audit(
     )
     controlled_status = controlled.get("status")
     delivery = controlled.get("delivery")
+    human_review = controlled.get("human_review")
     delivery_ok = True
-    if controlled_status in {"draft_delivered", "human_review", "approved"}:
+    if controlled_status != "ready_for_delivery":
         delivery_ok = (
             isinstance(delivery, dict)
             and delivery.get("status") == "delivered"
@@ -140,18 +141,35 @@ def run_production_stabilization_audit(
             and delivery.get("post_id") >= 1
             and delivery.get("remote_status") == "draft"
         )
-    controlled_ok = controlled_project_ok and controlled_lineage_ok and controlled_status in {
-        "ready_for_delivery",
-        "draft_delivered",
-        "human_review",
-        "approved",
-        "rejected",
-    } and delivery_ok
+    human_review_ok = (
+        isinstance(human_review, dict)
+        and human_review.get("required") is True
+        and human_review.get("status") == {
+            "ready_for_delivery": "pending",
+            "draft_delivered": "pending",
+            "human_review": "pending",
+            "approved": "approved",
+            "rejected": "rejected",
+        }.get(controlled_status)
+    )
+    controlled_ok = (
+        controlled_project_ok
+        and controlled_lineage_ok
+        and controlled_status in {
+            "ready_for_delivery",
+            "draft_delivered",
+            "human_review",
+            "approved",
+            "rejected",
+        }
+        and delivery_ok
+        and human_review_ok
+    )
     checks["controlled_production"] = _check(
         "passed" if controlled_ok else "failed",
-        "Controlled Production preserves lineage and, when delivered, confirms a WordPress draft."
+        "Controlled Production preserves lineage, review state, and required WordPress draft delivery."
         if controlled_ok
-        else "Controlled Production is failed, inconsistent, or reports an invalid delivery state.",
+        else "Controlled Production is failed, inconsistent, or reports invalid delivery/review state.",
     )
 
     controlled_publication = controlled.get("publication")
