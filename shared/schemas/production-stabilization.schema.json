@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insurancereviewlab.com/schemas/production-stabilization.schema.json",
+  "title": "IRL Production Stabilization Audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stabilization_id",
+    "schema_version",
+    "project_name",
+    "production_id",
+    "orchestration_id",
+    "job_id",
+    "run_id",
+    "outcome",
+    "checks",
+    "audit"
+  ],
+  "properties": {
+    "stabilization_id": {"type": "string", "pattern": "^stabilization_[a-f0-9]{16}$"},
+    "schema_version": {"const": "1.0"},
+    "project_name": {"type": "string", "minLength": 1},
+    "production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"},
+    "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
+    "job_id": {"type": "string", "pattern": "^job_[a-f0-9]{16}$"},
+    "run_id": {"type": "string", "pattern": "^run_[a-f0-9]{16}$"},
+    "outcome": {"enum": ["passed", "blocked"]},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["article_package", "orchestration", "production_job", "controlled_production", "publication_boundary"],
+      "properties": {
+        "article_package": {"$ref": "#/$defs/check"},
+        "orchestration": {"$ref": "#/$defs/check"},
+        "production_job": {"$ref": "#/$defs/check"},
+        "controlled_production": {"$ref": "#/$defs/check"},
+        "publication_boundary": {"$ref": "#/$defs/check"}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version", "validation_status"],
+      "properties": {
+        "method": {"const": "production_stabilization"},
+        "version": {"const": "v1"},
+        "validation_status": {"const": "validated"}
+      }
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "message"],
+      "properties": {
+        "status": {"enum": ["passed", "failed"]},
+        "message": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"outcome": {"const": "passed"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "checks": {
+            "properties": {
+              "article_package": {"properties": {"status": {"const": "passed"}}},
+              "orchestration": {"properties": {"status": {"const": "passed"}}},
+              "production_job": {"properties": {"status": {"const": "passed"}}},
+              "controlled_production": {"properties": {"status": {"const": "passed"}}},
+              "publication_boundary": {"properties": {"status": {"const": "passed"}}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "blocked"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "checks": {
+            "minProperties": 5
+          }
+        }
+      }
+    }
+  ]
+}
