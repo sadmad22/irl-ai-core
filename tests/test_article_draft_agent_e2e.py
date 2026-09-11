@@ -15,7 +15,19 @@ class FakeWriter:
                 {"section_index": item["section_index"], "body": f"Readers can evaluate {item['heading'].lower()} using the available evidence and the criteria described in the brief."}
                 for item in sections
             ],
-            "tables": [],
+            "tables": [
+                {
+                    "table_id": "table_1",
+                    "title": "Comparison overview",
+                    "section_index": sections[0]["section_index"],
+                    "columns": ["Criterion", "Assessment"],
+                    "rows": [
+                        ["Coverage", "Compare available coverage options"],
+                        ["Cost", "Compare expected premium differences"],
+                    ],
+                    "evidence_refs": sections[0]["evidence_refs"],
+                }
+            ],
             "images": [
                 {
                     "image_id": "img_1",

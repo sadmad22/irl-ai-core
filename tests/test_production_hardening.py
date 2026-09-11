@@ -16,7 +16,11 @@ class FakeWriter:
             record = item["evidence_records"][0]
             claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
             value = record.get("value") if isinstance(record.get("value"), dict) else {}
-            attribute = str(claim.get("attribute", "coverage")).strip() or "coverage"
+            attribute = (
+                str(claim.get("attribute", "coverage"))
+                .strip()
+                .replace("_", " ")
+            ) or "coverage"
             value_type = str(value.get("type", "evidence")).strip() or "evidence"
             rendered_sections.append({
                 "section_index": item["section_index"],
@@ -68,7 +72,7 @@ def _run_contract(project_name: str) -> dict:
     result = run_production_orchestrator(project_name, llm_provider=FakeWriter(), deliver=False)
     assert result["project_name"] == project_name
     assert result["schema_version"] == "1.0"
-    assert result["lifecycle_stage"] == "completed"
+    assert result["lifecycle_stage"] == "completed", result["error"]
     assert result["completed_stages"] == list(STAGES)
     assert result["remaining_stages"] == []
     assert result["error"] is None
