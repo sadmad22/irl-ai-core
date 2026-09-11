@@ -86,16 +86,18 @@ def test_live_requires_resolved_category_and_featured_media():
             boundary=_boundary(mode="live"),
             seo_meta_keys={"seo_title": "seo_title", "meta_description": "meta_description"},
         )
-    assert exc.value.code == "TAXONOMY_NOT_RESOLVED"
+    assert exc.value.code == "MEDIA_NOT_RESOLVED"
 
     boundary = _boundary(mode="live")
     boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
+    boundary["request"]["taxonomy"]["tags"][0]["platform_id"] = 9
     boundary["request"]["media"][0]["platform_asset_id"] = 101
     result = build_wordpress_delivery_request(
         boundary=boundary,
         seo_meta_keys={"seo_title": "seo_title", "meta_description": "meta_description"},
     )
     assert result["request_payload"]["categories"] == [7]
+    assert result["request_payload"]["tags"] == [9]
     assert result["request_payload"]["featured_media"] == 101
     assert result["request_payload"]["meta"] == {
         "seo_title": "Expat Health Insurance Guide",
@@ -106,13 +108,14 @@ def test_live_requires_resolved_category_and_featured_media():
 def test_live_requires_explicit_seo_mapping():
     boundary = _boundary(mode="live")
     boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
+    boundary["request"]["taxonomy"]["tags"][0]["platform_id"] = 9
     boundary["request"]["media"][0]["platform_asset_id"] = 101
     with pytest.raises(WordPressDeliveryAdapterError) as exc:
         build_wordpress_delivery_request(boundary=boundary)
     assert exc.value.code == "SEO_METADATA_UNSUPPORTED"
 
 
-def test_live_delivery_uses_client_and_returns_human_review(monkeypatch):
+def test_live_delivery_uses_client_and_returns_human_review():
     boundary = _boundary(mode="live")
     boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
     boundary["request"]["taxonomy"]["tags"][0]["platform_id"] = 9
@@ -151,6 +154,7 @@ def test_live_delivery_uses_client_and_returns_human_review(monkeypatch):
 def test_remote_publish_response_is_rejected_by_existing_client():
     boundary = _boundary(mode="live")
     boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
+    boundary["request"]["taxonomy"]["tags"][0]["platform_id"] = 9
     boundary["request"]["media"][0]["platform_asset_id"] = 101
 
     def fake_transport(request, timeout):
