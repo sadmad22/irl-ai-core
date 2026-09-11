@@ -19,7 +19,19 @@ class FakeWriter:
                 }
                 for item in sections
             ],
-            "tables": [],
+            "tables": [
+                {
+                    "table_id": "table_1",
+                    "title": "Comparison overview",
+                    "section_index": sections[0]["section_index"],
+                    "columns": ["Criterion", "Assessment"],
+                    "rows": [
+                        ["Coverage", "Compare available coverage options"],
+                        ["Cost", "Compare expected premium differences"],
+                    ],
+                    "evidence_refs": sections[0]["evidence_refs"],
+                }
+            ],
             "images": [{
                 "image_id": "img_1",
                 "section_index": sections[0]["section_index"],
