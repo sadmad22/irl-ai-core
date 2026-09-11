@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from agents.research.article_draft import build_article_draft
+from agents.research.article_draft import _draft_id, build_article_draft
 
 
 class FakeWriter:
@@ -97,6 +97,20 @@ def test_article_draft_is_deterministic():
     second = _build()
     assert first == second
     assert first["draft_id"] == second["draft_id"]
+
+
+def test_draft_id_preserves_canonical_json_serialization():
+    payload = {
+        "title": "x",
+        "content_type": "guide",
+        "primary_keyword": "k",
+        "sections": [],
+        "tables": [],
+        "images": [],
+        "evidence_refs": ["ev_1"],
+        "editorial_constraints": [],
+    }
+    assert _draft_id({"brief_id": "brief_001"}, payload) == "draft_0a2f1e6a421504a9"
 
 
 def test_article_draft_preserves_lineage():
