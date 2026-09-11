@@ -4,11 +4,17 @@ from agents.research.article_draft_quality import validate_article_draft_quality
 def _draft():
     return {
         "draft_id": "draft_1", "brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1",
-        "schema_version": "1.0", "lifecycle_stage": "draft_ready", "title": "Guide", "content_type": "guide", "primary_keyword": "insurance",
+        "schema_version": "1.1", "lifecycle_stage": "draft_ready", "title": "Guide", "content_type": "guide", "primary_keyword": "insurance",
         "sections": [{
             "heading": "Coverage", "purpose": "Explain coverage.", "body": "Coverage can vary by plan.",
             "evidence_refs": ["e1"],
             "claims": [{"claim_id": "claim_1_1_abc", "text": "Coverage can vary by plan.", "evidence_refs": ["e1"], "grounding_status": "grounded"}],
+        }],
+        "tables": [],
+        "images": [{
+            "image_id": "img_1", "section_index": 0, "placement": "after introduction",
+            "prompt": "Editorial insurance research illustration, no text.",
+            "alt_text": "Insurance research illustration", "evidence_refs": ["e1"],
         }],
         "evidence_refs": ["e1"], "editorial_constraints": [],
         "audit": {"method": "test", "version": "v2", "validation_status": "pending"},
