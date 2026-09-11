@@ -16,15 +16,12 @@ class FakeWriter:
             record = item["evidence_records"][0]
             claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
             value = record.get("value") if isinstance(record.get("value"), dict) else {}
-            attribute = str(claim.get("attribute", "coverage")).strip()
-            data = value.get("data", "evidence")
-            if isinstance(data, (dict, list)):
-                data = json.dumps(data, sort_keys=True, ensure_ascii=False)
-            data = str(data).strip() or "evidence"
+            attribute = str(claim.get("attribute", "coverage")).strip() or "coverage"
+            value_type = str(value.get("type", "evidence")).strip() or "evidence"
             rendered_sections.append({
                 "section_index": item["section_index"],
                 "body": (
-                    f"This section considers {attribute} and the available {data} "
+                    f"This section addresses {attribute} using {value_type} evidence "
                     f"when evaluating {item['heading'].lower()}."
                 ),
             })
