@@ -168,7 +168,7 @@ def test_package_rejects_unknown_root_fields():
 
 def test_package_rejects_invalid_uri():
     package = _package()
-    package["optimization"]["canonical_url"] = "https://example.com/invalid path"
+    package["optimization"]["canonical_url"] = "https://example.com/%ZZ"
     errors = _validate(package)
     assert any(error.validator == "format" and list(error.path) == ["optimization", "canonical_url"] for error in errors)
 
