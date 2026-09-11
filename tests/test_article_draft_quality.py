@@ -12,12 +12,21 @@ from agents.research.article_draft_quality import validate_article_draft_quality
 def draft():
     return {
         "draft_id": "draft_1", "brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1",
-        "schema_version": "1.0", "lifecycle_stage": "draft_ready", "title": "A Practical Guide to Accountant Insurance", "content_type": "guide", "primary_keyword": "accountant insurance",
+        "schema_version": "1.1", "lifecycle_stage": "draft_ready", "title": "A Practical Guide to Accountant Insurance", "content_type": "guide", "primary_keyword": "accountant insurance",
         "sections": [{
             "heading": "Coverage", "purpose": "Explain the core coverage.",
             "body": "Accountants may evaluate professional liability coverage based on their services and risk profile.",
             "evidence_refs": ["e1", "e2"],
             "claims": [{"claim_id": "claim_1_1_fixture", "text": "Accountants may evaluate professional liability coverage based on their services and risk profile.", "evidence_refs": ["e1"], "grounding_status": "grounded"}],
+        }],
+        "tables": [],
+        "images": [{
+            "image_id": "img_1",
+            "section_index": 0,
+            "placement": "after introduction",
+            "prompt": "Professional editorial illustration for an insurance research article, no text.",
+            "alt_text": "Accountant insurance research illustration",
+            "evidence_refs": ["e1"],
         }],
         "evidence_refs": ["e1", "e2"], "editorial_constraints": ["verify factual claims"],
         "audit": {"method": "test", "version": "v2", "validation_status": "pending"},

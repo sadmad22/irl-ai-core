@@ -37,8 +37,8 @@ def _save_if_changed(project: str, filename: str, data: dict[str, Any]) -> None:
         path.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
 
 
-def run(project_name: str) -> dict[str, Any]:
-    """Run Content Brief then materialize an evidence-grounded Article Draft."""
+def run(project_name: str, *, llm_provider: Any) -> dict[str, Any]:
+    """Run Content Brief then materialize a writer-produced Article Draft."""
     run_content_brief_agent(project_name)
 
     brief = _load(project_name, "content-brief.json")
@@ -46,6 +46,7 @@ def run(project_name: str) -> dict[str, Any]:
     draft = build_article_draft(
         content_brief=brief,
         evidence_records=evidence_records,
+        llm_provider=llm_provider,
     )
     _save_if_changed(project_name, "article-draft.json", draft)
 

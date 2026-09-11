@@ -18,7 +18,7 @@
     "checks": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["contract", "lineage", "structure", "evidence_lineage", "section_evidence_grounding", "claim_evidence_grounding", "placeholders", "decision_engine_leakage"],
+      "required": ["contract", "lineage", "structure", "evidence_lineage", "section_evidence_grounding", "claim_evidence_grounding", "placeholders", "metadata_leakage", "structured_assets", "decision_engine_leakage"],
       "properties": {
         "contract": {"type": "boolean"},
         "lineage": {"type": "boolean"},
@@ -27,6 +27,8 @@
         "section_evidence_grounding": {"type": "boolean"},
         "claim_evidence_grounding": {"type": "boolean"},
         "placeholders": {"type": "boolean"},
+        "metadata_leakage": {"type": "boolean"},
+        "structured_assets": {"type": "boolean"},
         "decision_engine_leakage": {"type": "boolean"}
       }
     },

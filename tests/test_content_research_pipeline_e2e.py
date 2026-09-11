@@ -16,34 +16,20 @@ def report():
 
 def brief():
     return {
-        "brief_id": "brief_1",
-        "report_id": "report_1",
-        "decision_id": "decision_1",
-        "strategy_id": "strategy_1",
-        "lifecycle_stage": "content_brief_ready",
-        "primary_keyword": "accountant insurance",
-        "search_intent": "informational",
-        "content_type": "guide",
-        "outline": [{"heading": "Coverage", "purpose": "explain coverage"}],
-        "evidence_refs": ["e1"],
+        "brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1",
+        "lifecycle_stage": "content_brief_ready", "primary_keyword": "accountant insurance",
+        "search_intent": "informational", "content_type": "guide",
+        "outline": [{"heading": "Coverage", "purpose": "explain coverage"}], "evidence_refs": ["e1"],
     }
 
 
 def draft():
     return {
-        "draft_id": "draft_1",
-        "brief_id": "brief_1",
-        "report_id": "report_1",
-        "decision_id": "decision_1",
-        "strategy_id": "strategy_1",
-        "schema_version": "1.0",
-        "lifecycle_stage": "draft_ready",
-        "title": "A Practical Guide to Accountant Insurance",
-        "content_type": "guide",
-        "primary_keyword": "accountant insurance",
+        "draft_id": "draft_1", "brief_id": "brief_1", "report_id": "report_1", "decision_id": "decision_1", "strategy_id": "strategy_1",
+        "schema_version": "1.1", "lifecycle_stage": "draft_ready", "title": "A Practical Guide to Accountant Insurance",
+        "content_type": "guide", "primary_keyword": "accountant insurance",
         "sections": [{
-            "heading": "Coverage",
-            "purpose": "Explain the core coverage considerations.",
+            "heading": "Coverage", "purpose": "Explain the core coverage considerations.",
             "body": "Accountants may evaluate professional liability coverage based on the services they provide and their risk profile. Any factual claim requires editorial verification before publication.",
             "evidence_refs": ["e1"],
             "claims": [
@@ -51,20 +37,23 @@ def draft():
                 {"claim_id": "claim_1_2_fixture", "text": "Any factual claim requires editorial verification before publication.", "evidence_refs": ["e1"], "grounding_status": "grounded"}
             ],
         }],
-        "evidence_refs": ["e1"],
-        "editorial_constraints": ["verify factual claims"],
+        "tables": [],
+        "images": [{
+            "image_id": "img_1", "section_index": 0, "placement": "after introduction",
+            "prompt": "Professional editorial illustration for an accountant insurance research article, no text.",
+            "alt_text": "Accountant insurance research illustration", "evidence_refs": ["e1"],
+        }],
+        "evidence_refs": ["e1"], "editorial_constraints": ["verify factual claims"],
         "audit": {"method": "article_draft_agent", "version": "v2", "validation_status": "validated"},
     }
 
 
 def evidence_records():
     return [{
-        "evidence_id": "e1",
-        "domain": "professional_liability",
+        "evidence_id": "e1", "domain": "professional_liability",
         "claim": {"type": "coverage", "attribute": "professional liability services risk"},
         "value": {"type": "text", "data": "Accountants professional liability coverage services risk profile factual claim editorial verification publication"},
-        "subject": {"type": "profession", "id": "accountants"},
-        "relation": "supports",
+        "subject": {"type": "profession", "id": "accountants"}, "relation": "supports",
     }]
 
 

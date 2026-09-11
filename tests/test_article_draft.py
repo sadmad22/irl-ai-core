@@ -2,7 +2,28 @@ import json
 
 import pytest
 
-from agents.research.article_draft import build_article_draft
+from agents.research.article_draft import _draft_id, build_article_draft
+
+
+class FakeWriter:
+    def write(self, *, sections, editorial_rules):
+        return {
+            "sections": [
+                {"section_index": 0, "body": "Expat health insurance can help cover eligible healthcare needs across countries, depending on the plan and network."},
+                {"section_index": 1, "body": "When comparing plans, readers should examine the coverage offered and the type of provider or network available."},
+            ],
+            "tables": [],
+            "images": [
+                {
+                    "image_id": "img_1",
+                    "section_index": 0,
+                    "placement": "after introduction",
+                    "prompt": "Editorial illustration of an expat reviewing international health insurance coverage, clean research-platform style, no text.",
+                    "alt_text": "Expat reviewing international health insurance coverage",
+                    "evidence_refs": ["ev_1"],
+                }
+            ],
+        }
 
 
 def _brief():
@@ -50,89 +71,126 @@ def _evidence_records():
     ]
 
 
+def _build():
+    return build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+        llm_provider=FakeWriter(),
+    )
+
+
 def test_article_draft_contract_shape():
-    draft = build_article_draft(content_brief=_brief())
+    draft = _build()
     assert draft["lifecycle_stage"] == "draft_ready"
+    assert draft["schema_version"] == "1.1"
     assert draft["brief_id"] == "brief_001"
     assert draft["report_id"] == "rr_001"
     assert draft["decision_id"] == "dec_001"
     assert draft["strategy_id"] == "strat_001"
     assert draft["evidence_refs"] == ["ev_1", "ev_2"]
     assert len(draft["sections"]) == 2
+    assert len(draft["images"]) == 1
 
 
 def test_article_draft_is_deterministic():
-    first = build_article_draft(content_brief=_brief())
-    second = build_article_draft(content_brief=_brief())
+    first = _build()
+    second = _build()
     assert first == second
     assert first["draft_id"] == second["draft_id"]
 
 
+def test_draft_id_preserves_canonical_json_serialization():
+    payload = {
+        "title": "x",
+        "content_type": "guide",
+        "primary_keyword": "k",
+        "sections": [],
+        "tables": [],
+        "images": [],
+        "evidence_refs": ["ev_1"],
+        "editorial_constraints": [],
+    }
+    assert _draft_id({"brief_id": "brief_001"}, payload) == "draft_0a2f1e6a421504a9"
+
+
 def test_article_draft_preserves_lineage():
-    draft = build_article_draft(content_brief=_brief())
+    draft = _build()
     assert {draft[k] for k in ("brief_id", "report_id", "decision_id", "strategy_id")} == {
         "brief_001", "rr_001", "dec_001", "strat_001"
     }
+
+
+def test_article_draft_requires_writer_provider():
+    with pytest.raises(ValueError, match="explicitly injected LLM provider"):
+        build_article_draft(content_brief=_brief(), evidence_records=_evidence_records(), llm_provider=None)
 
 
 def test_article_draft_requires_ready_brief():
     brief = _brief()
     brief["lifecycle_stage"] = "content_strategy_ready"
     with pytest.raises(ValueError, match="content_brief_ready"):
-        build_article_draft(content_brief=brief)
+        build_article_draft(content_brief=brief, llm_provider=FakeWriter())
 
 
 def test_article_draft_requires_evidence_refs():
     brief = _brief()
     brief["evidence_refs"] = []
     with pytest.raises(ValueError, match="evidence_refs"):
-        build_article_draft(content_brief=brief)
+        build_article_draft(content_brief=brief, llm_provider=FakeWriter())
 
 
 def test_article_draft_does_not_change_brief():
     brief = _brief()
     snapshot = json.loads(json.dumps(brief))
-    build_article_draft(content_brief=brief)
+    build_article_draft(content_brief=brief, evidence_records=_evidence_records(), llm_provider=FakeWriter())
     assert brief == snapshot
 
 
 def test_article_draft_is_not_a_decision_engine():
-    draft = build_article_draft(content_brief=_brief())
+    draft = _build()
     assert "decision" not in draft
     assert "recommendation" not in draft
 
 
-def test_evidence_grounded_body_does_not_leak_section_purpose():
-    draft = build_article_draft(
-        content_brief=_brief(),
-        evidence_records=_evidence_records(),
-    )
-
+def test_writer_output_does_not_leak_research_metadata():
+    draft = _build()
     for section in draft["sections"]:
+        assert "The research evidence records" not in section["body"]
+        assert "evidence_id" not in section["body"]
         assert section["purpose"] not in section["body"]
-        assert "define the topic" not in section["body"]
-        assert "explain selection criteria" not in section["body"]
-        assert "The research evidence records" in section["body"]
         assert section["body"].strip()
-        assert section["evidence_refs"]
-        assert set(section["evidence_refs"]).issubset(set(draft["evidence_refs"]))
 
 
-def test_section_evidence_is_relevant_to_heading():
-    draft = build_article_draft(
-        content_brief=_brief(),
-        evidence_records=_evidence_records(),
-    )
+def test_writer_output_contains_structured_image_spec():
+    image = _build()["images"][0]
+    assert image["prompt"]
+    assert image["alt_text"]
+    assert image["placement"]
+    assert image["evidence_refs"]
+    assert "url" not in image
+    assert "src" not in image
 
-    assert draft["sections"][0]["evidence_refs"] == ["ev_1", "ev_2"]
-    assert draft["sections"][1]["evidence_refs"] == ["ev_2", "ev_1"]
+
+def test_comparison_draft_requires_table():
+    brief = _brief()
+    brief["content_type"] = "comparison"
+    with pytest.raises(ValueError, match="structured table"):
+        build_article_draft(content_brief=brief, evidence_records=_evidence_records(), llm_provider=FakeWriter())
+
+
+def test_writer_rejects_internal_metadata_leakage():
+    class LeakyWriter(FakeWriter):
+        def write(self, *, sections, editorial_rules):
+            result = super().write(sections=sections, editorial_rules=editorial_rules)
+            result["sections"][0]["body"] = "The research evidence records coverage for evidence_id ev_1."
+            return result
+
+    with pytest.raises(ValueError, match="internal research metadata"):
+        build_article_draft(content_brief=_brief(), evidence_records=_evidence_records(), llm_provider=LeakyWriter())
 
 
 def test_claim_ids_are_globally_unique_and_encode_section_identity():
-    draft = build_article_draft(
-        content_brief=_brief(),
-        evidence_records=_evidence_records(),
-    )
+    draft = _build()
     claims = [claim for section in draft["sections"] for claim in section["claims"]]
     claim_ids = [claim["claim_id"] for claim in claims]
 
