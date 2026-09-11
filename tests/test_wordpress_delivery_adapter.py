@@ -105,6 +105,23 @@ def test_live_requires_resolved_category_and_featured_media():
     }
 
 
+def test_live_requires_every_taxonomy_item_to_have_platform_identity():
+    boundary = _boundary(mode="live")
+    boundary["request"]["media"][0]["platform_asset_id"] = 101
+    boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
+    boundary["request"]["taxonomy"]["tags"] = [
+        {"name": "health insurance", "platform_id": 9},
+        {"name": "expat insurance"},
+    ]
+    with pytest.raises(WordPressDeliveryAdapterError) as exc:
+        build_wordpress_delivery_request(
+            boundary=boundary,
+            seo_meta_keys={"seo_title": "seo_title", "meta_description": "meta_description"},
+        )
+    assert exc.value.code == "TAXONOMY_NOT_RESOLVED"
+    assert "expat insurance" in str(exc.value)
+
+
 def test_live_requires_explicit_seo_mapping():
     boundary = _boundary(mode="live")
     boundary["request"]["taxonomy"]["categories"][0]["platform_id"] = 7
