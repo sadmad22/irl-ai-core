@@ -106,7 +106,7 @@ def test_valid_delivery_ready_package_passes_schema():
 def test_comparison_requires_at_least_one_table():
     package = _package(content_type="comparison")
     errors = _validate(package)
-    assert any("tables" in error.message or "less than the minimum" in error.message for error in errors)
+    assert any(error.validator == "minItems" and list(error.path) == ["content", "tables"] for error in errors)
 
 
 def test_comparison_with_valid_table_passes():
@@ -144,7 +144,10 @@ def test_delivery_ready_requires_grounded_claims():
     package = _package()
     package["content"]["claims"][0]["grounding_status"] = "provisional"
     errors = _validate(package)
-    assert any("grounded" in error.message for error in errors)
+    assert any(
+        error.validator == "const" and list(error.path) == ["content", "claims", 0, "grounding_status"]
+        for error in errors
+    )
 
 
 def test_package_rejects_unsafe_publication_intent():
@@ -160,14 +163,14 @@ def test_package_rejects_unknown_root_fields():
     package["unexpected"] = "must fail closed"
     errors = _validate(package)
     assert errors
-    assert any("additional properties" in error.message for error in errors)
+    assert any(error.validator == "additionalProperties" and list(error.path) == [] for error in errors)
 
 
 def test_package_rejects_invalid_uri():
     package = _package()
-    package["optimization"]["canonical_url"] = "not-a-uri"
+    package["optimization"]["canonical_url"] = "http://[invalid"
     errors = _validate(package)
-    assert errors
+    assert any(error.validator == "format" and list(error.path) == ["optimization", "canonical_url"] for error in errors)
 
 
 def test_package_fixture_is_not_mutated_by_validation():
