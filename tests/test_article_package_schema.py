@@ -2,7 +2,6 @@ import copy
 import json
 from pathlib import Path
 
-import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
 
@@ -137,7 +136,8 @@ def test_materialized_image_requires_asset_ref():
     package = _package(lifecycle_stage="package_assembled")
     package["media"]["images"][0].pop("asset_ref")
     errors = _validate(package)
-    assert errors == []
+    assert errors
+    assert any("asset_ref" in error.message for error in errors)
 
 
 def test_delivery_ready_requires_grounded_claims():
