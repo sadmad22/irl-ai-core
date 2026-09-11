@@ -4,15 +4,16 @@ import hashlib
 import json
 from typing import Any
 
+from .article_writer import write_article_draft
 from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
-SCHEMA_VERSION = "1.0"
-METHOD_VERSION = "v2"
+SCHEMA_VERSION = "1.1"
+METHOD_VERSION = "v3"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
-    raw = json.dumps({"brief_id": brief["brief_id"], "payload": payload}, sort_keys=True, ensure_ascii=False)
+    raw = json.dumps({"brief_id": brief["brief_id"], "payload": payload}, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return f"draft_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
@@ -23,30 +24,13 @@ def _title(brief: dict[str, Any]) -> str:
     return f"{prefixes[content_type]} {keyword.title()}"
 
 
-def _evidence_text(record: dict[str, Any]) -> str:
-    claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-    value = record.get("value") if isinstance(record.get("value"), dict) else {}
-    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
-    attribute = str(claim.get("attribute") or claim.get("type") or "observation").replace("_", " ")
-    data = value.get("data")
-    subject_id = str(subject.get("id") or "the research set")
-    if isinstance(data, bool):
-        observation = "is supported" if data else "is not supported"
-    elif data is None:
-        observation = "has been observed"
-    else:
-        observation = f"has a recorded value of {data}"
-    return f"The research evidence records {attribute} for {subject_id}: {observation}."
-
-
-def _section_body(evidence_records: list[dict[str, Any]]) -> str:
-    if not evidence_records:
-        return ""
-    return " ".join(_evidence_text(record) for record in evidence_records)
-
-
-def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Translate an approved Content Brief into section- and claim-grounded prose."""
+def build_article_draft(
+    *,
+    content_brief: dict[str, Any],
+    evidence_records: list[dict[str, Any]] | None = None,
+    llm_provider: Any,
+) -> dict[str, Any]:
+    """Translate an approved Content Brief into reader-facing, evidence-grounded draft content."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -81,20 +65,24 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         evidence_refs=normalized_refs,
         evidence_records=list(grounded_records.values()),
     )
-
-    sections = []
-    for item, refs_for_section in zip(outline, section_refs):
-        section_records = [grounded_records[ref] for ref in refs_for_section if ref in grounded_records]
-        body = _section_body(section_records)
-        sections.append({
-            "heading": str(item["heading"]).strip(),
-            "purpose": str(item["purpose"]).strip(),
-            "body": body,
+    section_evidence = [
+        {
+            "section_index": index,
             "evidence_refs": refs_for_section,
-        })
+            "evidence_records": [grounded_records[ref] for ref in refs_for_section if ref in grounded_records],
+        }
+        for index, refs_for_section in enumerate(section_refs)
+    ]
 
-    # Ground all sections in one call so section_index remains stable and
-    # claim IDs are globally unique within the Article Draft.
+    writer_draft = write_article_draft(
+        content_brief=content_brief,
+        section_evidence=section_evidence,
+        llm_provider=llm_provider,
+    )
+    sections = writer_draft["sections"]
+
+    # Ground claims only after reader-facing prose exists. The grounding layer
+    # validates the writer output; it is not responsible for generating prose.
     claims_by_section = ground_claims_by_section(
         sections=sections,
         evidence_records=list(grounded_records.values()),
@@ -109,6 +97,8 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         "content_type": content_type,
         "primary_keyword": keyword,
         "sections": sections,
+        "tables": writer_draft["tables"],
+        "images": writer_draft["images"],
         "evidence_refs": normalized_refs,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
@@ -121,5 +111,5 @@ def build_article_draft(*, content_brief: dict[str, Any], evidence_records: list
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "draft_ready",
         **payload,
-        "audit": {"method": "content_brief_to_section_and_claim_grounded_article_draft", "version": METHOD_VERSION, "validation_status": "pending"},
+        "audit": {"method": "content_brief_to_injected_llm_article_writer_and_grounding", "version": METHOD_VERSION, "validation_status": "pending"},
     }
