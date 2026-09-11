@@ -53,30 +53,15 @@ def build_content_research_to_wordpress_draft(
         return result
 
     records = evidence_records if evidence_records is not None else []
-    claim_audit = audit_article_claims(
-        article_draft=article_draft,
-        evidence_records=records,
-    )
+    claim_audit = audit_article_claims(article_draft=article_draft, evidence_records=records)
     result["claim_audit"] = claim_audit
-
     if claim_audit.get("outcome") != "passed":
         return result
 
-    seo_strategy = run_seo_strategy_agent(
-        content_brief=content_brief,
-        research_report=research_report,
-    )
-    seo_validation = run_seo_validation_agent(
-        article_draft=article_draft,
-        seo_strategy=seo_strategy,
-    )
+    seo_strategy = run_seo_strategy_agent(content_brief=content_brief, research_report=research_report)
+    seo_validation = run_seo_validation_agent(article_draft=article_draft, seo_strategy=seo_strategy)
     editorial_review = build_editorial_review(article_draft=article_draft)
-    publication = run_publication_agent(
-        article_draft=article_draft,
-        seo_validation=seo_validation,
-        editorial_review=editorial_review,
-    )
-
+    publication = run_publication_agent(article_draft=article_draft, seo_validation=seo_validation, editorial_review=editorial_review)
     result.update({
         "seo_strategy": seo_strategy,
         "seo_validation": seo_validation,
@@ -87,15 +72,8 @@ def build_content_research_to_wordpress_draft(
     if publication.get("gate_status") != "allowed":
         return result
 
-    publisher = run_publisher_agent(
-        publication=publication,
-        article_draft=article_draft,
-    )
-    delivery = run_wordpress_draft_delivery_agent(
-        publisher=publisher,
-        article_draft=article_draft,
-        execution_mode="dry_run",
-    )
+    publisher = run_publisher_agent(publication=publication, article_draft=article_draft)
+    delivery = run_wordpress_draft_delivery_agent(publisher=publisher, article_draft=article_draft, execution_mode="dry_run")
     result["publisher"] = publisher
     result["wordpress_draft_delivery"] = delivery
     return result
@@ -104,18 +82,18 @@ def build_content_research_to_wordpress_draft(
 def run_content_research_to_wordpress_draft(
     project_name: str,
     *,
+    llm_provider: Any,
     deliver: bool = False,
     connection: WordPressConnection | None = None,
     transport: Callable[..., Any] | None = None,
 ) -> dict[str, Any]:
-    """Run the established Research/Content pipeline through WordPress Draft.
+    """Run the Research/Content pipeline through WordPress Draft.
 
-    By default this prepares the complete delivery contract without network I/O.
-    Set ``deliver=True`` only for the already-verified live WordPress Draft path.
-    No code path in this pipeline can publish a WordPress post.
+    Article writing requires an explicitly injected provider. No code path in
+    this pipeline can publish a WordPress post.
     """
     run_research_agent(project_name)
-    run_article_draft_agent(project_name)
+    run_article_draft_agent(project_name, llm_provider=llm_provider)
 
     evidence_records = _load_evidence_records(project_name)
     artifacts = build_content_research_to_wordpress_draft(
@@ -160,13 +138,8 @@ def run_content_research_to_wordpress_draft(
         return artifacts
 
     metadata["status"] = "wordpress_draft_ready"
-
     if deliver:
-        delivery_result = deliver_wordpress_draft(
-            delivery=artifacts["wordpress_draft_delivery"],
-            connection=connection,
-            transport=transport,
-        )
+        delivery_result = deliver_wordpress_draft(delivery=artifacts["wordpress_draft_delivery"], connection=connection, transport=transport)
         artifacts["wordpress_draft_delivery_result"] = delivery_result
         _save_if_changed(project_name, "wordpress-draft-delivery-result.json", delivery_result)
         metadata["status"] = "wordpress_draft_delivered"
