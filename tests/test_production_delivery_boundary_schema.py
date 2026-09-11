@@ -35,8 +35,8 @@ def _delivery(stage="delivery_ready", status="ready", mode="live"):
             "slug": "example-insurance-guide",
             "excerpt": "A concise insurance guide.",
             "media": [{
-                "image_id": "image_0", "asset_ref": "media_artifact_0", "alt_text": "Insurance coverage illustration",
-                "placement": "After overview", "featured": True,
+                "image_id": "image_0", "asset_ref": "media_artifact_0", "platform_asset_id": 101,
+                "alt_text": "Insurance coverage illustration", "placement": "After overview", "featured": True,
             }],
             "links": [{
                 "link_id": "link_0", "target_url": "https://insurancereviewlab.com/insurance/",
