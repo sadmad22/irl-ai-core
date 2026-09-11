@@ -11,14 +11,26 @@ PROJECT_B = "phase8-repeatability-b"
 
 class FakeWriter:
     def write(self, *, sections, editorial_rules):
+        rendered_sections = []
+        for item in sections:
+            record = item["evidence_records"][0]
+            claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
+            value = record.get("value") if isinstance(record.get("value"), dict) else {}
+            attribute = str(claim.get("attribute", "coverage")).strip()
+            data = value.get("data", "evidence")
+            if isinstance(data, (dict, list)):
+                data = json.dumps(data, sort_keys=True, ensure_ascii=False)
+            data = str(data).strip() or "evidence"
+            rendered_sections.append({
+                "section_index": item["section_index"],
+                "body": (
+                    f"This section considers {attribute} and the available {data} "
+                    f"when evaluating {item['heading'].lower()}."
+                ),
+            })
+
         return {
-            "sections": [
-                {
-                    "section_index": item["section_index"],
-                    "body": f"Readers can evaluate {item['heading'].lower()} using the available evidence and the criteria described in the brief.",
-                }
-                for item in sections
-            ],
+            "sections": rendered_sections,
             "tables": [
                 {
                     "table_id": "table_1",
