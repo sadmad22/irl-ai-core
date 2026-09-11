@@ -6,6 +6,10 @@ import json
 import re
 from typing import Any, Callable
 
+from .wordpress_delivery_adapter import (
+    build_wordpress_delivery_request,
+    deliver_wordpress_delivery_boundary,
+)
 from .wordpress_draft_delivery_client import WordPressConnection, deliver_wordpress_draft
 
 SCHEMA_VERSION = "1.0"
@@ -66,6 +70,36 @@ def build_wordpress_connector_request(production: dict[str, Any]) -> dict[str, A
         "request_payload": {"title": title, "content": content, "status": "draft"},
         "audit": {"method": "wordpress_connector", "version": "v1", "validation_status": "validated"},
     }
+
+
+def build_wordpress_connector_request_from_boundary(
+    boundary: dict[str, Any],
+    *,
+    execution_mode: str | None = None,
+    seo_meta_keys: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Build the WordPress request from the canonical Production Delivery Boundary."""
+    return build_wordpress_delivery_request(
+        boundary=boundary,
+        execution_mode=execution_mode,
+        seo_meta_keys=seo_meta_keys,
+    )
+
+
+def deliver_wordpress_draft_from_boundary(
+    boundary: dict[str, Any],
+    *,
+    connection: WordPressConnection | None = None,
+    transport: Callable[..., Any] | None = None,
+    seo_meta_keys: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Deliver a canonical Production Delivery Boundary as a WordPress Draft."""
+    return deliver_wordpress_delivery_boundary(
+        boundary=boundary,
+        connection=connection,
+        transport=transport,
+        seo_meta_keys=seo_meta_keys,
+    )
 
 
 def deliver_wordpress_draft_from_production(
