@@ -28,7 +28,8 @@
     {"if":{"properties":{"delivery_status":{"const":"delivered"}}},"then":{"required":["response"],"properties":{"response":{"required":["platform_post_id","remote_status","edit_url"]}}}},
     {"if":{"properties":{"delivery_status":{"const":"failed"}}},"then":{"required":["response"],"properties":{"response":{"required":["error_code","error_message","failed_stage","retryable"]}}}},
     {"if":{"properties":{"execution_mode":{"const":"dry_run"}}},"then":{"not":{"properties":{"lifecycle_stage":{"enum":["delivering","delivered_as_draft","human_review"]}}}},
-    {"if":{"properties":{"lifecycle_stage":{"const":"delivery_ready"}}},"then":{"properties":{"source":{"properties":{"package_lifecycle_stage":{"const":"delivery_ready"},"package_validation_status":{"const":"validated"},"package_schema_version":{"const":"1.0"}}}}}}
+    {"if":{"properties":{"lifecycle_stage":{"const":"delivery_ready"}}},"then":{"properties":{"source":{"properties":{"package_lifecycle_stage":{"const":"delivery_ready"},"package_validation_status":{"const":"validated"},"package_schema_version":{"const":"1.0"}}}}}},
+    {"if":{"properties":{"lifecycle_stage":{"enum":["delivery_ready","request_ready","delivering","delivered_as_draft","human_review"]}}},"then":{"properties":{"audit":{"properties":{"validation_status":{"const":"validated"}}}}}}
   ],
   "$defs":{
     "nonEmptyString":{"type":"string","minLength":1},
@@ -41,6 +42,6 @@
     "taxonomyItem":{"type":"object","additionalProperties":false,"required":["name"],"properties":{"name":{"$ref":"#/$defs/nonEmptyString"},"platform_id":{"oneOf":[{"type":"string","minLength":1},{"type":"integer","minimum":1}]}}},
     "taxonomy":{"type":"object","additionalProperties":false,"required":["categories","tags"],"properties":{"categories":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/taxonomyItem"}},"tags":{"type":"array","items":{"$ref":"#/$defs/taxonomyItem"}}}},
     "response":{"type":"object","additionalProperties":false,"properties":{"platform_post_id":{"type":"integer","minimum":1},"remote_status":{"const":"draft"},"edit_url":{"type":"string","format":"uri"},"media_results":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["image_id","platform_asset_id"],"properties":{"image_id":{"$ref":"#/$defs/nonEmptyString"},"platform_asset_id":{"oneOf":[{"type":"string","minLength":1},{"type":"integer","minimum":1}]}}}},"taxonomy_results":{"type":"object","additionalProperties":false,"properties":{"categories":{"type":"array","items":{"type":"integer","minimum":1}},"tags":{"type":"array","items":{"type":"integer","minimum":1}}}},"error_code":{"$ref":"#/$defs/nonEmptyString"},"error_message":{"$ref":"#/$defs/nonEmptyString"},"failed_stage":{"enum":["boundary","adapter","media","taxonomy","request","transport","verification"]},"retryable":{"type":"boolean"}}},
-    "audit":{"type":"object","additionalProperties":false,"required":["method","version","validation_status"],"properties":{"method":{"const":"production_delivery_boundary"},"version":{"const":"v1"},"validation_status":{"const":"validated"}}}
+    "audit":{"type":"object","additionalProperties":false,"required":["method","version","validation_status"],"properties":{"method":{"const":"production_delivery_boundary"},"version":{"const":"v1"},"validation_status":{"enum":["pending","validated"]}}}
   }
 }
