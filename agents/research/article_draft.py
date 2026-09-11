@@ -13,7 +13,7 @@ METHOD_VERSION = "v3"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
-    raw = json.dumps({"brief_id": brief["brief_id"], "payload": payload}, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    raw = json.dumps({"brief_id": brief["brief_id"], "payload": payload}, sort_keys=True, ensure_ascii=False)
     return f"draft_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
