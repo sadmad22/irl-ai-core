@@ -13,7 +13,10 @@ class FakeWriter:
     def write(self, *, sections, editorial_rules):
         return {
             "sections": [
-                {"section_index": item["section_index"], "body": f"Readers can evaluate {item['heading'].lower()} using the available evidence and the criteria described in the brief."}
+                {
+                    "section_index": item["section_index"],
+                    "body": f"Readers can evaluate {item['heading'].lower()} using the available evidence and the criteria described in the brief.",
+                }
                 for item in sections
             ],
             "tables": [],
