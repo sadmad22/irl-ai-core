@@ -95,8 +95,10 @@ def test_ungrounded_claim_fails_closed():
 
 
 def test_comparison_without_table_fails_closed():
+    package = _package(content_type="comparison")
+    package["content"]["tables"] = []
     with pytest.raises(ProductionDeliveryBoundaryEngineError) as exc:
-        build_production_delivery_boundary(package=_package(content_type="comparison"), publisher_id="publisher_123", adapter_id="wordpress_adapter_v1")
+        build_production_delivery_boundary(package=package, publisher_id="publisher_123", adapter_id="wordpress_adapter_v1")
     assert exc.value.code == "REQUIRED_ASSET_MISSING"
 
 
