@@ -12,7 +12,6 @@ SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
 TARGET = "wordpress"
 PUBLICATION = {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}
-
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "production-delivery-boundary.schema.json"
 
 
@@ -62,71 +61,51 @@ def _require_package_ready(package: dict[str, Any]) -> None:
 
 
 def _deterministic_delivery_id(package_id: str, adapter_id: str) -> str:
-    seed = {
-        "package_id": package_id,
-        "adapter_id": adapter_id,
-        "target": TARGET,
-        "schema_version": SCHEMA_VERSION,
-    }
+    seed = {"package_id": package_id, "adapter_id": adapter_id, "target": TARGET, "schema_version": SCHEMA_VERSION}
     raw = json.dumps(seed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return f"delivery_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
 
-def _content(package: dict[str, Any]) -> tuple[dict[str, Any], set[str], set[str]]:
+def _content(package: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
     content = _obj(package.get("content"), "package.content")
     article = _obj(content.get("article"), "package.content.article")
-    sections = content.get("sections")
-    claims = content.get("claims")
-    tables = content.get("tables")
-    if not isinstance(sections, list) or not sections:
-        raise ProductionDeliveryBoundaryEngineError("INVALID_CONTENT", "Article Package sections must be a non-empty array")
-    if not isinstance(claims, list):
-        raise ProductionDeliveryBoundaryEngineError("INVALID_CONTENT", "Article Package claims must be an array")
-    if not isinstance(tables, list):
-        raise ProductionDeliveryBoundaryEngineError("INVALID_CONTENT", "Article Package tables must be an array")
-
+    sections = content.get("sections"); claims = content.get("claims"); tables = content.get("tables")
+    if not isinstance(sections, list) or not sections or not isinstance(claims, list) or not isinstance(tables, list):
+        raise ProductionDeliveryBoundaryEngineError("INVALID_CONTENT", "Package content sections, claims and tables are invalid")
     section_ids = [_text(s.get("section_id")) for s in sections if isinstance(s, dict)]
     if len(section_ids) != len(sections) or any(not x for x in section_ids) or len(set(section_ids)) != len(section_ids):
         raise ProductionDeliveryBoundaryEngineError("REFERENCE_INTEGRITY", "Article Package section identities are invalid")
     if [s.get("order") for s in sections] != list(range(len(sections))):
         raise ProductionDeliveryBoundaryEngineError("REFERENCE_INTEGRITY", "Article Package section order is not contiguous")
-
     claim_ids = {_text(c.get("claim_id")) for c in claims if isinstance(c, dict)}
     if len(claim_ids) != len(claims) or "" in claim_ids:
         raise ProductionDeliveryBoundaryEngineError("REFERENCE_INTEGRITY", "Article Package claim identities are invalid")
     for section in sections:
-        if not isinstance(section.get("claim_ids"), list) or any(cid not in claim_ids for cid in section["claim_ids"]):
+        if not isinstance(section, dict) or not isinstance(section.get("claim_ids"), list) or any(cid not in claim_ids for cid in section["claim_ids"]):
             raise ProductionDeliveryBoundaryEngineError("REFERENCE_INTEGRITY", f"Section {section.get('section_id', 'unknown')} has unresolved claims")
     for claim in claims:
         if claim.get("grounding_status") != "grounded":
             raise ProductionDeliveryBoundaryEngineError("UPSTREAM_NOT_READY", "All delivered claims must be grounded", [claim.get("claim_id", "unknown")])
-
-    content_type = _text(package["identity"].get("content_type"))
-    if content_type in {"comparison", "buyer_guide"} and not tables:
+    if _text(package["identity"].get("content_type")) in {"comparison", "buyer_guide"} and not tables:
         raise ProductionDeliveryBoundaryEngineError("REQUIRED_ASSET_MISSING", "Comparison and buyer_guide packages require a table")
-
     article_out = {"title": _text(article.get("title")), "slug": _text(article.get("slug"))}
     if not article_out["title"] or not article_out["slug"]:
         raise ProductionDeliveryBoundaryEngineError("INVALID_CONTENT", "Article title and slug are required")
     if _text(article.get("excerpt")):
         article_out["excerpt"] = _text(article["excerpt"])
-
-    return copy.deepcopy({"article": article_out, "sections": sections, "claims": claims, "tables": tables}), set(section_ids), claim_ids
+    return {"article": article_out, "sections": copy.deepcopy(sections), "claims": copy.deepcopy(claims), "tables": copy.deepcopy(tables)}, set(section_ids)
 
 
 def _render_content(content: dict[str, Any], media: list[dict[str, Any]], links: list[dict[str, Any]]) -> str:
-    # Representation-only rendering. No discovery, generation, or rewriting occurs here.
     parts: list[str] = []
     for section in content["sections"]:
-        parts.append(f"<h2>{section['heading']}</h2>")
-        parts.append(f"<p>{section['body']}</p>")
+        parts.extend((f"<h2>{section['heading']}</h2>", f"<p>{section['body']}</p>"))
         for table in content["tables"]:
-            if table["section_id"] != section["section_id"]:
-                continue
-            parts.append("<table><thead><tr>" + "".join(f"<th>{cell}</th>" for cell in table["columns"]) + "</tr></thead><tbody>")
-            for row in table["rows"]:
-                parts.append("<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>")
-            parts.append("</tbody></table>")
+            if table["section_id"] == section["section_id"]:
+                parts.append("<table><thead><tr>" + "".join(f"<th>{cell}</th>" for cell in table["columns"]) + "</tr></thead><tbody>")
+                for row in table["rows"]:
+                    parts.append("<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>")
+                parts.append("</tbody></table>")
         for image in media:
             if image["section_id"] == section["section_id"]:
                 parts.append(f"<img src=\"{image['asset_ref']}\" alt=\"{image['alt_text']}\" />")
@@ -137,25 +116,22 @@ def _render_content(content: dict[str, Any], media: list[dict[str, Any]], links:
 
 
 def _media(package: dict[str, Any], section_ids: set[str]) -> list[dict[str, Any]]:
-    media = _obj(package.get("media"), "package.media")
-    images = media.get("images")
+    media = _obj(package.get("media"), "package.media"); images = media.get("images")
     if not isinstance(images, list) or not images:
         raise ProductionDeliveryBoundaryEngineError("REQUIRED_ASSET_MISSING", "Delivery-ready package requires at least one image")
-    result: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    result: list[dict[str, Any]] = []; seen: set[str] = set()
     for raw in images:
-        image = _obj(raw, "package.media.image")
-        image_id = _text(image.get("image_id")); section_id = _text(image.get("section_id"))
+        image = _obj(raw, "package.media.image"); image_id = _text(image.get("image_id")); section_id = _text(image.get("section_id"))
         if not image_id or image_id in seen or section_id not in section_ids:
             raise ProductionDeliveryBoundaryEngineError("REFERENCE_INTEGRITY", "Media identity or section reference is invalid", [image_id or "unknown"])
         if image.get("materialization_status") != "materialized" or not _text(image.get("asset_ref")):
             raise ProductionDeliveryBoundaryEngineError("MEDIA_NOT_MATERIALIZED", "Every delivery-ready image must be materialized", [image_id])
         alt_text = _text(image.get("alt_text"))
-        if not alt_text:
-            raise ProductionDeliveryBoundaryEngineError("INVALID_MEDIA", "Every delivered image requires non-empty alt_text", [image_id])
-        result.append({"image_id": image_id, "asset_ref": _text(image["asset_ref"]), "alt_text": alt_text, "placement": _text(image.get("placement")), "featured": False})
+        if not alt_text or not _text(image.get("placement")):
+            raise ProductionDeliveryBoundaryEngineError("INVALID_MEDIA", "Every delivered image requires non-empty alt_text and placement", [image_id])
+        result.append({"image_id": image_id, "asset_ref": _text(image["asset_ref"]), "alt_text": alt_text, "placement": _text(image["placement"]), "featured": False, "section_id": section_id})
         seen.add(image_id)
-    featured = package["media"].get("featured_image")
+    featured = media.get("featured_image")
     if featured is not None:
         featured_id = _text(_obj(featured, "package.media.featured_image").get("image_id"))
         if featured_id not in seen:
@@ -166,9 +142,7 @@ def _media(package: dict[str, Any], section_ids: set[str]) -> list[dict[str, Any
 
 
 def _links(package: dict[str, Any], section_ids: set[str]) -> list[dict[str, Any]]:
-    linking = _obj(package.get("linking"), "package.linking")
-    result: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    linking = _obj(package.get("linking"), "package.linking"); result: list[dict[str, Any]] = []; seen: set[str] = set()
     for kind in ("internal", "external"):
         raw_links = linking.get(kind)
         if not isinstance(raw_links, list):
@@ -194,8 +168,7 @@ def _optimization(package: dict[str, Any]) -> dict[str, str]:
 
 
 def _taxonomy(package: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    taxonomy = _obj(package.get("taxonomy"), "package.taxonomy")
-    categories = taxonomy.get("categories"); tags = taxonomy.get("tags")
+    taxonomy = _obj(package.get("taxonomy"), "package.taxonomy"); categories = taxonomy.get("categories"); tags = taxonomy.get("tags")
     if not isinstance(categories, list) or not categories:
         raise ProductionDeliveryBoundaryEngineError("REQUIRED_ASSET_MISSING", "At least one explicit category is required")
     if not isinstance(tags, list):
@@ -204,41 +177,32 @@ def _taxonomy(package: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
         out: list[dict[str, Any]] = []; seen: set[str] = set()
         for raw in values:
             if isinstance(raw, str):
-                value = _text(raw); item = {"name": value}
+                value = _text(raw)
             else:
-                item = _obj(raw, f"package.taxonomy.{name}")
-                value = _text(item.get("name")); item = {"name": value}
+                value = _text(_obj(raw, f"package.taxonomy.{name}").get("name"))
             if not value or value in seen:
                 raise ProductionDeliveryBoundaryEngineError("INVALID_TAXONOMY", f"Taxonomy {name} contains an invalid or duplicate name")
-            seen.add(value); out.append(item)
+            seen.add(value); out.append({"name": value})
         return out
     return {"categories": items(categories, "categories"), "tags": items(tags, "tags")}
 
 
 def _schema_errors(boundary: dict[str, Any]) -> list[str]:
-    schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8")); validator = Draft202012Validator(schema, format_checker=FormatChecker())
     errors = sorted(validator.iter_errors(boundary), key=lambda e: (list(e.path), e.message))
     return [f"{'.'.join(str(p) for p in error.path) or 'root'}: {error.message}" for error in errors]
 
 
 def _cross_errors(boundary: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    if boundary["source"]["package_id"] != boundary["package_id"]:
-        errors.append("source.package_id must equal package_id")
-    media = boundary["request"]["media"]
-    if sum(1 for item in media if item["featured"]) > 1:
-        errors.append("at most one delivered image may be featured")
-    if boundary["request"]["status"] != "draft":
-        errors.append("request.status must remain draft")
-    if boundary["publication"] != PUBLICATION:
-        errors.append("publication safety policy is immutable draft-only")
+    if boundary["source"]["package_id"] != boundary["package_id"]: errors.append("source.package_id must equal package_id")
+    if sum(1 for item in boundary["request"]["media"] if item["featured"]) > 1: errors.append("at most one delivered image may be featured")
+    if boundary["request"]["status"] != "draft": errors.append("request.status must remain draft")
+    if boundary["publication"] != PUBLICATION: errors.append("publication safety policy is immutable draft-only")
     link_ids = [link["link_id"] for link in boundary["request"]["links"]]
-    if len(link_ids) != len(set(link_ids)):
-        errors.append("request link IDs must be unique")
-    image_ids = [image["image_id"] for image in media]
-    if len(image_ids) != len(set(image_ids)):
-        errors.append("request image IDs must be unique")
+    if len(link_ids) != len(set(link_ids)): errors.append("request link IDs must be unique")
+    image_ids = [image["image_id"] for image in boundary["request"]["media"]]
+    if len(image_ids) != len(set(image_ids)): errors.append("request image IDs must be unique")
     return errors
 
 
@@ -253,40 +217,14 @@ def validate_production_delivery_boundary(boundary: dict[str, Any]) -> dict[str,
 
 
 def build_production_delivery_boundary(*, package: dict[str, Any], publisher_id: str, adapter_id: str, execution_mode: str = "dry_run") -> dict[str, Any]:
-    package = copy.deepcopy(_obj(package, "package"))
-    publisher_id = _text(publisher_id); adapter_id = _text(adapter_id)
-    if not publisher_id or not adapter_id:
-        raise ProductionDeliveryBoundaryEngineError("INVALID_INPUT", "publisher_id and adapter_id are required")
-    if execution_mode not in {"dry_run", "live"}:
-        raise ProductionDeliveryBoundaryEngineError("INVALID_INPUT", "execution_mode must be dry_run or live")
-    _require_package_ready(package)
-    package_id = _package_id(package)
-    content, section_ids, _ = _content(package)
-    media = _media(package, section_ids)
-    links = _links(package, section_ids)
-    optimization = _optimization(package)
-    taxonomy = _taxonomy(package)
-    request = {
-        **content["article"],
-        "content": _render_content(content, media, links),
-        "status": "draft",
-        "media": media,
-        "links": links,
-        "optimization": optimization,
-        "taxonomy": taxonomy,
-    }
-    boundary = {
-        "delivery_id": _deterministic_delivery_id(package_id, adapter_id),
-        "package_id": package_id,
-        "publisher_id": publisher_id,
-        "adapter_id": adapter_id,
-        "target": TARGET,
-        "execution_mode": execution_mode,
-        "publication": copy.deepcopy(PUBLICATION),
-        "source": {"package_id": package_id, "package_lifecycle_stage": "delivery_ready", "package_validation_status": "validated", "package_schema_version": SCHEMA_VERSION},
-        "request": request,
-        "lifecycle_stage": "delivery_ready",
-        "delivery_status": "ready",
-        "audit": {"method": "production_delivery_boundary", "version": METHOD_VERSION, "validation_status": "validated"},
-    }
+    package = copy.deepcopy(_obj(package, "package")); publisher_id = _text(publisher_id); adapter_id = _text(adapter_id)
+    if not publisher_id or not adapter_id or execution_mode not in {"dry_run", "live"}:
+        raise ProductionDeliveryBoundaryEngineError("INVALID_INPUT", "publisher_id, adapter_id and execution_mode are required")
+    _require_package_ready(package); package_id = _package_id(package)
+    content, section_ids = _content(package); media = _media(package, section_ids); links = _links(package, section_ids)
+    optimization = _optimization(package); taxonomy = _taxonomy(package)
+    request_links = [{key: value for key, value in link.items() if key != "section_id"} for link in links]
+    request_media = [{key: value for key, value in image.items() if key != "section_id"} for image in media]
+    request = {**content["article"], "content": _render_content(content, media, links), "status": "draft", "media": request_media, "links": request_links, "optimization": optimization, "taxonomy": taxonomy}
+    boundary = {"delivery_id": _deterministic_delivery_id(package_id, adapter_id), "package_id": package_id, "publisher_id": publisher_id, "adapter_id": adapter_id, "target": TARGET, "execution_mode": execution_mode, "publication": copy.deepcopy(PUBLICATION), "source": {"package_id": package_id, "package_lifecycle_stage": "delivery_ready", "package_validation_status": "validated", "package_schema_version": SCHEMA_VERSION}, "request": request, "lifecycle_stage": "delivery_ready", "delivery_status": "ready", "audit": {"method": "production_delivery_boundary", "version": METHOD_VERSION, "validation_status": "validated"}}
     return validate_production_delivery_boundary(boundary)
