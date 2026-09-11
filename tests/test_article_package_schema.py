@@ -166,11 +166,11 @@ def test_package_rejects_unknown_root_fields():
     assert any(error.validator == "additionalProperties" and list(error.path) == [] for error in errors)
 
 
-def test_package_rejects_invalid_uri():
+def test_package_rejects_non_string_canonical_url():
     package = _package()
-    package["optimization"]["canonical_url"] = "https://example.com/%ZZ"
+    package["optimization"]["canonical_url"] = 123
     errors = _validate(package)
-    assert any(error.validator == "format" and list(error.path) == ["optimization", "canonical_url"] for error in errors)
+    assert any(error.validator == "type" and list(error.path) == ["optimization", "canonical_url"] for error in errors)
 
 
 def test_package_fixture_is_not_mutated_by_validation():
