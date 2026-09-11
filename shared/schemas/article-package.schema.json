@@ -1,161 +1,32 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://insurancereviewlab.com/schemas/article-package.schema.json",
-  "title": "IRL Article Package v1",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["identity", "lineage", "content", "media", "linking", "optimization", "taxonomy", "delivery", "audit"],
-  "properties": {
-    "identity": {"$ref": "#/$defs/identity"},
-    "lineage": {"$ref": "#/$defs/lineage"},
-    "content": {"$ref": "#/$defs/content"},
-    "media": {"$ref": "#/$defs/media"},
-    "linking": {"$ref": "#/$defs/linking"},
-    "optimization": {"$ref": "#/$defs/optimization"},
-    "taxonomy": {"$ref": "#/$defs/taxonomy"},
-    "delivery": {"$ref": "#/$defs/delivery"},
-    "audit": {"$ref": "#/$defs/audit"}
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://insurancereviewlab.com/schemas/article-package.schema.json",
+  "title":"IRL Article Package v1","type":"object","additionalProperties":false,
+  "required":["identity","lineage","content","media","linking","optimization","taxonomy","delivery","audit"],
+  "properties":{
+    "identity":{"$ref":"#/$defs/identity"},"lineage":{"$ref":"#/$defs/lineage"},"content":{"$ref":"#/$defs/content"},"media":{"$ref":"#/$defs/media"},"linking":{"$ref":"#/$defs/linking"},"optimization":{"$ref":"#/$defs/optimization"},"taxonomy":{"$ref":"#/$defs/taxonomy"},"delivery":{"$ref":"#/$defs/delivery"},"audit":{"$ref":"#/$defs/audit"}
   },
-  "allOf": [
-    {
-      "if": {"properties": {"identity": {"properties": {"content_type": {"enum": ["comparison", "buyer_guide"]}}}}},
-      "then": {"properties": {"content": {"properties": {"tables": {"minItems": 1}}}}}
-    },
-    {
-      "if": {"properties": {"identity": {"properties": {"lifecycle_stage": {"enum": ["package_validated", "delivery_ready", "delivered_as_draft", "human_review"]}}}}},
-      "then": {"properties": {"audit": {"properties": {"validation_status": {"const": "validated"}}}}}
-    },
-    {
-      "if": {"properties": {"identity": {"properties": {"lifecycle_stage": {"enum": ["delivery_ready", "delivered_as_draft", "human_review"]}}}}},
-      "then": {
-        "properties": {
-          "media": {"properties": {"images": {"items": {"properties": {"materialization_status": {"const": "materialized"}}}}}},
-          "content": {"properties": {"claims": {"items": {"properties": {"grounding_status": {"const": "grounded"}}}}}}
-        }
-      }
-    },
-    {
-      "if": {"properties": {"media": {"properties": {"images": {"items": {"properties": {"materialization_status": {"const": "materialized"}}}}}}},
-      "then": {"properties": {"media": {"properties": {"images": {"items": {"required": ["asset_ref"]}}}}}}
-    }
+  "allOf":[
+    {"if":{"properties":{"identity":{"properties":{"content_type":{"enum":["comparison","buyer_guide"]}}}}},"then":{"properties":{"content":{"properties":{"tables":{"minItems":1}}}}}},
+    {"if":{"properties":{"identity":{"properties":{"lifecycle_stage":{"enum":["package_validated","delivery_ready","delivered_as_draft","human_review"]}}}}},"then":{"properties":{"audit":{"properties":{"validation_status":{"const":"validated"}}}}}},
+    {"if":{"properties":{"identity":{"properties":{"lifecycle_stage":{"enum":["delivery_ready","delivered_as_draft","human_review"]}}}}},"then":{"properties":{"media":{"properties":{"images":{"items":{"properties":{"materialization_status":{"const":"materialized"}}}}}}},"content":{"properties":{"claims":{"items":{"properties":{"grounding_status":{"const":"grounded"}}}}}}}},
+    {"if":{"properties":{"media":{"properties":{"images":{"items":{"properties":{"materialization_status":{"const":"materialized"}}}}}}}},"then":{"properties":{"media":{"properties":{"images":{"items":{"required":["asset_ref"]}}}}}}}
   ],
-  "$defs": {
-    "nonEmptyString": {"type": "string", "minLength": 1},
-    "uniqueStringArray": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
-    "identity": {
-      "type": "object", "additionalProperties": false,
-      "required": ["package_id", "project_name", "schema_version", "lifecycle_stage", "content_type", "primary_keyword"],
-      "properties": {
-        "package_id": {"type": "string", "pattern": "^package_[a-f0-9]{16}$"},
-        "project_name": {"$ref": "#/$defs/nonEmptyString"},
-        "schema_version": {"const": "1.0"},
-        "lifecycle_stage": {"enum": ["production_ready", "package_assembled", "package_validated", "delivery_ready", "delivered_as_draft", "human_review"]},
-        "content_type": {"enum": ["guide", "comparison", "buyer_guide", "article"]},
-        "primary_keyword": {"$ref": "#/$defs/nonEmptyString"}
-      }
-    },
-    "lineage": {
-      "type": "object", "additionalProperties": false,
-      "required": ["report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"],
-      "properties": {
-        "report_id": {"$ref": "#/$defs/nonEmptyString"}, "decision_id": {"$ref": "#/$defs/nonEmptyString"},
-        "strategy_id": {"$ref": "#/$defs/nonEmptyString"}, "brief_id": {"$ref": "#/$defs/nonEmptyString"},
-        "draft_id": {"$ref": "#/$defs/nonEmptyString"}, "quality_id": {"$ref": "#/$defs/nonEmptyString"},
-        "config_id": {"$ref": "#/$defs/nonEmptyString"}, "semantic_id": {"$ref": "#/$defs/nonEmptyString"},
-        "optimization_id": {"$ref": "#/$defs/nonEmptyString"}, "image_spec_id": {"$ref": "#/$defs/nonEmptyString"},
-        "alt_text_id": {"$ref": "#/$defs/nonEmptyString"}, "external_links_id": {"$ref": "#/$defs/nonEmptyString"},
-        "internal_links_id": {"$ref": "#/$defs/nonEmptyString"}, "news_id": {"$ref": "#/$defs/nonEmptyString"}
-      }
-    },
-    "section": {
-      "type": "object", "additionalProperties": false,
-      "required": ["section_id", "order", "heading", "body", "purpose", "claim_ids", "evidence_refs"],
-      "properties": {
-        "section_id": {"$ref": "#/$defs/nonEmptyString"}, "order": {"type": "integer", "minimum": 0},
-        "heading": {"$ref": "#/$defs/nonEmptyString"}, "body": {"$ref": "#/$defs/nonEmptyString"},
-        "purpose": {"$ref": "#/$defs/nonEmptyString"}, "claim_ids": {"$ref": "#/$defs/uniqueStringArray"},
-        "evidence_refs": {"$ref": "#/$defs/uniqueStringArray", "minItems": 1}
-      }
-    },
-    "claim": {
-      "type": "object", "additionalProperties": false,
-      "required": ["claim_id", "section_id", "text", "evidence_refs", "grounding_status"],
-      "properties": {
-        "claim_id": {"$ref": "#/$defs/nonEmptyString"}, "section_id": {"$ref": "#/$defs/nonEmptyString"},
-        "text": {"$ref": "#/$defs/nonEmptyString"}, "evidence_refs": {"$ref": "#/$defs/uniqueStringArray"},
-        "grounding_status": {"enum": ["grounded", "blocked", "provisional"]}
-      }
-    },
-    "table": {
-      "type": "object", "additionalProperties": false,
-      "required": ["table_id", "title", "section_id", "columns", "rows", "evidence_refs"],
-      "properties": {
-        "table_id": {"$ref": "#/$defs/nonEmptyString"}, "title": {"$ref": "#/$defs/nonEmptyString"},
-        "section_id": {"$ref": "#/$defs/nonEmptyString"},
-        "columns": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmptyString"}},
-        "rows": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmptyString"}}},
-        "evidence_refs": {"$ref": "#/$defs/uniqueStringArray"}
-      }
-    },
-    "content": {
-      "type": "object", "additionalProperties": false,
-      "required": ["article", "sections", "claims", "tables"],
-      "properties": {
-        "article": {
-          "type": "object", "additionalProperties": false, "required": ["title", "slug"],
-          "properties": {"title": {"$ref": "#/$defs/nonEmptyString"}, "slug": {"$ref": "#/$defs/nonEmptyString"}, "excerpt": {"type": "string"}}
-        },
-        "sections": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/section"}},
-        "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
-        "tables": {"type": "array", "items": {"$ref": "#/$defs/table"}}
-      }
-    },
-    "mediaImage": {
-      "type": "object", "additionalProperties": false,
-      "required": ["image_id", "section_id", "placement", "prompt", "alt_text", "materialization_status"],
-      "properties": {
-        "image_id": {"$ref": "#/$defs/nonEmptyString"}, "section_id": {"$ref": "#/$defs/nonEmptyString"},
-        "placement": {"$ref": "#/$defs/nonEmptyString"}, "prompt": {"$ref": "#/$defs/nonEmptyString"},
-        "alt_text": {"$ref": "#/$defs/nonEmptyString"}, "materialization_status": {"enum": ["specified", "materialized"]},
-        "asset_ref": {"$ref": "#/$defs/nonEmptyString"}
-      }
-    },
-    "media": {
-      "type": "object", "additionalProperties": false,
-      "required": ["images"],
-      "properties": {
-        "images": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/mediaImage"}},
-        "featured_image": {"type": "object", "additionalProperties": false, "required": ["image_id"], "properties": {"image_id": {"$ref": "#/$defs/nonEmptyString"}}}
-      }
-    },
-    "link": {
-      "type": "object", "additionalProperties": false,
-      "required": ["link_id", "section_id", "target_url", "anchor_text", "placement"],
-      "properties": {
-        "link_id": {"$ref": "#/$defs/nonEmptyString"}, "section_id": {"$ref": "#/$defs/nonEmptyString"},
-        "target_url": {"type": "string", "format": "uri", "minLength": 1}, "anchor_text": {"$ref": "#/$defs/nonEmptyString"},
-        "placement": {"$ref": "#/$defs/nonEmptyString"}
-      }
-    },
-    "linking": {
-      "type": "object", "additionalProperties": false, "required": ["internal", "external"],
-      "properties": {"internal": {"type": "array", "items": {"$ref": "#/$defs/link"}}, "external": {"type": "array", "items": {"$ref": "#/$defs/link"}}}
-    },
-    "optimization": {
-      "type": "object", "additionalProperties": false, "required": ["seo_title", "meta_description"],
-      "properties": {"seo_title": {"$ref": "#/$defs/nonEmptyString"}, "meta_description": {"$ref": "#/$defs/nonEmptyString"}, "canonical_url": {"type": "string", "format": "uri"}}
-    },
-    "taxonomy": {
-      "type": "object", "additionalProperties": false, "required": ["categories", "tags"],
-      "properties": {"categories": {"$ref": "#/$defs/uniqueStringArray", "minItems": 1}, "tags": {"$ref": "#/$defs/uniqueStringArray"}}
-    },
-    "delivery": {
-      "type": "object", "additionalProperties": false, "required": ["target", "mode", "publish", "human_approval_required"],
-      "properties": {"target": {"const": "wordpress"}, "mode": {"const": "wordpress_draft"}, "publish": {"const": false}, "human_approval_required": {"const": true}}
-    },
-    "audit": {
-      "type": "object", "additionalProperties": false, "required": ["method", "version", "validation_status"],
-      "properties": {"method": {"const": "article_package_contract"}, "version": {"const": "v1"}, "validation_status": {"enum": ["pending", "validated"]}}
-    }
+  "$defs":{
+    "s":{"type":"string","minLength":1},"sa":{"type":"array","uniqueItems":true,"items":{"$ref":"#/$defs/s"}},
+    "identity":{"type":"object","additionalProperties":false,"required":["package_id","project_name","schema_version","lifecycle_stage","content_type","primary_keyword"],"properties":{"package_id":{"type":"string","pattern":"^package_[a-f0-9]{16}$"},"project_name":{"$ref":"#/$defs/s"},"schema_version":{"const":"1.0"},"lifecycle_stage":{"enum":["production_ready","package_assembled","package_validated","delivery_ready","delivered_as_draft","human_review"]},"content_type":{"enum":["guide","comparison","buyer_guide","article"]},"primary_keyword":{"$ref":"#/$defs/s"}}},
+    "lineage":{"type":"object","additionalProperties":false,"required":["report_id","decision_id","strategy_id","brief_id","draft_id","quality_id"],"properties":{"report_id":{"$ref":"#/$defs/s"},"decision_id":{"$ref":"#/$defs/s"},"strategy_id":{"$ref":"#/$defs/s"},"brief_id":{"$ref":"#/$defs/s"},"draft_id":{"$ref":"#/$defs/s"},"quality_id":{"$ref":"#/$defs/s"},"config_id":{"$ref":"#/$defs/s"},"semantic_id":{"$ref":"#/$defs/s"},"optimization_id":{"$ref":"#/$defs/s"},"image_spec_id":{"$ref":"#/$defs/s"},"alt_text_id":{"$ref":"#/$defs/s"},"external_links_id":{"$ref":"#/$defs/s"},"internal_links_id":{"$ref":"#/$defs/s"},"news_id":{"$ref":"#/$defs/s"}}},
+    "section":{"type":"object","additionalProperties":false,"required":["section_id","order","heading","body","purpose","claim_ids","evidence_refs"],"properties":{"section_id":{"$ref":"#/$defs/s"},"order":{"type":"integer","minimum":0},"heading":{"$ref":"#/$defs/s"},"body":{"$ref":"#/$defs/s"},"purpose":{"$ref":"#/$defs/s"},"claim_ids":{"$ref":"#/$defs/sa"},"evidence_refs":{"$ref":"#/$defs/sa","minItems":1}}},
+    "claim":{"type":"object","additionalProperties":false,"required":["claim_id","section_id","text","evidence_refs","grounding_status"],"properties":{"claim_id":{"$ref":"#/$defs/s"},"section_id":{"$ref":"#/$defs/s"},"text":{"$ref":"#/$defs/s"},"evidence_refs":{"$ref":"#/$defs/sa"},"grounding_status":{"enum":["grounded","blocked","provisional"]}}},
+    "table":{"type":"object","additionalProperties":false,"required":["table_id","title","section_id","columns","rows","evidence_refs"],"properties":{"table_id":{"$ref":"#/$defs/s"},"title":{"$ref":"#/$defs/s"},"section_id":{"$ref":"#/$defs/s"},"columns":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/s"}},"rows":{"type":"array","minItems":1,"items":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/s"}}},"evidence_refs":{"$ref":"#/$defs/sa"}}},
+    "content":{"type":"object","additionalProperties":false,"required":["article","sections","claims","tables"],"properties":{"article":{"type":"object","additionalProperties":false,"required":["title","slug"],"properties":{"title":{"$ref":"#/$defs/s"},"slug":{"$ref":"#/$defs/s"},"excerpt":{"type":"string"}}},"sections":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/section"}},"claims":{"type":"array","items":{"$ref":"#/$defs/claim"}},"tables":{"type":"array","items":{"$ref":"#/$defs/table"}}}},
+    "mediaImage":{"type":"object","additionalProperties":false,"required":["image_id","section_id","placement","prompt","alt_text","materialization_status"],"properties":{"image_id":{"$ref":"#/$defs/s"},"section_id":{"$ref":"#/$defs/s"},"placement":{"$ref":"#/$defs/s"},"prompt":{"$ref":"#/$defs/s"},"alt_text":{"$ref":"#/$defs/s"},"materialization_status":{"enum":["specified","materialized"]},"asset_ref":{"$ref":"#/$defs/s"}}},
+    "media":{"type":"object","additionalProperties":false,"required":["images"],"properties":{"images":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/mediaImage"}},"featured_image":{"type":"object","additionalProperties":false,"required":["image_id"],"properties":{"image_id":{"$ref":"#/$defs/s"}}}}},
+    "link":{"type":"object","additionalProperties":false,"required":["link_id","section_id","target_url","anchor_text","placement"],"properties":{"link_id":{"$ref":"#/$defs/s"},"section_id":{"$ref":"#/$defs/s"},"target_url":{"type":"string","format":"uri","minLength":1},"anchor_text":{"$ref":"#/$defs/s"},"placement":{"$ref":"#/$defs/s"}}},
+    "linking":{"type":"object","additionalProperties":false,"required":["internal","external"],"properties":{"internal":{"type":"array","items":{"$ref":"#/$defs/link"}},"external":{"type":"array","items":{"$ref":"#/$defs/link"}}}},
+    "optimization":{"type":"object","additionalProperties":false,"required":["seo_title","meta_description"],"properties":{"seo_title":{"$ref":"#/$defs/s"},"meta_description":{"$ref":"#/$defs/s"},"canonical_url":{"type":"string","format":"uri"}}},
+    "taxonomy":{"type":"object","additionalProperties":false,"required":["categories","tags"],"properties":{"categories":{"$ref":"#/$defs/sa","minItems":1},"tags":{"$ref":"#/$defs/sa"}}},
+    "delivery":{"type":"object","additionalProperties":false,"required":["target","mode","publish","human_approval_required"],"properties":{"target":{"const":"wordpress"},"mode":{"const":"wordpress_draft"},"publish":{"const":false},"human_approval_required":{"const":true}}},
+    "audit":{"type":"object","additionalProperties":false,"required":["method","version","validation_status"],"properties":{"method":{"const":"article_package_contract"},"version":{"const":"v1"},"validation_status":{"enum":["pending","validated"]}}}
   }
 }
