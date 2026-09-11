@@ -54,8 +54,14 @@ def _require_package_ready(package: dict[str, Any]) -> None:
         errors.append("package.audit.validation_status must be validated")
     if _text(identity.get("schema_version")) != SCHEMA_VERSION:
         errors.append("package.identity.schema_version must be 1.0")
-    if delivery != PUBLICATION:
-        errors.append("package.delivery must be immutable wordpress_draft intent")
+    if delivery.get("target") != TARGET:
+        errors.append("package.delivery.target must be wordpress")
+    if delivery.get("mode") != PUBLICATION["mode"]:
+        errors.append("package.delivery.mode must be wordpress_draft")
+    if delivery.get("publish") is not False:
+        errors.append("package.delivery.publish must be false")
+    if delivery.get("human_approval_required") is not True:
+        errors.append("package.delivery.human_approval_required must be true")
     if errors:
         raise ProductionDeliveryBoundaryEngineError("SOURCE_NOT_READY", "Article Package is not delivery-ready", errors)
 
@@ -176,10 +182,7 @@ def _taxonomy(package: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
     def items(values: list[Any], name: str) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []; seen: set[str] = set()
         for raw in values:
-            if isinstance(raw, str):
-                value = _text(raw)
-            else:
-                value = _text(_obj(raw, f"package.taxonomy.{name}").get("name"))
+            value = _text(raw) if isinstance(raw, str) else _text(_obj(raw, f"package.taxonomy.{name}").get("name"))
             if not value or value in seen:
                 raise ProductionDeliveryBoundaryEngineError("INVALID_TAXONOMY", f"Taxonomy {name} contains an invalid or duplicate name")
             seen.add(value); out.append({"name": value})
