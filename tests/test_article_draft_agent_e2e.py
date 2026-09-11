@@ -8,6 +8,27 @@ import pytest
 from agents.research.article_draft_agent import run
 
 
+class FakeWriter:
+    def write(self, *, sections, editorial_rules):
+        return {
+            "sections": [
+                {"section_index": item["section_index"], "body": f"Readers can evaluate {item['heading'].lower()} using the available evidence and the criteria described in the brief."}
+                for item in sections
+            ],
+            "tables": [],
+            "images": [
+                {
+                    "image_id": "img_1",
+                    "section_index": 0,
+                    "placement": "after introduction",
+                    "prompt": "Professional editorial illustration for an insurance research article, no text.",
+                    "alt_text": "Insurance research editorial illustration",
+                    "evidence_refs": sections[0]["evidence_refs"],
+                }
+            ],
+        }
+
+
 def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
     root = tmp_path / "research" / project
     root.mkdir(parents=True)
@@ -39,7 +60,7 @@ def test_writer_agent_runs_full_downstream_path(tmp_path, monkeypatch):
     root = _seed(tmp_path)
     monkeypatch.chdir(tmp_path)
 
-    draft = run("draft-demo")
+    draft = run("draft-demo", llm_provider=FakeWriter())
 
     report = json.loads((root / "research-report.json").read_text())
     decision = json.loads((root / "decision.json").read_text())
@@ -52,11 +73,13 @@ def test_writer_agent_runs_full_downstream_path(tmp_path, monkeypatch):
     assert decision["outcome"] == "approved"
     assert brief["lifecycle_stage"] == "content_brief_ready"
     assert saved["lifecycle_stage"] == "draft_ready"
+    assert saved["schema_version"] == "1.1"
     assert saved["brief_id"] == brief["brief_id"]
     assert saved["strategy_id"] == strategy["strategy_id"]
     assert saved["decision_id"] == decision["decision_id"]
     assert saved["report_id"] == report["report_id"]
     assert saved["evidence_refs"] == brief["evidence_refs"]
+    assert saved["images"]
     assert metadata["status"] == "draft_ready"
 
 
@@ -64,7 +87,7 @@ def test_writer_agent_is_deterministic_and_does_not_mutate_upstream(tmp_path, mo
     root = _seed(tmp_path, "stable-draft")
     monkeypatch.chdir(tmp_path)
 
-    first = run("stable-draft")
+    first = run("stable-draft", llm_provider=FakeWriter())
     upstream_first = {
         name: (root / name).read_text()
         for name in [
@@ -76,7 +99,7 @@ def test_writer_agent_is_deterministic_and_does_not_mutate_upstream(tmp_path, mo
         ]
     }
 
-    second = run("stable-draft")
+    second = run("stable-draft", llm_provider=FakeWriter())
     upstream_second = {
         name: (root / name).read_text()
         for name in upstream_first
@@ -108,4 +131,4 @@ def test_writer_agent_requires_a_publishable_content_brief(tmp_path, monkeypatch
 
     with pytest.raises(ValueError, match="content_brief_ready"):
         from agents.research.article_draft import build_article_draft
-        build_article_draft(content_brief=json.loads((root / "content-brief.json").read_text()))
+        build_article_draft(content_brief=json.loads((root / "content-brief.json").read_text()), llm_provider=FakeWriter())
