@@ -3,13 +3,11 @@
   "$id":"https://insurancereviewlab.com/schemas/article-package.schema.json",
   "title":"IRL Article Package v1","type":"object","additionalProperties":false,
   "required":["identity","lineage","content","media","linking","optimization","taxonomy","delivery","audit"],
-  "properties":{
-    "identity":{"$ref":"#/$defs/identity"},"lineage":{"$ref":"#/$defs/lineage"},"content":{"$ref":"#/$defs/content"},"media":{"$ref":"#/$defs/media"},"linking":{"$ref":"#/$defs/linking"},"optimization":{"$ref":"#/$defs/optimization"},"taxonomy":{"$ref":"#/$defs/taxonomy"},"delivery":{"$ref":"#/$defs/delivery"},"audit":{"$ref":"#/$defs/audit"}
-  },
+  "properties":{"identity":{"$ref":"#/$defs/identity"},"lineage":{"$ref":"#/$defs/lineage"},"content":{"$ref":"#/$defs/content"},"media":{"$ref":"#/$defs/media"},"linking":{"$ref":"#/$defs/linking"},"optimization":{"$ref":"#/$defs/optimization"},"taxonomy":{"$ref":"#/$defs/taxonomy"},"delivery":{"$ref":"#/$defs/delivery"},"audit":{"$ref":"#/$defs/audit"}},
   "allOf":[
     {"if":{"properties":{"identity":{"properties":{"content_type":{"enum":["comparison","buyer_guide"]}}}}},"then":{"properties":{"content":{"properties":{"tables":{"minItems":1}}}}}},
     {"if":{"properties":{"identity":{"properties":{"lifecycle_stage":{"enum":["package_validated","delivery_ready","delivered_as_draft","human_review"]}}}}},"then":{"properties":{"audit":{"properties":{"validation_status":{"const":"validated"}}}}}},
-    {"if":{"properties":{"identity":{"properties":{"lifecycle_stage":{"enum":["delivery_ready","delivered_as_draft","human_review"]}}}}},"then":{"properties":{"media":{"properties":{"images":{"items":{"properties":{"materialization_status":{"const":"materialized"}}}}}}},"content":{"properties":{"claims":{"items":{"properties":{"grounding_status":{"const":"grounded"}}}}}}}},
+    {"if":{"properties":{"identity":{"properties":{"lifecycle_stage":{"enum":["delivery_ready","delivered_as_draft","human_review"]}}}}},"then":{"properties":{"media":{"properties":{"images":{"items":{"properties":{"materialization_status":{"const":"materialized"}}}}}},"content":{"properties":{"claims":{"items":{"properties":{"grounding_status":{"const":"grounded"}}}}}}}}},
     {"if":{"properties":{"media":{"properties":{"images":{"items":{"properties":{"materialization_status":{"const":"materialized"}}}}}}}},"then":{"properties":{"media":{"properties":{"images":{"items":{"required":["asset_ref"]}}}}}}}
   ],
   "$defs":{
