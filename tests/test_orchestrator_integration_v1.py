@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 from agents.research import production_orchestrator as orchestrator
 from agents.research.production_orchestrator import STAGES, execute_stage_plan
 
@@ -89,8 +91,7 @@ def test_resume_requires_all_prior_canonical_checkpoints():
         raise AssertionError("expected ValueError")
 
 
-def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypatch):
-    calls = []
+def _early_result():
     early = {"research_report": {}, "content_brief": {}, "article_draft": {}, "article_draft_quality": {}, "editorial_review": {}, "media": {}, "linking": {}, "seo_validation": {}, "claim_audit": {}, "publication": {"gate_status": "allowed"}}
     early["article_draft"].update(LINEAGE)
     early["article_draft"]["lifecycle_stage"] = "draft_ready"
@@ -98,6 +99,12 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     early["article_draft_quality"]["lifecycle_stage"] = "article_draft_quality_ready"
     early["article_draft_quality"]["outcome"] = "passed"
     early["article_draft_quality"]["audit"] = {"validation_status": "validated"}
+    return early
+
+
+def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypatch):
+    calls = []
+    early = _early_result()
 
     canonical = {"production_intent": dict(PRODUCTION_INTENT), "lineage": dict(LINEAGE)}
     assembly = {"assembly_id": "assembly_0123456789abcdef", "lifecycle_stage": "production_assembly_ready", "artifacts": canonical}
@@ -122,3 +129,79 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     assert result["completed_stages"][-4:] == list(CANONICAL_STAGES[-4:])
     assert result["production"]["wordpress"]["publish"] is False
     assert result["production"]["wordpress"]["human_approval_required"] is True
+
+
+def test_wordpress_adapter_receives_the_exact_canonical_boundary(monkeypatch):
+    captured = {}
+    early = _early_result()
+    assembly = {
+        "assembly_id": "assembly_0123456789abcdef",
+        "lifecycle_stage": "production_assembly_ready",
+        "artifacts": {"production_intent": dict(PRODUCTION_INTENT), "lineage": dict(LINEAGE)},
+    }
+    package = {
+        "identity": {"package_id": "package_0123456789abcdef", "lifecycle_stage": "delivery_ready"},
+        "audit": {"validation_status": "validated"},
+    }
+    boundary = {
+        "delivery_id": "delivery_0123456789abcdef",
+        "lifecycle_stage": "delivery_ready",
+        "delivery_status": "ready",
+        "target": "wordpress",
+        "execution_mode": "live",
+        "publication": copy.deepcopy(PRODUCTION_INTENT),
+    }
+
+    monkeypatch.setattr(orchestrator, "build_production_assembly", lambda **kwargs: assembly)
+    monkeypatch.setattr(orchestrator, "build_article_package", lambda **kwargs: package)
+    monkeypatch.setattr(orchestrator, "build_production_delivery_boundary", lambda **kwargs: boundary)
+
+    def fake_adapter(**kwargs):
+        captured.update(kwargs)
+        return {
+            "execution_mode": "live",
+            "response": {"platform_post_id": 4957, "remote_status": "draft"},
+        }
+
+    monkeypatch.setattr(orchestrator, "deliver_wordpress_delivery_boundary", fake_adapter)
+
+    connection = object()
+    transport = object()
+    result = orchestrator.build_production_orchestration(
+        project_name="demo",
+        result=early,
+        deliver=True,
+        connection=connection,
+        transport=transport,
+    )
+
+    assert captured["boundary"] is boundary
+    assert captured["connection"] is connection
+    assert captured["transport"] is transport
+    assert result["production"]["wordpress"]["platform_post_id"] == 4957
+    assert result["production"]["wordpress"]["remote_status"] == "draft"
+    assert result["lifecycle_stage"] == "human_review"
+
+
+def test_wordpress_adapter_failure_stops_at_wordpress_delivery(monkeypatch):
+    early = _early_result()
+    assembly = {"assembly_id": "assembly_0123456789abcdef", "lifecycle_stage": "production_assembly_ready", "artifacts": {"production_intent": dict(PRODUCTION_INTENT), "lineage": dict(LINEAGE)}}
+    package = {"identity": {"package_id": "package_0123456789abcdef", "lifecycle_stage": "delivery_ready"}, "audit": {"validation_status": "validated"}}
+    boundary = {"delivery_id": "delivery_0123456789abcdef", "lifecycle_stage": "delivery_ready", "delivery_status": "ready"}
+
+    monkeypatch.setattr(orchestrator, "build_production_assembly", lambda **kwargs: assembly)
+    monkeypatch.setattr(orchestrator, "build_article_package", lambda **kwargs: package)
+    monkeypatch.setattr(orchestrator, "build_production_delivery_boundary", lambda **kwargs: boundary)
+
+    def fail_adapter(**kwargs):
+        raise RuntimeError("wordpress transport failed")
+
+    monkeypatch.setattr(orchestrator, "deliver_wordpress_delivery_boundary", fail_adapter)
+
+    result = orchestrator.build_production_orchestration(project_name="demo", result=early, deliver=True)
+
+    assert result["lifecycle_stage"] == "failed"
+    assert result["current_stage"] == "wordpress_delivery"
+    assert result["completed_stages"][-3:] == ["production_assembly", "article_package", "production_delivery_boundary"]
+    assert result["production"]["wordpress"] == {}
+    assert result["error"]["stage"] == "wordpress_delivery"
