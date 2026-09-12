@@ -132,12 +132,12 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
         completed.append("production_delivery_boundary")
         if delivery_mode == "dry_run":
             production["wordpress"] = _checkpoint_from_wordpress({}, live=False)
-            return _base_result(project_name, completed, lineage, production, lifecycle="completed", current=None, error=None)
+            return _base_result(project_name, completed, lineage, production, lifecycle="completed", current=None, error=None, remaining=[])
         stage = "wordpress_delivery"
         wordpress = deliver_wordpress_delivery_boundary(boundary=boundary, connection=connection, transport=transport)
         production["wordpress"] = _checkpoint_from_wordpress(wordpress, live=True)
         completed.append("wordpress_delivery")
-        return _base_result(project_name, completed, lineage, production, lifecycle="human_review", current=None, error=None)
+        return _base_result(project_name, completed, lineage, production, lifecycle="human_review", current=None, error=None, remaining=[])
     except Exception as exc:
         return _base_result(project_name, completed, lineage, production, lifecycle="failed", current=stage, error={"stage": stage, "type": type(exc).__name__, "message": str(exc)})
 
