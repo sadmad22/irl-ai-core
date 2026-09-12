@@ -1,0 +1,1 @@
+O2 contract is defined; runtime enforcement remains deferred to O4/O5.
