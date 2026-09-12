@@ -82,8 +82,8 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
             raise ProductionAssemblyEngineError("MEDIA_NOT_MATERIALIZED", "All assembly media must be materialized", [image_id])
         if not _text(image.get("asset_ref")) or not _text(image.get("alt_text")) or not _text(image.get("prompt")) or not _text(image.get("placement")):
             raise ProductionAssemblyEngineError("INVALID_MEDIA", "Materialized media requires asset_ref, alt_text, prompt, and placement", [image_id])
-        if not _text(image.get("section_id")) and not (isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool)):
-            raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Media requires a section reference", [image_id])
+        if not (isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool)):
+            raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Media requires a valid section_index", [image_id])
 
     linking = _object(inputs["linking"], "linking")
     for kind in ("internal", "external"):
@@ -115,19 +115,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
 
 def _normalize(inputs: dict[str, Any]) -> dict[str, Any]:
     """Return canonical Article Package inputs without mutating caller-owned data."""
-    result = {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
-    sections = result["article_draft"].get("sections", [])
-    section_ids = {index: _text(section.get("section_id")) for index, section in enumerate(sections) if isinstance(section, dict)}
-    for image in result["media"].get("images", []):
-        if not _text(image.get("section_id")) and isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool):
-            if image["section_index"] not in section_ids:
-                raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Media section_index does not resolve", [_text(image.get("image_id")) or "unknown"])
-    for kind in ("internal", "external"):
-        for link in result["linking"].get(kind, []):
-            if not _text(link.get("section_id")) and isinstance(link.get("section_index"), int) and not isinstance(link.get("section_index"), bool):
-                if link["section_index"] not in section_ids:
-                    raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Link section_index does not resolve", [_text(link.get("link_id")) or "unknown"])
-    return result
+    return {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
 
 
 def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
