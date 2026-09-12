@@ -1,1 +1,0 @@
-O2 is documentation-only. Runtime enforcement is deferred to O4/O5.
