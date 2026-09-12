@@ -14,12 +14,13 @@ def test_stage_order_is_locked():
     assert STAGES == ("research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa", "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery")
 
 
-def test_non_delivery_orchestration_stops_at_qa_checkpoint():
+def test_non_delivery_orchestration_completes_selected_qa_mode():
     result = {"research_report": {"report_id": "report_123"}, "content_brief": {"brief_id": "brief_123"}, "article_draft": _article(), "article_draft_quality": _quality(), "editorial_review": {"outcome": "approved"}, "seo_validation": {"outcome": "passed"}, "claim_audit": {"outcome": "passed"}, "publication": {"gate_status": "allowed"}}
     orchestration = build_production_orchestration(project_name="demo", result=result)
-    assert orchestration["lifecycle_stage"] == "running"
-    assert orchestration["current_stage"] == "production_assembly"
-    assert orchestration["remaining_stages"] == ["production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery"]
+    assert orchestration["lifecycle_stage"] == "completed"
+    assert orchestration["current_stage"] is None
+    assert orchestration["remaining_stages"] == []
+    assert orchestration["completed_stages"] == ["research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "optimization", "qa"]
     assert "article_package" not in orchestration
 
 
