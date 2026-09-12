@@ -4,7 +4,7 @@
   "title": "IRL Controlled Production Run",
   "type": "object",
   "additionalProperties": false,
-  "required": ["run_id", "schema_version", "project_name", "production_id", "orchestration_id", "status", "delivery", "human_review", "publication", "audit"],
+  "required": ["run_id", "schema_version", "project_name", "production_id", "orchestration_id", "status", "production_checkpoints", "delivery", "human_review", "publication", "audit"],
   "properties": {
     "run_id": {"type": "string", "pattern": "^run_[a-f0-9]{16}$"},
     "schema_version": {"const": "1.0"},
@@ -12,6 +12,16 @@
     "production_id": {"type": "string", "pattern": "^production_[a-f0-9]{16}$"},
     "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
     "status": {"enum": ["queued", "running", "ready_for_delivery", "draft_delivered", "human_review", "approved", "rejected", "failed"]},
+    "production_checkpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assembly_id", "package_id", "delivery_id"],
+      "properties": {
+        "assembly_id": {"type": ["string", "null"], "pattern": "^assembly_[a-f0-9]{16}$"},
+        "package_id": {"type": ["string", "null"], "pattern": "^package_[a-f0-9]{16}$"},
+        "delivery_id": {"type": ["string", "null"], "pattern": "^delivery_[a-f0-9]{16}$"}
+      }
+    },
     "delivery": {
       "type": "object",
       "additionalProperties": false,
@@ -65,108 +75,40 @@
   },
   "allOf": [
     {
-      "if": {
-        "required": ["status"],
-        "properties": {"status": {"enum": ["queued", "running", "ready_for_delivery"]}}
-      },
+      "if": {"required": ["status"], "properties": {"status": {"enum": ["queued", "running"]}}},
+      "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}}
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"const": "ready_for_delivery"}}},
       "then": {
         "properties": {
-          "delivery": {
+          "production_checkpoints": {
             "properties": {
-              "status": {"const": "not_started"},
-              "post_id": {"const": null},
-              "remote_status": {"const": null}
+              "assembly_id": {"type": "string", "pattern": "^assembly_[a-f0-9]{16}$"},
+              "package_id": {"type": "string", "pattern": "^package_[a-f0-9]{16}$"},
+              "delivery_id": {"type": "string", "pattern": "^delivery_[a-f0-9]{16}$"}
             }
           },
-          "human_review": {
-            "properties": {"status": {"const": "pending"}}
-          }
+          "delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}},
+          "human_review": {"properties": {"status": {"const": "pending"}}}
         }
       }
     },
     {
-      "if": {
-        "required": ["status"],
-        "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}
-      },
-      "then": {
-        "properties": {
-          "delivery": {
-            "properties": {
-              "status": {"const": "delivered"},
-              "post_id": {"type": "integer", "minimum": 1},
-              "remote_status": {"const": "draft"}
-            }
-          },
-          "human_review": {
-            "properties": {"status": {"const": "pending"}}
-          }
-        }
-      }
+      "if": {"required": ["status"], "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}},
+      "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}}
     },
     {
-      "if": {
-        "required": ["status"],
-        "properties": {"status": {"const": "approved"}}
-      },
-      "then": {
-        "properties": {
-          "delivery": {
-            "properties": {
-              "status": {"const": "delivered"},
-              "post_id": {"type": "integer", "minimum": 1},
-              "remote_status": {"const": "draft"}
-            }
-          },
-          "human_review": {
-            "properties": {"status": {"const": "approved"}}
-          }
-        }
-      }
+      "if": {"required": ["status"], "properties": {"status": {"const": "approved"}}},
+      "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "approved"}}}}}
     },
     {
-      "if": {
-        "required": ["status"],
-        "properties": {"status": {"const": "rejected"}}
-      },
-      "then": {
-        "properties": {
-          "delivery": {
-            "properties": {
-              "status": {"const": "delivered"},
-              "post_id": {"type": "integer", "minimum": 1},
-              "remote_status": {"const": "draft"}
-            }
-          },
-          "human_review": {
-            "properties": {"status": {"const": "rejected"}}
-          }
-        }
-      }
+      "if": {"required": ["status"], "properties": {"status": {"const": "rejected"}}},
+      "then": {"properties": {"delivery": {"properties": {"status": {"const": "delivered"}, "post_id": {"type": "integer", "minimum": 1}, "remote_status": {"const": "draft"}}}, "human_review": {"properties": {"status": {"const": "rejected"}}}}}
     },
     {
-      "if": {
-        "required": ["status"],
-        "properties": {"status": {"const": "failed"}}
-      },
-      "then": {
-        "properties": {
-          "delivery": {
-            "properties": {
-              "status": {"const": "failed"},
-              "error": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["type", "message"],
-                "properties": {
-                  "type": {"type": "string", "minLength": 1},
-                  "message": {"type": "string", "minLength": 1}
-                }
-              }
-            }
-          }
-        }
-      }
+      "if": {"required": ["status"], "properties": {"status": {"const": "failed"}}},
+      "then": {"properties": {"delivery": {"properties": {"status": {"const": "failed"}, "error": {"type": "object", "additionalProperties": false, "required": ["type", "message"], "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}}}}}}}
     }
   ]
 }

@@ -22,6 +22,7 @@ def _base_run() -> dict:
         "production_id": "production_0123456789abcdef",
         "orchestration_id": "orchestration_0123456789abcdef",
         "status": "queued",
+        "production_checkpoints": {"assembly_id": None, "package_id": None, "delivery_id": None},
         "delivery": {
             "status": "not_started",
             "delivery_id": None,
@@ -48,12 +49,35 @@ def test_valid_queued_run() -> None:
     validate(_base_run(), _schema())
 
 
+def test_valid_ready_run_requires_canonical_checkpoints() -> None:
+    instance = _base_run()
+    instance["status"] = "ready_for_delivery"
+    instance["production_checkpoints"] = {
+        "assembly_id": "assembly_0123456789abcdef",
+        "package_id": "package_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
+    }
+    validate(instance, _schema())
+
+
+def test_checkpoint_patterns_are_enforced() -> None:
+    instance = _base_run()
+    instance["production_checkpoints"]["package_id"] = "package_bad"
+    with pytest.raises(ValidationError):
+        validate(instance, _schema())
+
+
 def test_valid_human_review_run_requires_delivered_draft() -> None:
     instance = _base_run()
     instance["status"] = "human_review"
+    instance["production_checkpoints"] = {
+        "assembly_id": "assembly_0123456789abcdef",
+        "package_id": "package_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
+    }
     instance["delivery"] = {
         "status": "delivered",
-        "delivery_id": "wpconn_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
         "post_id": 123,
         "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit",
         "remote_status": "draft",
@@ -66,9 +90,14 @@ def test_approved_run_requires_human_approval_and_draft_delivery() -> None:
     instance = _base_run()
     instance["status"] = "approved"
     instance["human_review"]["status"] = "approved"
+    instance["production_checkpoints"] = {
+        "assembly_id": "assembly_0123456789abcdef",
+        "package_id": "package_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
+    }
     instance["delivery"] = {
         "status": "delivered",
-        "delivery_id": "wpconn_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
         "post_id": 123,
         "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit",
         "remote_status": "draft",
@@ -138,9 +167,14 @@ def test_rejected_run_requires_delivered_draft_and_rejected_human_review() -> No
     instance = _base_run()
     instance["status"] = "rejected"
     instance["human_review"]["status"] = "rejected"
+    instance["production_checkpoints"] = {
+        "assembly_id": "assembly_0123456789abcdef",
+        "package_id": "package_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
+    }
     instance["delivery"] = {
         "status": "delivered",
-        "delivery_id": "wpconn_0123456789abcdef",
+        "delivery_id": "delivery_0123456789abcdef",
         "post_id": 123,
         "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit",
         "remote_status": "draft",
