@@ -10,44 +10,15 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
-LIFECYCLE_STAGES = (
-    "assembly_started",
-    "inputs_validated",
-    "artifacts_normalized",
-    "production_assembly_ready",
-    "failed",
-)
-_REQUIRED_ARTIFACTS = (
-    "article_draft",
-    "quality",
-    "claim_audit",
-    "editorial_review",
-    "optimization",
-    "media",
-    "linking",
-    "taxonomy",
-    "production_intent",
-)
-_REQUIRED_LINEAGE = (
-    "report_id",
-    "decision_id",
-    "strategy_id",
-    "brief_id",
-    "draft_id",
-    "quality_id",
-)
-_EXPECTED_INTENT = {
-    "target": "wordpress",
-    "mode": "wordpress_draft",
-    "publish": False,
-    "human_approval_required": True,
-}
+LIFECYCLE_STAGES = ("assembly_started", "inputs_validated", "artifacts_normalized", "production_assembly_ready", "failed")
+_REQUIRED_ARTIFACTS = ("article_draft", "quality", "claim_audit", "editorial_review", "optimization", "media", "linking", "taxonomy", "production_intent")
+_REQUIRED_LINEAGE = ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id")
+_EXPECTED_INTENT = {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "production-assembly.schema.json"
 
 
 class ProductionAssemblyEngineError(ValueError):
     """Deterministic, fail-closed Production Assembly error."""
-
     def __init__(self, code: str, message: str, details: list[str] | None = None) -> None:
         self.code = code
         self.details = tuple(details or ())
@@ -111,8 +82,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
             raise ProductionAssemblyEngineError("MEDIA_NOT_MATERIALIZED", "All assembly media must be materialized", [image_id])
         if not _text(image.get("asset_ref")) or not _text(image.get("alt_text")) or not _text(image.get("prompt")) or not _text(image.get("placement")):
             raise ProductionAssemblyEngineError("INVALID_MEDIA", "Materialized media requires asset_ref, alt_text, prompt, and placement", [image_id])
-        section_ref = image.get("section_id")
-        if not _text(section_ref) and not isinstance(image.get("section_index"), int):
+        if not _text(image.get("section_id")) and not (isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool)):
             raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Media requires a section reference", [image_id])
 
     linking = _object(inputs["linking"], "linking")
@@ -129,43 +99,34 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
             seen_links.add(link_id)
             if not _text(link.get("target_url")) or not _text(link.get("anchor_text")) or not _text(link.get("placement")):
                 raise ProductionAssemblyEngineError("INVALID_LINKS", "Link target, anchor text, and placement are required", [link_id])
-            if not _text(link.get("section_id")) and not isinstance(link.get("section_index"), int):
+            if not _text(link.get("section_id")) and not (isinstance(link.get("section_index"), int) and not isinstance(link.get("section_index"), bool)):
                 raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Link requires a section reference", [link_id])
 
     taxonomy = _object(inputs["taxonomy"], "taxonomy")
-    categories = taxonomy.get("categories")
-    tags = taxonomy.get("tags")
+    categories, tags = taxonomy.get("categories"), taxonomy.get("tags")
     if not isinstance(categories, list) or not categories or any(not _text(value) for value in categories) or len(categories) != len(set(categories)):
         raise ProductionAssemblyEngineError("INVALID_TAXONOMY", "At least one unique non-empty taxonomy category is required")
     if not isinstance(tags, list) or any(not _text(value) for value in tags) or len(tags) != len(set(tags)):
         raise ProductionAssemblyEngineError("INVALID_TAXONOMY", "Taxonomy tags must be unique and non-empty")
 
-    intent = _object(inputs["production_intent"], "production_intent")
-    if intent != _EXPECTED_INTENT:
+    if _object(inputs["production_intent"], "production_intent") != _EXPECTED_INTENT:
         raise ProductionAssemblyEngineError("UNSAFE_PRODUCTION_INTENT", "Production intent must be immutable and draft-only")
 
 
 def _normalize(inputs: dict[str, Any]) -> dict[str, Any]:
     """Return canonical Article Package inputs without mutating caller-owned data."""
     result = {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
-    draft = result["article_draft"]
-    sections = draft.get("sections", [])
-    section_ids = {
-        index: _text(section.get("section_id"))
-        for index, section in enumerate(sections)
-        if isinstance(section, dict) and _text(section.get("section_id"))
-    }
+    sections = result["article_draft"].get("sections", [])
+    section_ids = {index: _text(section.get("section_id")) for index, section in enumerate(sections) if isinstance(section, dict)}
 
     for image in result["media"].get("images", []):
-        if not _text(image.get("section_id")) and isinstance(image.get("section_index"), int):
+        if not _text(image.get("section_id")) and isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool):
             image["section_id"] = section_ids.get(image["section_index"], "")
-        image.pop("section_index", None)
 
     for kind in ("internal", "external"):
         for link in result["linking"].get(kind, []):
-            if not _text(link.get("section_id")) and isinstance(link.get("section_index"), int):
+            if not _text(link.get("section_id")) and isinstance(link.get("section_index"), int) and not isinstance(link.get("section_index"), bool):
                 link["section_id"] = section_ids.get(link["section_index"], "")
-            link.pop("section_index", None)
 
     return result
 
@@ -175,8 +136,10 @@ def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
     draft = inputs["article_draft"]
     quality = inputs["quality"]
     for key in ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id"):
-        values = {_text(lineage.get(key)), _text(draft.get(key)), _text(quality.get(key))}
+        values = {_text(lineage.get(key)), _text(draft.get(key))}
         if "" in values or len(values) != 1:
+            raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", [key])
+        if _text(quality.get(key)) and _text(quality.get(key)) != _text(lineage.get(key)):
             raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", [key])
     if _text(lineage.get("quality_id")) != _text(quality.get("quality_id")):
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "quality_id lineage is inconsistent", ["quality_id"])
@@ -184,12 +147,7 @@ def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
 
 
 def _assembly_id(project_name: str, lineage: dict[str, str], artifacts: dict[str, Any]) -> str:
-    seed = {
-        "project_name": project_name,
-        "lineage": lineage,
-        "artifacts": artifacts,
-        "schema_version": SCHEMA_VERSION,
-    }
+    seed = {"project_name": project_name, "lineage": lineage, "artifacts": artifacts, "schema_version": SCHEMA_VERSION}
     raw = json.dumps(seed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return f"assembly_{hashlib.sha256(raw.encode('utf-8')).hexdigest()[:16]}"
 
@@ -211,19 +169,14 @@ def build_production_assembly(*, project_name: str, artifacts: dict[str, Any]) -
     _validate_inputs(source)
     lineage = _lineage(source)
     normalized = _normalize(source)
-    assembly_id = _assembly_id(project_name, lineage, normalized)
     result = {
-        "assembly_id": assembly_id,
+        "assembly_id": _assembly_id(project_name.strip(), lineage, normalized),
         "project_name": project_name.strip(),
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "production_assembly_ready",
         "lineage": lineage,
         "artifacts": normalized,
-        "audit": {
-            "method": "production_assembly",
-            "version": METHOD_VERSION,
-            "validation_status": "validated",
-        },
+        "audit": {"method": "production_assembly", "version": METHOD_VERSION, "validation_status": "validated"},
     }
     _validate_output(result)
     return result
