@@ -1,65 +1,39 @@
+from agents.research import production_orchestrator as orchestrator
 from agents.research.production_orchestrator import STAGES, build_production_orchestration, execute_stage_plan
 
 
 def _article():
-    return {
-        "draft_id": "draft_123",
-        "brief_id": "brief_123",
-        "report_id": "report_123",
-        "decision_id": "decision_123",
-        "strategy_id": "strategy_123",
-        "lifecycle_stage": "draft_ready",
-    }
+    return {"draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "draft_ready"}
 
 
 def _quality():
-    return {
-        "quality_id": "quality_123",
-        "draft_id": "draft_123",
-        "brief_id": "brief_123",
-        "report_id": "report_123",
-        "decision_id": "decision_123",
-        "strategy_id": "strategy_123",
-        "lifecycle_stage": "article_draft_quality_ready",
-        "outcome": "passed",
-        "audit": {"validation_status": "validated"},
-    }
+    return {"quality_id": "quality_123", "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "article_draft_quality_ready", "outcome": "passed", "audit": {"validation_status": "validated"}}
 
 
 def test_stage_order_is_locked():
     assert STAGES == (
-        "research",
-        "intelligence",
-        "configuration",
-        "structure",
-        "draft",
-        "editorial_cleanup",
-        "media",
-        "linking",
-        "optimization",
-        "qa",
-        "article_package",
+        "research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa",
+        "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery",
     )
 
 
-def test_orchestrator_builds_package_and_completes():
-    result = {
-        "research_report": {"report_id": "report_123"},
-        "content_brief": {"brief_id": "brief_123"},
-        "article_draft": _article(),
-        "article_draft_quality": _quality(),
-        "editorial_review": {"outcome": "approved"},
-        "seo_validation": {"outcome": "passed"},
-        "claim_audit": {"outcome": "passed"},
-        "publication": {"gate_status": "allowed"},
-    }
-
+def test_orchestrator_fails_closed_before_assembly_when_canonical_artifacts_are_missing():
+    result = {"research_report": {"report_id": "report_123"}, "content_brief": {"brief_id": "brief_123"}, "article_draft": _article(), "article_draft_quality": _quality(), "editorial_review": {"outcome": "approved"}, "seo_validation": {"outcome": "passed"}, "claim_audit": {"outcome": "passed"}, "publication": {"gate_status": "allowed"}}
     orchestration = build_production_orchestration(project_name="demo", result=result)
+    assert orchestration["lifecycle_stage"] == "failed"
+    assert orchestration["current_stage"] == "production_assembly"
+    assert orchestration["remaining_stages"][0] == "production_assembly"
+    assert "article_package" not in orchestration
 
-    assert orchestration["lifecycle_stage"] == "completed"
-    assert orchestration["remaining_stages"] == []
-    assert orchestration["article_package"]["lifecycle_stage"] == "production_ready"
-    assert orchestration["article_package"]["lineage"]["draft_id"] == "draft_123"
+
+def test_legacy_article_production_contract_is_not_used(monkeypatch):
+    def forbidden(*args, **kwargs):
+        raise AssertionError("legacy build_article_production must not be called")
+
+    monkeypatch.setattr(orchestrator, "build_production_assembly", lambda **kwargs: forbidden())
+    result = build_production_orchestration(project_name="demo", result={})
+    assert result["lifecycle_stage"] == "failed"
+    assert result["current_stage"] == "production_assembly"
 
 
 def test_execute_stage_plan_stops_on_first_failure():
@@ -72,12 +46,11 @@ def test_execute_stage_plan_stops_on_first_failure():
         return {stage: {"status": "done"}}
 
     result = execute_stage_plan(project_name="demo", stage_runner=runner)
-
     assert result["lifecycle_stage"] == "failed"
     assert result["current_stage"] == "structure"
-    assert result["completed_stages"] == ["research", "intelligence", "configuration"]
+    assert result["completed_stages"] == list(STAGES[:3])
     assert result["remaining_stages"][0] == "structure"
-    assert calls == ["research", "intelligence", "configuration", "structure"]
+    assert calls == list(STAGES[:3]) + ["structure"]
 
 
 def test_execute_stage_plan_resume_requires_prior_checkpoints():
@@ -99,13 +72,7 @@ def test_execute_stage_plan_resume_from_checkpoint():
         calls.append(stage)
         return {stage: {"status": "done"}}
 
-    result = execute_stage_plan(
-        project_name="demo",
-        stage_runner=runner,
-        start_stage="draft",
-        initial_outputs={"completed_stages": ["research", "intelligence", "configuration", "structure"]},
-    )
-
+    result = execute_stage_plan(project_name="demo", stage_runner=runner, start_stage="draft", initial_outputs={"completed_stages": list(STAGES[:4])})
     assert result["lifecycle_stage"] == "completed"
     assert result["completed_stages"] == list(STAGES)
     assert calls[0] == "draft"
