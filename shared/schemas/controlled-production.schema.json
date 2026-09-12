@@ -75,8 +75,24 @@
   },
   "allOf": [
     {
-      "if": {"required": ["status"], "properties": {"status": {"enum": ["queued", "running", "ready_for_delivery"]}}},
+      "if": {"required": ["status"], "properties": {"status": {"enum": ["queued", "running"]}}},
       "then": {"properties": {"delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}}, "human_review": {"properties": {"status": {"const": "pending"}}}}}
+    },
+    {
+      "if": {"required": ["status"], "properties": {"status": {"const": "ready_for_delivery"}}},
+      "then": {
+        "properties": {
+          "production_checkpoints": {
+            "properties": {
+              "assembly_id": {"type": "string", "pattern": "^assembly_[a-f0-9]{16}$"},
+              "package_id": {"type": "string", "pattern": "^package_[a-f0-9]{16}$"},
+              "delivery_id": {"type": "string", "pattern": "^delivery_[a-f0-9]{16}$"}
+            }
+          },
+          "delivery": {"properties": {"status": {"const": "not_started"}, "post_id": {"const": null}, "remote_status": {"const": null}}},
+          "human_review": {"properties": {"status": {"const": "pending"}}}
+        }
+      }
     },
     {
       "if": {"required": ["status"], "properties": {"status": {"enum": ["draft_delivered", "human_review"]}}},
