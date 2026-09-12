@@ -43,16 +43,10 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
     if linking is None and ("internal_linking" in result or "external_linking" in result):
         linking = {"internal": copy.deepcopy(result.get("internal_linking")), "external": copy.deepcopy(result.get("external_linking"))}
     return {
-        "article_draft": result.get("article_draft"),
-        "quality": result.get("quality", result.get("article_draft_quality")),
-        "claim_audit": result.get("claim_audit"),
-        "editorial_review": result.get("editorial_review"),
-        "optimization": result.get("optimization", result.get("seo_validation")),
-        "media": result.get("media", result.get("media_strategy")),
-        "linking": linking,
-        "taxonomy": result.get("taxonomy"),
-        "production_intent": result.get("production_intent"),
-        "lineage": _lineage_from_result(result),
+        "article_draft": result.get("article_draft"), "quality": result.get("quality", result.get("article_draft_quality")),
+        "claim_audit": result.get("claim_audit"), "editorial_review": result.get("editorial_review"),
+        "optimization": result.get("optimization", result.get("seo_validation")), "media": result.get("media", result.get("media_strategy")),
+        "linking": linking, "taxonomy": result.get("taxonomy"), "production_intent": result.get("production_intent"), "lineage": _lineage_from_result(result),
     }
 
 
@@ -81,12 +75,7 @@ def _checkpoint_from_wordpress(value: dict[str, Any], *, live: bool) -> dict[str
 def _base_result(project_name: str, completed: list[str], lineage: dict[str, str], production: dict[str, Any], *, lifecycle: str, current: str | None, error: dict[str, str] | None) -> dict[str, Any]:
     completed = list(dict.fromkeys(completed))
     remaining = [stage for stage in STAGES if stage not in completed]
-    return {
-        "orchestration_id": _orchestration_id(project_name, completed, lineage), "project_name": project_name, "schema_version": SCHEMA_VERSION,
-        "lifecycle_stage": lifecycle, "current_stage": current, "completed_stages": completed, "remaining_stages": remaining,
-        "lineage": lineage, "production": production, "error": error,
-        "audit": {"method": "irl_production_orchestrator", "version": METHOD_VERSION, "validation_status": "failed" if lifecycle == "failed" else "validated"},
-    }
+    return {"orchestration_id": _orchestration_id(project_name, completed, lineage), "project_name": project_name, "schema_version": SCHEMA_VERSION, "lifecycle_stage": lifecycle, "current_stage": current, "completed_stages": completed, "remaining_stages": remaining, "lineage": lineage, "production": production, "error": error, "audit": {"method": "irl_production_orchestrator", "version": METHOD_VERSION, "validation_status": "failed" if lifecycle == "failed" else "validated"}}
 
 
 def _production_template(context: dict[str, Any]) -> dict[str, Any]:
@@ -101,49 +90,43 @@ def _merge_stage_output(context: dict[str, Any], output: dict[str, Any], stage: 
     if isinstance(supplied, dict):
         for checkpoint in production:
             if isinstance(supplied.get(checkpoint), dict): production[checkpoint].update(copy.deepcopy(supplied[checkpoint]))
-    if stage == "production_assembly" and isinstance(output.get("production_assembly"), dict) and {"assembly_id", "lifecycle_stage"} <= output["production_assembly"].keys():
-        production["assembly"] = _checkpoint_from_assembly(output["production_assembly"])
-    if stage == "article_package" and isinstance(output.get("article_package"), dict) and isinstance(output["article_package"].get("identity"), dict):
-        production["package"] = _checkpoint_from_package(output["article_package"])
-    if stage == "production_delivery_boundary" and isinstance(output.get("production_delivery_boundary"), dict) and {"delivery_id", "lifecycle_stage", "delivery_status"} <= output["production_delivery_boundary"].keys():
-        production["boundary"] = _checkpoint_from_boundary(output["production_delivery_boundary"])
-    if stage == "wordpress_delivery" and isinstance(output.get("wordpress_delivery"), dict):
-        production["wordpress"] = _checkpoint_from_wordpress(output["wordpress_delivery"], live=output["wordpress_delivery"].get("execution_mode") == "live")
+    if stage == "production_assembly" and isinstance(output.get("production_assembly"), dict) and {"assembly_id", "lifecycle_stage"} <= output["production_assembly"].keys(): production["assembly"] = _checkpoint_from_assembly(output["production_assembly"])
+    if stage == "article_package" and isinstance(output.get("article_package"), dict) and isinstance(output["article_package"].get("identity"), dict): production["package"] = _checkpoint_from_package(output["article_package"])
+    if stage == "production_delivery_boundary" and isinstance(output.get("production_delivery_boundary"), dict) and {"delivery_id", "lifecycle_stage", "delivery_status"} <= output["production_delivery_boundary"].keys(): production["boundary"] = _checkpoint_from_boundary(output["production_delivery_boundary"])
+    if stage == "wordpress_delivery" and isinstance(output.get("wordpress_delivery"), dict): production["wordpress"] = _checkpoint_from_wordpress(output["wordpress_delivery"], live=output["wordpress_delivery"].get("execution_mode") == "live")
     context["production"] = production
 
 
 def _terminal_lifecycle(context: dict[str, Any]) -> str:
     wordpress = _production_template(context)["wordpress"]
-    if wordpress.get("execution_mode") == "live" and wordpress.get("delivery_status") == "delivered" and wordpress.get("remote_status") == "draft" and wordpress.get("publish") is False and wordpress.get("human_approval_required") is True:
-        return "human_review"
+    if wordpress.get("execution_mode") == "live" and wordpress.get("delivery_status") == "delivered" and wordpress.get("remote_status") == "draft" and wordpress.get("publish") is False and wordpress.get("human_approval_required") is True: return "human_review"
     return "completed"
 
 
 def build_production_orchestration(*, project_name: str, result: dict[str, Any], deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate the canonical production chain; non-delivery mode ends after QA."""
+    """Coordinate the canonical production chain; QA is the terminal checkpoint for non-delivery mode."""
     context = copy.deepcopy(result)
     completed = [stage for stage in STAGES[:10] if stage in _completed_stages(context)]
     lineage = _lineage_from_result(context)
     production = _production_template(context)
     if not deliver:
-        return _base_result(project_name, completed, lineage, production, lifecycle="completed" if not [s for s in STAGES[:10] if s not in completed] else "running", current=None if len(completed) == 10 else STAGES[len(completed)], error=None)
+        qa_complete = "qa" in completed
+        current = None if qa_complete else next((stage for stage in STAGES[:10] if stage not in completed), None)
+        return _base_result(project_name, completed, lineage, production, lifecycle="completed" if qa_complete else "running", current=current, error=None)
 
     stage = "production_assembly"
     try:
         assembly = build_production_assembly(project_name=project_name, artifacts=_canonical_artifacts(context))
         production["assembly"] = _checkpoint_from_assembly(assembly)
         completed.append("production_assembly")
-
         stage = "article_package"
         package = build_article_package(project_name=project_name, artifacts=assembly["artifacts"], target_stage="delivery_ready")
         production["package"] = _checkpoint_from_package(package)
         completed.append("article_package")
-
         stage = "production_delivery_boundary"
         boundary = build_production_delivery_boundary(package=package, publisher_id="wordpress_publisher_v1", adapter_id="wordpress_delivery_adapter_v1", execution_mode="live")
         production["boundary"] = _checkpoint_from_boundary(boundary)
         completed.append("production_delivery_boundary")
-
         stage = "wordpress_delivery"
         wordpress = deliver_wordpress_delivery_boundary(boundary=boundary, connection=connection, transport=transport)
         production["wordpress"] = _checkpoint_from_wordpress(wordpress, live=True)
@@ -167,7 +150,7 @@ def _completed_stages(result: dict[str, Any]) -> list[str]:
 
 
 def run_production_orchestrator(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate upstream content production and, when requested, the controlled delivery chain."""
+    """Coordinate upstream content production and, when requested, controlled WordPress delivery."""
     result = run_content_research_to_wordpress_draft(project_name, llm_provider=llm_provider, deliver=False, connection=connection, transport=transport)
     return build_production_orchestration(project_name=project_name, result=result, deliver=deliver, connection=connection, transport=transport)
 
