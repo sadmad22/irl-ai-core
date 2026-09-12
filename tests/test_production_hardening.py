@@ -2,6 +2,8 @@ import json
 import shutil
 from pathlib import Path
 
+from agents.research import production_orchestrator as orchestrator
+from agents.research.final_optimization import build_final_optimization
 from agents.research.production_orchestrator import STAGES, run_production_orchestrator
 
 FIXTURE_PROJECT = "expat-health-insurance"
@@ -63,6 +65,28 @@ def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeyp
     _prepare_project(repo_root, tmp_path, PROJECT_A)
     _prepare_project(repo_root, tmp_path, PROJECT_B)
     monkeypatch.chdir(tmp_path)
+
+    original_pipeline = orchestrator.run_content_research_to_wordpress_draft
+
+    def pipeline_with_final_optimization(project_name, **kwargs):
+        result = original_pipeline(project_name, **kwargs)
+        article = result["article_draft"]
+        result["final_optimization"] = build_final_optimization(
+            report={"report_id": article["report_id"]},
+            decision={"decision_id": article["decision_id"]},
+            strategy={"strategy_id": article["strategy_id"]},
+            brief={"brief_id": article["brief_id"]},
+            final_values={
+                "seo_title": "Expat Health Insurance",
+                "meta_description": "Compare expat health insurance coverage and costs.",
+                "primary_keyword": "expat health insurance",
+                "slug": "expat-health-insurance",
+            },
+        )
+        return result
+
+    monkeypatch.setattr(orchestrator, "run_content_research_to_wordpress_draft", pipeline_with_final_optimization)
+
     first_a = _run_contract(PROJECT_A)
     first_b = _run_contract(PROJECT_B)
     keyword_a = json.loads((research_root / PROJECT_A / "keyword.json").read_text(encoding="utf-8"))
