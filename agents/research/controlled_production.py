@@ -123,8 +123,9 @@ def run_controlled_production(project_name: str, *, llm_provider: Any, deliver: 
             error = orchestration.get("error") if isinstance(orchestration.get("error"), dict) else {}
             return mark_controlled_production_failed(run, error_type=str(error.get("type", "ProductionOrchestrationFailed")), message=str(error.get("message", "Canonical production orchestration failed.")))
         _apply_production_checkpoints(run, orchestration)
+        run = transition_controlled_production_run(run, status="ready_for_delivery")
         if not deliver:
-            return transition_controlled_production_run(run, status="ready_for_delivery")
+            return run
         wordpress = _wordpress_checkpoint(orchestration)
         if wordpress.get("execution_mode") != "live" or wordpress.get("delivery_status") != "delivered" or wordpress.get("remote_status") != "draft" or wordpress.get("publish") is not False or wordpress.get("human_approval_required") is not True:
             return mark_controlled_production_failed(run, error_type="WordPressDeliveryFailed", message="Canonical WordPress adapter did not return a delivered draft-only result.")
