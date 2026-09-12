@@ -61,10 +61,15 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
     supplied_intent = result.get("production_intent")
     if supplied_intent is not None and supplied_intent != PRODUCTION_INTENT:
         raise ValueError("Conflicting production intent: canonical draft-only WordPress intent is required")
+    optimization = result.get("final_optimization")
+    if not isinstance(optimization, dict):
+        raise ValueError("Final Optimization Artifact is required for the canonical optimization stage")
+    if optimization.get("lifecycle_stage") != "optimization_ready":
+        raise ValueError("Final Optimization Artifact must be optimization_ready")
     return {
         "article_draft": result.get("article_draft"), "quality": result.get("quality", result.get("article_draft_quality")),
         "claim_audit": result.get("claim_audit"), "editorial_review": result.get("editorial_review"),
-        "optimization": result.get("optimization", result.get("seo_validation")), "media": result.get("media", result.get("media_strategy")),
+        "optimization": copy.deepcopy(optimization), "media": result.get("media", result.get("media_strategy")),
         "linking": linking, "taxonomy": result.get("taxonomy"), "production_intent": copy.deepcopy(PRODUCTION_INTENT), "lineage": _lineage_from_result(result),
     }
 
@@ -168,7 +173,7 @@ def _completed_stages(result: dict[str, Any]) -> list[str]:
     if isinstance(result.get("editorial_review"), dict): detected.add("editorial_cleanup")
     if isinstance(result.get("media", result.get("media_strategy")), dict): detected.add("media")
     if isinstance(result.get("linking"), dict) or "internal_linking" in result or "external_linking" in result: detected.add("linking")
-    if isinstance(result.get("seo_validation", result.get("optimization")), dict): detected.add("optimization")
+    if isinstance(result.get("final_optimization"), dict): detected.add("optimization")
     if isinstance(result.get("article_draft_quality"), dict) and isinstance(result.get("claim_audit"), dict) and result.get("publication", {}).get("gate_status") == "allowed": detected.add("qa")
     return [stage for stage in STAGES[:10] if stage in detected]
 
