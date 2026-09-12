@@ -110,9 +110,9 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
     lineage = _lineage_from_result(context)
     production = _production_template(context)
     if not deliver:
-        current = next((stage for stage in STAGES[:10] if stage not in completed), None)
-        if current is None:
+        if "qa" in completed:
             return _base_result(project_name, completed, lineage, production, lifecycle="completed", current=None, error=None, remaining=[])
+        current = next((stage for stage in STAGES[:10] if stage not in completed), None)
         return _base_result(project_name, completed, lineage, production, lifecycle="running", current=current, error=None)
 
     stage = "production_assembly"
