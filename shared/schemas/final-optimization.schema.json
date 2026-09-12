@@ -20,6 +20,7 @@
     "optimization_id": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Deterministic canonical identifier for the Final Optimization Artifact."
     },
     "schema_version": {
@@ -30,6 +31,7 @@
     "method_version": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Version of the contracted optimization method that produced or bound the final values."
     },
     "lifecycle_stage": {
@@ -40,27 +42,32 @@
     "seo_title": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Authoritative final SEO title."
     },
     "meta_description": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Authoritative final meta description."
     },
     "primary_keyword": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Authoritative final primary keyword."
     },
     "slug": {
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Authoritative final URL slug."
     },
     "canonical_url": {
       "type": "string",
       "format": "uri",
       "minLength": 1,
+      "pattern": "\\S",
       "description": "Optional authoritative canonical URL when explicitly supplied."
     },
     "lineage": {
@@ -75,19 +82,23 @@
       "properties": {
         "report_id": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "decision_id": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "strategy_id": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "brief_id": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         }
       },
       "description": "Required upstream production lineage."
@@ -97,13 +108,15 @@
       "description": "Optional explicit source references preserved from supplied inputs.",
       "items": {
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "pattern": "\\S"
       }
     },
     "audit": {
       "type": "object",
-      "description": "Optional audit information supplied by the contracted optimization stage.",
-      "additionalProperties": true
+      "description": "Optional audit container. No audit sub-fields are defined by the v1 contract; non-empty audit objects are therefore rejected until an explicit audit schema is contracted.",
+      "additionalProperties": false,
+      "maxProperties": 0
     }
   }
 }
