@@ -13,6 +13,7 @@ CANONICAL_STAGES = (
 
 LINEAGE = {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123", "draft_id": "draft_123", "quality_id": "quality_123"}
 PRODUCTION_INTENT = {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+FINAL_OPTIMIZATION = {"optimization_id": "optimization_123", "schema_version": "1.0", "method_version": "v1", "lifecycle_stage": "optimization_ready", "seo_title": "Consultant Liability Insurance", "meta_description": "Compare consultant liability insurance coverage and costs.", "primary_keyword": "consultant liability insurance", "slug": "consultant-liability-insurance", "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123"}}
 
 
 def test_orchestrator_uses_canonical_fourteen_stage_order():
@@ -92,7 +93,7 @@ def test_resume_requires_all_prior_canonical_checkpoints():
 
 
 def _early_result():
-    early = {"research_report": {}, "content_brief": {}, "article_draft": {}, "article_draft_quality": {}, "editorial_review": {}, "media": {}, "linking": {}, "seo_validation": {}, "claim_audit": {}, "publication": {"gate_status": "allowed"}}
+    early = {"research_report": {}, "content_brief": {}, "article_draft": {}, "article_draft_quality": {}, "editorial_review": {}, "media": {}, "linking": {}, "final_optimization": copy.deepcopy(FINAL_OPTIMIZATION), "seo_validation": {}, "claim_audit": {}, "publication": {"gate_status": "allowed"}}
     early["article_draft"].update(LINEAGE)
     early["article_draft"]["lifecycle_stage"] = "draft_ready"
     early["article_draft_quality"].update(LINEAGE)
