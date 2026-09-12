@@ -72,9 +72,9 @@ def _checkpoint_from_wordpress(value: dict[str, Any], *, live: bool) -> dict[str
     return checkpoint
 
 
-def _base_result(project_name: str, completed: list[str], lineage: dict[str, str], production: dict[str, Any], *, lifecycle: str, current: str | None, error: dict[str, str] | None) -> dict[str, Any]:
+def _base_result(project_name: str, completed: list[str], lineage: dict[str, str], production: dict[str, Any], *, lifecycle: str, current: str | None, error: dict[str, str] | None, remaining: list[str] | None = None) -> dict[str, Any]:
     completed = list(dict.fromkeys(completed))
-    remaining = [stage for stage in STAGES if stage not in completed]
+    remaining = [stage for stage in STAGES if stage not in completed] if remaining is None else list(dict.fromkeys(remaining))
     return {"orchestration_id": _orchestration_id(project_name, completed, lineage), "project_name": project_name, "schema_version": SCHEMA_VERSION, "lifecycle_stage": lifecycle, "current_stage": current, "completed_stages": completed, "remaining_stages": remaining, "lineage": lineage, "production": production, "error": error, "audit": {"method": "irl_production_orchestrator", "version": METHOD_VERSION, "validation_status": "failed" if lifecycle == "failed" else "validated"}}
 
 
@@ -104,7 +104,7 @@ def _terminal_lifecycle(context: dict[str, Any]) -> str:
 
 
 def build_production_orchestration(*, project_name: str, result: dict[str, Any], deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate the canonical production chain; non-delivery mode stops at the QA checkpoint."""
+    """Coordinate the canonical production chain; non-delivery mode completes the selected QA-only execution mode."""
     context = copy.deepcopy(result)
     completed = [stage for stage in STAGES[:10] if stage in _completed_stages(context)]
     lineage = _lineage_from_result(context)
@@ -112,7 +112,7 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
     if not deliver:
         current = next((stage for stage in STAGES[:10] if stage not in completed), None)
         if current is None:
-            current = "production_assembly"
+            return _base_result(project_name, completed, lineage, production, lifecycle="completed", current=None, error=None, remaining=[])
         return _base_result(project_name, completed, lineage, production, lifecycle="running", current=current, error=None)
 
     stage = "production_assembly"
