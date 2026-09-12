@@ -67,8 +67,8 @@
       "type": "string",
       "format": "uri",
       "minLength": 1,
-      "pattern": "\\S",
-      "description": "Optional authoritative canonical URL when explicitly supplied."
+      "pattern": "^https?://\\S+$",
+      "description": "Optional authoritative canonical HTTP(S) URL when explicitly supplied."
     },
     "lineage": {
       "type": "object",
