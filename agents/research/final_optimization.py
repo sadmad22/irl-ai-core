@@ -23,8 +23,8 @@ def _text(value: Any, field: str) -> str:
 def _canonical_url(value: Any) -> str:
     url = _text(value, "final_values.canonical_url")
     parsed = urlparse(url)
-    if not parsed.scheme or not parsed.netloc:
-        raise ValueError("final_values.canonical_url must be a valid URI with scheme and authority")
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("final_values.canonical_url must be a valid HTTP(S) URL")
     return url
 
 
@@ -59,6 +59,8 @@ def _lineage(
 
 
 def _final_values(final_values: Any) -> dict[str, Any]:
+    if final_values is None:
+        raise ValueError("final_values is required")
     if not isinstance(final_values, dict):
         raise ValueError("final_values must be an object")
 
@@ -100,7 +102,7 @@ def build_final_optimization(
     decision: dict[str, Any],
     strategy: dict[str, Any],
     brief: dict[str, Any],
-    final_values: dict[str, Any],
+    final_values: dict[str, Any] | None = None,
     method_version: str = METHOD_VERSION,
     lineage: dict[str, Any] | None = None,
     **unsupported: Any,
