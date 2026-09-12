@@ -16,35 +16,23 @@ class FakeWriter:
             record = item["evidence_records"][0]
             claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
             value = record.get("value") if isinstance(record.get("value"), dict) else {}
-            attribute = (
-                str(claim.get("attribute", "coverage"))
-                .strip()
-                .replace("_", " ")
-            ) or "coverage"
+            attribute = (str(claim.get("attribute", "coverage")).strip().replace("_", " ")) or "coverage"
             value_type = str(value.get("type", "evidence")).strip() or "evidence"
             rendered_sections.append({
                 "section_index": item["section_index"],
-                "body": (
-                    f"This section addresses {attribute} using {value_type} evidence "
-                    f"when evaluating {item['heading'].lower()}."
-                ),
+                "body": f"This section addresses {attribute} using {value_type} evidence when evaluating {item['heading'].lower()}.",
             })
 
         return {
             "sections": rendered_sections,
-            "tables": [
-                {
-                    "table_id": "table_1",
-                    "title": "Comparison overview",
-                    "section_index": sections[0]["section_index"],
-                    "columns": ["Criterion", "Assessment"],
-                    "rows": [
-                        ["Coverage", "Compare available coverage options"],
-                        ["Cost", "Compare expected premium differences"],
-                    ],
-                    "evidence_refs": sections[0]["evidence_refs"],
-                }
-            ],
+            "tables": [{
+                "table_id": "table_1",
+                "title": "Comparison overview",
+                "section_index": sections[0]["section_index"],
+                "columns": ["Criterion", "Assessment"],
+                "rows": [["Coverage", "Compare available coverage options"], ["Cost", "Compare expected premium differences"]],
+                "evidence_refs": sections[0]["evidence_refs"],
+            }],
             "images": [{
                 "image_id": "img_1",
                 "section_index": sections[0]["section_index"],
@@ -72,13 +60,14 @@ def _run_contract(project_name: str) -> dict:
     result = run_production_orchestrator(project_name, llm_provider=FakeWriter(), deliver=False)
     assert result["project_name"] == project_name
     assert result["schema_version"] == "1.0"
-    assert result["lifecycle_stage"] == "completed", result["error"]
+    assert result["lifecycle_stage"] == "running", result["error"]
     expected_completed = [
         stage for stage in STAGES[:10]
         if stage in {"research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "optimization", "qa"}
     ]
     assert result["completed_stages"] == expected_completed
-    assert result["remaining_stages"] == ["media", "linking", "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery"]
+    assert result["current_stage"] == "production_assembly"
+    assert result["remaining_stages"] == ["production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery"]
     assert result["error"] is None
     assert result["audit"] == {"method": "irl_production_orchestrator", "version": "v1", "validation_status": "validated"}
     assert "production" in result
