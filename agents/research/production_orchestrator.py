@@ -46,7 +46,7 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
         "article_draft": result.get("article_draft"), "quality": result.get("quality", result.get("article_draft_quality")),
         "claim_audit": result.get("claim_audit"), "editorial_review": result.get("editorial_review"),
         "optimization": result.get("optimization", result.get("seo_validation")), "media": result.get("media", result.get("media_strategy")),
-        "linking": linking, "taxonomy": result.get("taxonomy"), "production_intent": result.get("production_intent"), "lineage": _lineage_from_result(result),
+        "linking": linking, "taxonomy": result.get("taxonomy"), "production_intent": copy.deepcopy(PRODUCTION_INTENT), "lineage": _lineage_from_result(result),
     }
 
 
@@ -104,15 +104,16 @@ def _terminal_lifecycle(context: dict[str, Any]) -> str:
 
 
 def build_production_orchestration(*, project_name: str, result: dict[str, Any], deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate the canonical production chain; QA is the terminal checkpoint for non-delivery mode."""
+    """Coordinate the canonical production chain; non-delivery mode stops at the QA checkpoint."""
     context = copy.deepcopy(result)
     completed = [stage for stage in STAGES[:10] if stage in _completed_stages(context)]
     lineage = _lineage_from_result(context)
     production = _production_template(context)
     if not deliver:
-        qa_complete = "qa" in completed
-        current = None if qa_complete else next((stage for stage in STAGES[:10] if stage not in completed), None)
-        return _base_result(project_name, completed, lineage, production, lifecycle="completed" if qa_complete else "running", current=current, error=None)
+        current = next((stage for stage in STAGES[:10] if stage not in completed), None)
+        if current is None:
+            current = "production_assembly"
+        return _base_result(project_name, completed, lineage, production, lifecycle="running", current=current, error=None)
 
     stage = "production_assembly"
     try:
