@@ -28,14 +28,29 @@ def _orchestration_id(project_name: str, completed_stages: list[str], lineage: d
 
 
 def _lineage_from_result(result: dict[str, Any]) -> dict[str, str]:
+    lineage: dict[str, str] = {}
+
+    def merge(source: dict[str, Any], keys: tuple[str, ...], source_name: str) -> None:
+        for key in keys:
+            value = str(source.get(key, "")).strip()
+            if not value:
+                continue
+            if key in lineage and lineage[key] != value:
+                raise ValueError(f"Conflicting lineage for {key}: {lineage[key]} != {value} ({source_name})")
+            lineage[key] = value
+
     explicit = result.get("lineage")
-    lineage = {str(k): str(v) for k, v in explicit.items() if str(v).strip()} if isinstance(explicit, dict) else {}
+    if isinstance(explicit, dict):
+        merge(explicit, ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"), "lineage")
+
     article = result.get("article_draft")
-    quality = result.get("article_draft_quality") or result.get("quality")
     if isinstance(article, dict):
-        for key in ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id"):
-            if str(article.get(key, "")).strip(): lineage.setdefault(key, str(article[key]))
-    if isinstance(quality, dict) and str(quality.get("quality_id", "")).strip(): lineage.setdefault("quality_id", str(quality["quality_id"]))
+        merge(article, ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"), "article_draft")
+
+    quality = result.get("article_draft_quality") or result.get("quality")
+    if isinstance(quality, dict):
+        merge(quality, ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"), "quality")
+
     return lineage
 
 
@@ -43,6 +58,9 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
     linking = result.get("linking")
     if linking is None and ("internal_linking" in result or "external_linking" in result):
         linking = {"internal": copy.deepcopy(result.get("internal_linking")), "external": copy.deepcopy(result.get("external_linking"))}
+    supplied_intent = result.get("production_intent")
+    if supplied_intent is not None and supplied_intent != PRODUCTION_INTENT:
+        raise ValueError("Conflicting production intent: canonical draft-only WordPress intent is required")
     return {
         "article_draft": result.get("article_draft"), "quality": result.get("quality", result.get("article_draft_quality")),
         "claim_audit": result.get("claim_audit"), "editorial_review": result.get("editorial_review"),
