@@ -1,1 +1,0 @@
-O2 submission is documentation-only; runtime enforcement begins in O4/O5.
