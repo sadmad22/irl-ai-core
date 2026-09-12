@@ -118,16 +118,15 @@ def _normalize(inputs: dict[str, Any]) -> dict[str, Any]:
     result = {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
     sections = result["article_draft"].get("sections", [])
     section_ids = {index: _text(section.get("section_id")) for index, section in enumerate(sections) if isinstance(section, dict)}
-
     for image in result["media"].get("images", []):
         if not _text(image.get("section_id")) and isinstance(image.get("section_index"), int) and not isinstance(image.get("section_index"), bool):
-            image["section_id"] = section_ids.get(image["section_index"], "")
-
+            if image["section_index"] not in section_ids:
+                raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Media section_index does not resolve", [_text(image.get("image_id")) or "unknown"])
     for kind in ("internal", "external"):
         for link in result["linking"].get(kind, []):
             if not _text(link.get("section_id")) and isinstance(link.get("section_index"), int) and not isinstance(link.get("section_index"), bool):
-                link["section_id"] = section_ids.get(link["section_index"], "")
-
+                if link["section_index"] not in section_ids:
+                    raise ProductionAssemblyEngineError("REFERENCE_INTEGRITY", "Link section_index does not resolve", [_text(link.get("link_id")) or "unknown"])
     return result
 
 
@@ -136,10 +135,8 @@ def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
     draft = inputs["article_draft"]
     quality = inputs["quality"]
     for key in ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id"):
-        values = {_text(lineage.get(key)), _text(draft.get(key))}
-        if "" in values or len(values) != 1:
-            raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", [key])
-        if _text(quality.get(key)) and _text(quality.get(key)) != _text(lineage.get(key)):
+        value = _text(lineage.get(key))
+        if not value or (draft.get(key) is not None and _text(draft.get(key)) != value) or (quality.get(key) is not None and _text(quality.get(key)) != value):
             raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", [key])
     if _text(lineage.get("quality_id")) != _text(quality.get("quality_id")):
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "quality_id lineage is inconsistent", ["quality_id"])
