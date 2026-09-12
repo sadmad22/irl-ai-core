@@ -46,7 +46,7 @@ audit
 
 `orchestration_id` is deterministic and matches `^orchestration_[a-f0-9]{16}$`. `project_name` is non-empty. `schema_version` is exactly `1.0`.
 
-## 3. Lifecycle enum and semantics
+## 3. Lifecycle enum and terminal-state semantics
 
 Allowed lifecycle values:
 
@@ -57,12 +57,14 @@ completed
 human_review
 ```
 
+`running` and `failed` are execution/checkpoint states. `completed` and `human_review` are terminal states with distinct meanings:
+
 - `running`: execution is active or resumable; `current_stage` is valid, incomplete, and the first item in `remaining_stages`.
 - `failed`: execution stopped at `current_stage`; `error` is required; the failed and all downstream stages remain incomplete.
-- `completed`: all executable stages completed in a non-delivery context; it never authorizes publication.
-- `human_review`: successful controlled-production terminal state after confirmed WordPress draft delivery; `current_stage=null`, `remaining_stages=[]`, `wordpress_delivery` completed, `error=null`.
+- `completed`: all executable stages required by the selected **non-delivery orchestration mode** are complete, with `remaining_stages=[]` and `current_stage=null`. This state never authorizes publication and is not the terminal state of controlled WordPress production.
+- `human_review`: all 14 canonical executable stages have completed successfully, WordPress draft creation/update has been confirmed, `wordpress_delivery` is complete, `remaining_stages=[]`, `current_stage=null`, and `error=null`. Publication remains prohibited and human approval is still required.
 
-For terminal states, `current_stage=null`. For `completed`, `remaining_stages=[]` and all executable stages are complete.
+For terminal states, `current_stage=null`. In controlled WordPress production, successful completion MUST resolve to `human_review`, never `completed`.
 
 ## 4. Checkpoint invariants
 
@@ -85,6 +87,8 @@ research → intelligence → configuration → structure → draft
 ```
 
 A successful stage advances only to its declared successor. Failure stops execution. No backward or automatic retry transition exists in v1.
+
+For non-delivery orchestration, the terminal transition is `... → completed` once the selected non-delivery stage set is complete. For controlled WordPress production, the canonical terminal transition is `wordpress_delivery → human_review`.
 
 ## 6. Stage readiness
 
@@ -244,7 +248,7 @@ O2 does not delete the legacy function; it defines that it is outside the canoni
 
 ## 16. O3/O4 acceptance criteria
 
-O3 must encode these rules without inventing new production semantics. O4 must deterministically test: happy path to `human_review`; Assembly/Package/Boundary/WordPress failure stops; `publish=true` rejection; missing lineage rejection; resume cannot bypass predecessors; ordered/disjoint checkpoints; and legacy `build_article_production()` isolation.
+O3 must encode these rules without inventing new production semantics. O4 must deterministically test: happy path to `human_review`; non-delivery completion to `completed`; Assembly/Package/Boundary/WordPress failure stops; `publish=true` rejection; missing lineage rejection; resume cannot bypass predecessors; ordered/disjoint checkpoints; and legacy `build_article_production()` isolation.
 
 ## 17. O2 Definition of Done
 
