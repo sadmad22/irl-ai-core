@@ -18,6 +18,7 @@ STAGES = (
     "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery",
 )
 PRODUCTION_INTENT = {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+DELIVERY_MODES = ("live", "dry_run")
 StageRunner = Callable[[str, dict[str, Any]], dict[str, Any]]
 
 
@@ -103,8 +104,9 @@ def _terminal_lifecycle(context: dict[str, Any]) -> str:
     return "completed"
 
 
-def build_production_orchestration(*, project_name: str, result: dict[str, Any], deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate the canonical production chain; non-delivery mode completes the selected QA-only execution mode."""
+def build_production_orchestration(*, project_name: str, result: dict[str, Any], deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None, delivery_mode: str = "live") -> dict[str, Any]:
+    """Coordinate the canonical production chain; O5 QA-only behavior remains unchanged when deliver=False."""
+    if delivery_mode not in DELIVERY_MODES: raise ValueError(f"Unsupported delivery_mode: {delivery_mode}")
     context = copy.deepcopy(result)
     completed = [stage for stage in STAGES[:10] if stage in _completed_stages(context)]
     lineage = _lineage_from_result(context)
@@ -125,14 +127,17 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
         production["package"] = _checkpoint_from_package(package)
         completed.append("article_package")
         stage = "production_delivery_boundary"
-        boundary = build_production_delivery_boundary(package=package, publisher_id="wordpress_publisher_v1", adapter_id="wordpress_delivery_adapter_v1", execution_mode="live")
+        boundary = build_production_delivery_boundary(package=package, publisher_id="wordpress_publisher_v1", adapter_id="wordpress_delivery_adapter_v1", execution_mode=delivery_mode)
         production["boundary"] = _checkpoint_from_boundary(boundary)
         completed.append("production_delivery_boundary")
+        if delivery_mode == "dry_run":
+            production["wordpress"] = _checkpoint_from_wordpress({}, live=False)
+            return _base_result(project_name, completed, lineage, production, lifecycle="completed", current=None, error=None, remaining=[])
         stage = "wordpress_delivery"
         wordpress = deliver_wordpress_delivery_boundary(boundary=boundary, connection=connection, transport=transport)
         production["wordpress"] = _checkpoint_from_wordpress(wordpress, live=True)
         completed.append("wordpress_delivery")
-        return _base_result(project_name, completed, lineage, production, lifecycle="human_review", current=None, error=None)
+        return _base_result(project_name, completed, lineage, production, lifecycle="human_review", current=None, error=None, remaining=[])
     except Exception as exc:
         return _base_result(project_name, completed, lineage, production, lifecycle="failed", current=stage, error={"stage": stage, "type": type(exc).__name__, "message": str(exc)})
 
@@ -150,10 +155,10 @@ def _completed_stages(result: dict[str, Any]) -> list[str]:
     return [stage for stage in STAGES[:10] if stage in detected]
 
 
-def run_production_orchestrator(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
-    """Coordinate upstream content production and, when requested, controlled WordPress delivery."""
+def run_production_orchestrator(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None, delivery_mode: str = "live") -> dict[str, Any]:
+    """Coordinate upstream content production and, when requested, the canonical controlled production chain."""
     result = run_content_research_to_wordpress_draft(project_name, llm_provider=llm_provider, deliver=False, connection=connection, transport=transport)
-    return build_production_orchestration(project_name=project_name, result=result, deliver=deliver, connection=connection, transport=transport)
+    return build_production_orchestration(project_name=project_name, result=result, deliver=deliver, connection=connection, transport=transport, delivery_mode=delivery_mode)
 
 
 def execute_stage_plan(*, project_name: str, stage_runner: StageRunner, start_stage: str = "research", initial_outputs: dict[str, Any] | None = None) -> dict[str, Any]:
