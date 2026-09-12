@@ -13,6 +13,7 @@ CANONICAL_STAGES = (
 
 LINEAGE = {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123", "draft_id": "draft_123", "quality_id": "quality_123"}
 PRODUCTION_INTENT = {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+FINAL_OPTIMIZATION = {"optimization_id": "optimization_123", "schema_version": "1.0", "method_version": "v1", "lifecycle_stage": "optimization_ready", "seo_title": "Consultant Liability Insurance", "meta_description": "Compare consultant liability insurance coverage and costs.", "primary_keyword": "consultant liability insurance", "slug": "consultant-liability-insurance", "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123"}}
 
 
 def test_orchestrator_uses_canonical_fourteen_stage_order():
@@ -92,7 +93,7 @@ def test_resume_requires_all_prior_canonical_checkpoints():
 
 
 def _early_result():
-    early = {"research_report": {}, "content_brief": {}, "article_draft": {}, "article_draft_quality": {}, "editorial_review": {}, "media": {}, "linking": {}, "seo_validation": {}, "claim_audit": {}, "publication": {"gate_status": "allowed"}}
+    early = {"research_report": {}, "content_brief": {}, "article_draft": {}, "article_draft_quality": {}, "editorial_review": {}, "media": {}, "linking": {}, "final_optimization": copy.deepcopy(FINAL_OPTIMIZATION), "seo_validation": {}, "claim_audit": {}, "publication": {"gate_status": "allowed"}}
     early["article_draft"].update(LINEAGE)
     early["article_draft"]["lifecycle_stage"] = "draft_ready"
     early["article_draft_quality"].update(LINEAGE)
@@ -104,6 +105,7 @@ def _early_result():
 
 def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypatch):
     calls = []
+    captured_assembly = {}
     early = _early_result()
 
     canonical = {"production_intent": dict(PRODUCTION_INTENT), "lineage": dict(LINEAGE)}
@@ -112,7 +114,10 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     boundary = {"delivery_id": "delivery_0123456789abcdef", "lifecycle_stage": "delivery_ready", "delivery_status": "ready"}
     adapter = {"execution_mode": "live", "response": {"platform_post_id": 123, "remote_status": "draft", "edit_url": "https://insurancereviewlab.com/wp-admin/post.php?post=123&action=edit"}}
 
-    def fake_assembly(**kwargs): calls.append("assembly"); return assembly
+    def fake_assembly(**kwargs):
+        captured_assembly.update(kwargs)
+        calls.append("assembly")
+        return assembly
     def fake_package(**kwargs): calls.append("package"); return package
     def fake_boundary(**kwargs): calls.append("boundary"); return boundary
     def fake_adapter(**kwargs): calls.append("wordpress"); return adapter
@@ -125,6 +130,8 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     result = orchestrator.build_production_orchestration(project_name="demo", result=early, deliver=True)
 
     assert calls == ["assembly", "package", "boundary", "wordpress"]
+    assert captured_assembly["artifacts"]["optimization"] == FINAL_OPTIMIZATION
+    assert "seo_validation" not in captured_assembly["artifacts"]
     assert result["lifecycle_stage"] == "human_review"
     assert result["completed_stages"][-4:] == list(CANONICAL_STAGES[-4:])
     assert result["production"]["wordpress"]["publish"] is False

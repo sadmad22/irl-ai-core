@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core/schema/final-optimization.schema.json",
+  "title": "Final Optimization Artifact v1",
+  "description": "Canonical schema for the Final Optimization Artifact v1 produced by the optimization stage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "optimization_id",
+    "schema_version",
+    "method_version",
+    "lifecycle_stage",
+    "seo_title",
+    "meta_description",
+    "primary_keyword",
+    "slug",
+    "lineage"
+  ],
+  "properties": {
+    "optimization_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Deterministic canonical identifier for the Final Optimization Artifact."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Contract schema version."
+    },
+    "method_version": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Version of the contracted optimization method that produced or bound the final values."
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "const": "optimization_ready",
+      "description": "The only lifecycle state valid for this artifact."
+    },
+    "seo_title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Authoritative final SEO title."
+    },
+    "meta_description": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Authoritative final meta description."
+    },
+    "primary_keyword": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Authoritative final primary keyword."
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Authoritative final URL slug."
+    },
+    "canonical_url": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1,
+      "pattern": "^https?://\\S+$",
+      "description": "Optional authoritative canonical HTTP(S) URL when explicitly supplied."
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_id",
+        "decision_id",
+        "strategy_id",
+        "brief_id"
+      ],
+      "properties": {
+        "report_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "strategy_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "brief_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "description": "Required upstream production lineage."
+    },
+    "source_refs": {
+      "type": "array",
+      "description": "Optional explicit source references preserved from supplied inputs.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "Optional audit container. No audit sub-fields are defined by the v1 contract; non-empty audit objects are therefore rejected until an explicit audit schema is contracted.",
+      "additionalProperties": false,
+      "maxProperties": 0
+    }
+  }
+}
