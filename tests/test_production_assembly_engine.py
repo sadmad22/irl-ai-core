@@ -4,24 +4,15 @@ import copy
 
 import pytest
 
-from agents.research.production_assembly_engine import (
-    ProductionAssemblyEngineError,
-    build_production_assembly,
-)
+from agents.research.production_assembly_engine import ProductionAssemblyEngineError, build_production_assembly
 
 
 def _inputs() -> dict:
     return {
         "article_draft": {
-            "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123",
-            "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "draft_ready",
-            "content_type": "guide", "primary_keyword": "expat health insurance", "title": "Expat Health Insurance Guide",
-            "slug": "expat-health-insurance-guide",
-            "sections": [{
-                "section_id": "section_0", "heading": "Overview", "body": "Evidence-backed article text.",
-                "purpose": "Explain the topic", "evidence_refs": ["evidence_1"],
-                "claims": [{"claim_id": "claim_1", "text": "Evidence-backed article text.", "evidence_refs": ["evidence_1"], "grounding_status": "grounded"}],
-            }],
+            "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "draft_ready",
+            "content_type": "guide", "primary_keyword": "expat health insurance", "title": "Expat Health Insurance Guide", "slug": "expat-health-insurance-guide",
+            "sections": [{"section_id": "section_0", "heading": "Overview", "body": "Evidence-backed article text.", "purpose": "Explain the topic", "evidence_refs": ["evidence_1"], "claims": [{"claim_id": "claim_1", "text": "Evidence-backed article text.", "evidence_refs": ["evidence_1"], "grounding_status": "grounded"}]}],
             "tables": [],
         },
         "quality": {"quality_id": "quality_123", "lifecycle_stage": "article_draft_quality_ready", "outcome": "passed", "audit": {"validation_status": "validated"}},
@@ -86,6 +77,8 @@ def test_fail_closed_gates(path, code):
         target[key] = True
     elif path[-1] == "materialization_status":
         target[key] = "specified"
+    elif path == ("optimization", "seo_title"):
+        target[key] = ""
     else:
         target[key] = "failed"
     with pytest.raises(ProductionAssemblyEngineError, match=code):
