@@ -137,16 +137,16 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
 
 
 def _completed_stages(result: dict[str, Any]) -> list[str]:
-    completed: list[str] = []
-    if isinstance(result.get("research_report"), dict): completed.append("research")
-    if isinstance(result.get("content_brief"), dict): completed.extend(["intelligence", "configuration", "structure"])
-    if isinstance(result.get("article_draft"), dict): completed.append("draft")
-    if isinstance(result.get("editorial_review"), dict): completed.append("editorial_cleanup")
-    if isinstance(result.get("media", result.get("media_strategy")), dict): completed.append("media")
-    if isinstance(result.get("linking"), dict) or "internal_linking" in result or "external_linking" in result: completed.append("linking")
-    if isinstance(result.get("seo_validation", result.get("optimization")), dict): completed.append("optimization")
-    if isinstance(result.get("article_draft_quality"), dict) and isinstance(result.get("claim_audit"), dict) and result.get("publication", {}).get("gate_status") == "allowed": completed.append("qa")
-    return list(dict.fromkeys(completed))
+    detected: set[str] = set()
+    if isinstance(result.get("research_report"), dict): detected.add("research")
+    if isinstance(result.get("content_brief"), dict): detected.update({"intelligence", "configuration", "structure"})
+    if isinstance(result.get("article_draft"), dict): detected.add("draft")
+    if isinstance(result.get("editorial_review"), dict): detected.add("editorial_cleanup")
+    if isinstance(result.get("media", result.get("media_strategy")), dict): detected.add("media")
+    if isinstance(result.get("linking"), dict) or "internal_linking" in result or "external_linking" in result: detected.add("linking")
+    if isinstance(result.get("seo_validation", result.get("optimization")), dict): detected.add("optimization")
+    if isinstance(result.get("article_draft_quality"), dict) and isinstance(result.get("claim_audit"), dict) and result.get("publication", {}).get("gate_status") == "allowed": detected.add("qa")
+    return [stage for stage in STAGES[:10] if stage in detected]
 
 
 def run_production_orchestrator(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
