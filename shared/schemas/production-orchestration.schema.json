@@ -4,259 +4,37 @@
   "title": "IRL Production Orchestration v1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "orchestration_id",
-    "project_name",
-    "schema_version",
-    "lifecycle_stage",
-    "current_stage",
-    "completed_stages",
-    "remaining_stages",
-    "lineage",
-    "production",
-    "error",
-    "audit"
-  ],
+  "required": ["orchestration_id","project_name","schema_version","lifecycle_stage","current_stage","completed_stages","remaining_stages","lineage","production","error","audit"],
   "properties": {
-    "orchestration_id": {
-      "type": "string",
-      "pattern": "^orchestration_[a-f0-9]{16}$"
-    },
-    "project_name": {
-      "type": "string",
-      "minLength": 1
-    },
-    "schema_version": {
-      "const": "1.0"
-    },
-    "lifecycle_stage": {
-      "enum": ["running", "failed", "completed", "human_review"]
-    },
-    "current_stage": {
-      "oneOf": [
-        {"type": "null"},
-        {"$ref": "#/$defs/stage"}
-      ]
-    },
-    "completed_stages": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {"$ref": "#/$defs/stage"}
-    },
-    "remaining_stages": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {"$ref": "#/$defs/stage"}
-    },
-    "lineage": {
-      "$ref": "#/$defs/lineage"
-    },
-    "production": {
-      "$ref": "#/$defs/production"
-    },
-    "error": {
-      "oneOf": [
-        {"type": "null"},
-        {"$ref": "#/$defs/error"}
-      ]
-    },
-    "audit": {
-      "$ref": "#/$defs/audit"
-    }
+    "orchestration_id": {"type": "string", "pattern": "^orchestration_[a-f0-9]{16}$"},
+    "project_name": {"type": "string", "minLength": 1},
+    "schema_version": {"const": "1.0"},
+    "lifecycle_stage": {"enum": ["running", "failed", "completed", "human_review"]},
+    "current_stage": {"oneOf": [{"type": "null"},{"$ref": "#/$defs/stage"}]},
+    "completed_stages": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/stage"}},
+    "remaining_stages": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/stage"}},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "production": {"$ref": "#/$defs/production"},
+    "error": {"oneOf": [{"type": "null"},{"$ref": "#/$defs/error"}]},
+    "audit": {"$ref": "#/$defs/audit"}
   },
   "allOf": [
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"const": "running"}}
-      },
-      "then": {
-        "required": ["current_stage"],
-        "properties": {
-          "current_stage": {"type": "string"},
-          "error": {"type": "null"}
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"const": "failed"}}
-      },
-      "then": {
-        "required": ["current_stage", "error"],
-        "properties": {
-          "current_stage": {"type": "string"},
-          "error": {"$ref": "#/$defs/error"}
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"const": "completed"}}
-      },
-      "then": {
-        "properties": {
-          "current_stage": {"type": "null"},
-          "remaining_stages": {"maxItems": 0},
-          "error": {"type": "null"}
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"const": "human_review"}}
-      },
-      "then": {
-        "properties": {
-          "current_stage": {"type": "null"},
-          "remaining_stages": {"maxItems": 0},
-          "error": {"type": "null"},
-          "production": {
-            "required": ["assembly", "package", "boundary", "wordpress"],
-            "properties": {
-              "assembly": {"properties": {"lifecycle_stage": {"const": "production_assembly_ready"}}},
-              "package": {"properties": {"lifecycle_stage": {"const": "delivery_ready"}, "validation_status": {"const": "validated"}}},
-              "boundary": {"properties": {"lifecycle_stage": {"const": "human_review"}, "delivery_status": {"const": "delivered"}}},
-              "wordpress": {"properties": {"delivery_status": {"const": "delivered"}, "remote_status": {"const": "draft"}, "publish": {"const": false}, "human_approval_required": {"const": true}}}
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"const": "failed"}}
-      },
-      "then": {
-        "properties": {
-          "audit": {"properties": {"validation_status": {"const": "failed"}}}
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"lifecycle_stage": {"enum": ["running", "completed", "human_review"]}}
-      },
-      "then": {
-        "properties": {
-          "audit": {"properties": {"validation_status": {"const": "validated"}}}
-        }
-      }
-    }
+    {"if":{"properties":{"lifecycle_stage":{"const":"running"}}},"then":{"required":["current_stage"],"properties":{"current_stage":{"type":"string"},"error":{"type":"null"}}}},
+    {"if":{"properties":{"lifecycle_stage":{"const":"failed"}}},"then":{"required":["current_stage","error"],"properties":{"current_stage":{"type":"string"},"error":{"$ref":"#/$defs/error"}}}},
+    {"if":{"properties":{"lifecycle_stage":{"const":"completed"}}},"then":{"properties":{"current_stage":{"type":"null"},"remaining_stages":{"maxItems":0},"error":{"type":"null"}}}},
+    {"if":{"properties":{"lifecycle_stage":{"const":"human_review"}}},"then":{"properties":{"current_stage":{"type":"null"},"remaining_stages":{"maxItems":0},"error":{"type":"null"},"production":{"required":["assembly","package","boundary","wordpress"],"properties":{"assembly":{"properties":{"lifecycle_stage":{"const":"production_assembly_ready"}}},"package":{"properties":{"lifecycle_stage":{"const":"delivery_ready"},"validation_status":{"const":"validated"}}},"boundary":{"properties":{"lifecycle_stage":{"const":"delivered_as_draft"},"delivery_status":{"const":"delivered"}}},"wordpress":{"properties":{"delivery_status":{"const":"delivered"},"remote_status":{"const":"draft"},"publish":{"const":false},"human_approval_required":{"const":true}}}}}}}},
+    {"if":{"properties":{"lifecycle_stage":{"const":"failed"}}},"then":{"properties":{"audit":{"properties":{"validation_status":{"const":"failed"}}}}}},
+    {"if":{"properties":{"lifecycle_stage":{"enum":["running","completed","human_review"]}}},"then":{"properties":{"audit":{"properties":{"validation_status":{"const":"validated"}}}}}}
   ],
   "$defs": {
-    "stage": {
-      "type": "string",
-      "enum": [
-        "research",
-        "intelligence",
-        "configuration",
-        "structure",
-        "draft",
-        "editorial_cleanup",
-        "media",
-        "linking",
-        "optimization",
-        "qa",
-        "production_assembly",
-        "article_package",
-        "production_delivery_boundary",
-        "wordpress_delivery"
-      ]
-    },
-    "lineage": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id"],
-      "properties": {
-        "report_id": {"type": "string", "minLength": 1},
-        "decision_id": {"type": "string", "minLength": 1},
-        "strategy_id": {"type": "string", "minLength": 1},
-        "brief_id": {"type": "string", "minLength": 1},
-        "draft_id": {"type": "string", "minLength": 1},
-        "quality_id": {"type": "string", "minLength": 1},
-        "config_id": {"type": "string", "minLength": 1},
-        "semantic_id": {"type": "string", "minLength": 1},
-        "optimization_id": {"type": "string", "minLength": 1},
-        "image_spec_id": {"type": "string", "minLength": 1},
-        "alt_text_id": {"type": "string", "minLength": 1},
-        "external_links_id": {"type": "string", "minLength": 1},
-        "internal_links_id": {"type": "string", "minLength": 1},
-        "news_id": {"type": "string", "minLength": 1}
-      }
-    },
-    "assembly": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["assembly_id", "lifecycle_stage"],
-      "properties": {
-        "assembly_id": {"type": "string", "pattern": "^assembly_[a-f0-9]{16}$"},
-        "lifecycle_stage": {"enum": ["assembly_started", "inputs_validated", "artifacts_normalized", "production_assembly_ready", "failed"]}
-      }
-    },
-    "package": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["package_id", "lifecycle_stage", "validation_status"],
-      "properties": {
-        "package_id": {"type": "string", "pattern": "^package_[a-f0-9]{16}$"},
-        "lifecycle_stage": {"enum": ["package_started", "inputs_validated", "artifacts_normalized", "package_ready", "delivery_ready", "failed"]},
-        "validation_status": {"enum": ["pending", "validated", "failed"]}
-      }
-    },
-    "boundary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["delivery_id", "lifecycle_stage", "delivery_status"],
-      "properties": {
-        "delivery_id": {"type": "string", "pattern": "^delivery_[a-f0-9]{16}$"},
-        "lifecycle_stage": {"enum": ["delivery_ready", "request_ready", "delivering", "delivered_as_draft", "human_review", "failed"]},
-        "delivery_status": {"enum": ["ready", "delivering", "delivered", "failed"]}
-      }
-    },
-    "wordpress": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["execution_mode", "delivery_status", "publish", "human_approval_required"],
-      "properties": {
-        "execution_mode": {"enum": ["dry_run", "live"]},
-        "delivery_status": {"enum": ["ready", "delivering", "delivered", "failed"]},
-        "platform_post_id": {"type": "integer", "minimum": 1},
-        "remote_status": {"enum": ["draft"]},
-        "edit_url": {"type": "string", "format": "uri", "pattern": "^https?://[^\\s]+$"},
-        "publish": {"const": false},
-        "human_approval_required": {"const": true}
-      }
-    },
-    "production": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["assembly", "package", "boundary", "wordpress"],
-      "properties": {
-        "assembly": {"$ref": "#/$defs/assembly"},
-        "package": {"$ref": "#/$defs/package"},
-        "boundary": {"$ref": "#/$defs/boundary"},
-        "wordpress": {"$ref": "#/$defs/wordpress"}
-      }
-    },
-    "error": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["stage", "type", "message"],
-      "properties": {
-        "stage": {"$ref": "#/$defs/stage"},
-        "type": {"type": "string", "minLength": 1},
-        "message": {"type": "string", "minLength": 1}
-      }
-    },
-    "audit": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["method", "version", "validation_status"],
-      "properties": {
-        "method": {"const": "irl_production_orchestrator"},
-        "version": {"const": "v1"},
-        "validation_status": {"enum": ["pending", "validated", "failed"]}
-      }
-    }
+    "stage": {"type":"string","enum":["research","intelligence","configuration","structure","draft","editorial_cleanup","media","linking","optimization","qa","production_assembly","article_package","production_delivery_boundary","wordpress_delivery"]},
+    "lineage": {"type":"object","additionalProperties":false,"required":["report_id","decision_id","strategy_id","brief_id","draft_id","quality_id"],"properties":{"report_id":{"type":"string","minLength":1},"decision_id":{"type":"string","minLength":1},"strategy_id":{"type":"string","minLength":1},"brief_id":{"type":"string","minLength":1},"draft_id":{"type":"string","minLength":1},"quality_id":{"type":"string","minLength":1},"config_id":{"type":"string","minLength":1},"semantic_id":{"type":"string","minLength":1},"optimization_id":{"type":"string","minLength":1},"image_spec_id":{"type":"string","minLength":1},"alt_text_id":{"type":"string","minLength":1},"external_links_id":{"type":"string","minLength":1},"internal_links_id":{"type":"string","minLength":1},"news_id":{"type":"string","minLength":1}}},
+    "assembly": {"type":"object","additionalProperties":false,"required":["assembly_id","lifecycle_stage"],"properties":{"assembly_id":{"type":"string","pattern":"^assembly_[a-f0-9]{16}$"},"lifecycle_stage":{"enum":["assembly_started","inputs_validated","artifacts_normalized","production_assembly_ready","failed"]}}},
+    "package": {"type":"object","additionalProperties":false,"required":["package_id","lifecycle_stage","validation_status"],"properties":{"package_id":{"type":"string","pattern":"^package_[a-f0-9]{16}$"},"lifecycle_stage":{"enum":["package_started","inputs_validated","artifacts_normalized","package_ready","delivery_ready","failed"]},"validation_status":{"enum":["pending","validated","failed"]}}},
+    "boundary": {"type":"object","additionalProperties":false,"required":["delivery_id","lifecycle_stage","delivery_status"],"properties":{"delivery_id":{"type":"string","pattern":"^delivery_[a-f0-9]{16}$"},"lifecycle_stage":{"enum":["delivery_ready","request_ready","delivering","delivered_as_draft","human_review","failed"]},"delivery_status":{"enum":["ready","delivering","delivered","failed"]}}},
+    "wordpress": {"type":"object","additionalProperties":false,"required":["execution_mode","delivery_status","publish","human_approval_required"],"properties":{"execution_mode":{"enum":["dry_run","live"]},"delivery_status":{"enum":["ready","delivering","delivered","failed"]},"platform_post_id":{"type":"integer","minimum":1},"remote_status":{"enum":["draft"]},"edit_url":{"type":"string","format":"uri","pattern":"^https?://[^\\s]+$"},"publish":{"const":false},"human_approval_required":{"const":true}}},
+    "production": {"type":"object","additionalProperties":false,"required":["assembly","package","boundary","wordpress"],"properties":{"assembly":{"$ref":"#/$defs/assembly"},"package":{"$ref":"#/$defs/package"},"boundary":{"$ref":"#/$defs/boundary"},"wordpress":{"$ref":"#/$defs/wordpress"}}},
+    "error": {"type":"object","additionalProperties":false,"required":["stage","type","message"],"properties":{"stage":{"$ref":"#/$defs/stage"},"type":{"type":"string","minLength":1},"message":{"type":"string","minLength":1}}},
+    "audit": {"type":"object","additionalProperties":false,"required":["method","version","validation_status"],"properties":{"method":{"const":"irl_production_orchestrator"},"version":{"const":"v1"},"validation_status":{"enum":["pending","validated","failed"]}}}
   }
 }

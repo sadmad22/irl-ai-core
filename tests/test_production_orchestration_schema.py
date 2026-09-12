@@ -6,10 +6,8 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "shared" / "schemas" / "production-orchestration.schema.json"
-
 
 STAGES = [
     "research", "intelligence", "configuration", "structure", "draft",
@@ -33,42 +31,18 @@ def _base(*, lifecycle: str = "running") -> dict:
         "completed_stages": STAGES[:10],
         "remaining_stages": STAGES[10:],
         "lineage": {
-            "report_id": "report_123",
-            "decision_id": "decision_123",
-            "strategy_id": "strategy_123",
-            "brief_id": "brief_123",
-            "draft_id": "draft_123",
-            "quality_id": "quality_123",
+            "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123",
+            "brief_id": "brief_123", "draft_id": "draft_123", "quality_id": "quality_123",
             "optimization_id": "optimization_123",
         },
         "production": {
-            "assembly": {
-                "assembly_id": "assembly_0123456789abcdef",
-                "lifecycle_stage": "production_assembly_ready",
-            },
-            "package": {
-                "package_id": "package_0123456789abcdef",
-                "lifecycle_stage": "delivery_ready",
-                "validation_status": "validated",
-            },
-            "boundary": {
-                "delivery_id": "delivery_0123456789abcdef",
-                "lifecycle_stage": "delivery_ready",
-                "delivery_status": "ready",
-            },
-            "wordpress": {
-                "execution_mode": "dry_run",
-                "delivery_status": "ready",
-                "publish": False,
-                "human_approval_required": True,
-            },
+            "assembly": {"assembly_id": "assembly_0123456789abcdef", "lifecycle_stage": "production_assembly_ready"},
+            "package": {"package_id": "package_0123456789abcdef", "lifecycle_stage": "delivery_ready", "validation_status": "validated"},
+            "boundary": {"delivery_id": "delivery_0123456789abcdef", "lifecycle_stage": "delivery_ready", "delivery_status": "ready"},
+            "wordpress": {"execution_mode": "dry_run", "delivery_status": "ready", "publish": False, "human_approval_required": True},
         },
         "error": None,
-        "audit": {
-            "method": "irl_production_orchestrator",
-            "version": "v1",
-            "validation_status": "validated",
-        },
+        "audit": {"method": "irl_production_orchestrator", "version": "v1", "validation_status": "validated"},
     }
 
 
@@ -101,17 +75,13 @@ def test_human_review_requires_controlled_wordpress_terminal_state():
     value["production"]["package"]["lifecycle_stage"] = "delivery_ready"
     value["production"]["boundary"] = {
         "delivery_id": "delivery_0123456789abcdef",
-        "lifecycle_stage": "human_review",
+        "lifecycle_stage": "delivered_as_draft",
         "delivery_status": "delivered",
     }
     value["production"]["wordpress"] = {
-        "execution_mode": "live",
-        "delivery_status": "delivered",
-        "platform_post_id": 4957,
-        "remote_status": "draft",
-        "edit_url": "https://insurancereviewlab.com/wp-admin/post.php?post=4957&action=edit",
-        "publish": False,
-        "human_approval_required": True,
+        "execution_mode": "live", "delivery_status": "delivered", "platform_post_id": 4957,
+        "remote_status": "draft", "edit_url": "https://insurancereviewlab.com/wp-admin/post.php?post=4957&action=edit",
+        "publish": False, "human_approval_required": True,
     }
     assert _errors(value) == []
 
@@ -120,11 +90,7 @@ def test_failed_orchestration_requires_error_and_failed_audit():
     value = _base(lifecycle="failed")
     value["remaining_stages"] = STAGES[11:]
     value["completed_stages"] = STAGES[:11]
-    value["error"] = {
-        "stage": "article_package",
-        "type": "PackageValidationError",
-        "message": "Article Package validation failed.",
-    }
+    value["error"] = {"stage": "article_package", "type": "PackageValidationError", "message": "Article Package validation failed."}
     value["audit"]["validation_status"] = "failed"
     assert _errors(value) == []
 
@@ -158,14 +124,11 @@ def test_human_review_cannot_have_remaining_stages():
     value["completed_stages"] = STAGES
     value["current_stage"] = None
     value["remaining_stages"] = ["wordpress_delivery"]
-    value["production"]["boundary"]["lifecycle_stage"] = "human_review"
+    value["production"]["boundary"]["lifecycle_stage"] = "delivered_as_draft"
     value["production"]["boundary"]["delivery_status"] = "delivered"
     value["production"]["wordpress"] = {
-        "execution_mode": "live",
-        "delivery_status": "delivered",
-        "remote_status": "draft",
-        "publish": False,
-        "human_approval_required": True,
+        "execution_mode": "live", "delivery_status": "delivered", "remote_status": "draft",
+        "publish": False, "human_approval_required": True,
     }
     assert _errors(value)
 
@@ -179,11 +142,7 @@ def test_completed_cannot_have_current_stage():
 
 def test_running_cannot_have_error():
     value = _base()
-    value["error"] = {
-        "stage": "qa",
-        "type": "QualityGateBlocked",
-        "message": "Quality gate failed.",
-    }
+    value["error"] = {"stage": "qa", "type": "QualityGateBlocked", "message": "Quality gate failed."}
     assert _errors(value)
 
 
