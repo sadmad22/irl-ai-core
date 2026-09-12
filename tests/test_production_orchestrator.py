@@ -29,9 +29,34 @@ def test_non_delivery_orchestration_completes_selected_qa_mode():
 
 def test_canonical_production_intent_is_immutable():
     result = {"production_intent": {"target": "other", "mode": "publish", "publish": True, "human_approval_required": False}}
+    with pytest.raises(ValueError, match="Conflicting production intent"):
+        orchestrator._canonical_artifacts(result)
+
+
+def test_matching_production_intent_is_accepted_as_canonical_copy():
+    result = {"production_intent": dict(PRODUCTION_INTENT)}
     canonical = orchestrator._canonical_artifacts(result)
     assert canonical["production_intent"] == PRODUCTION_INTENT
     assert canonical["production_intent"] is not result["production_intent"]
+
+
+def test_conflicting_lineage_is_rejected():
+    result = {
+        "lineage": {"draft_id": "draft_explicit"},
+        "article_draft": {"draft_id": "draft_article"},
+    }
+    with pytest.raises(ValueError, match="Conflicting lineage for draft_id"):
+        orchestrator._canonical_artifacts(result)
+
+
+def test_matching_lineage_is_preserved():
+    result = {
+        "lineage": {"draft_id": "draft_123"},
+        "article_draft": {"draft_id": "draft_123", "report_id": "report_123"},
+        "article_draft_quality": {"draft_id": "draft_123", "quality_id": "quality_123"},
+    }
+    canonical = orchestrator._canonical_artifacts(result)
+    assert canonical["lineage"] == {"draft_id": "draft_123", "report_id": "report_123", "quality_id": "quality_123"}
 
 
 def test_legacy_article_production_contract_is_not_used():
