@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from typing import Any
+from urllib.parse import urlparse
 
 SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
@@ -11,7 +12,6 @@ LIFECYCLE_STAGE = "optimization_ready"
 _REQUIRED_LINEAGE = ("report_id", "decision_id", "strategy_id", "brief_id")
 _REQUIRED_FINAL_VALUES = ("seo_title", "meta_description", "primary_keyword", "slug")
 _ALLOWED_FINAL_VALUE_FIELDS = set(_REQUIRED_FINAL_VALUES) | {"canonical_url", "source_refs", "audit"}
-_ALLOWED_INPUTS = {"report", "decision", "strategy", "brief", "final_values", "lineage"}
 
 
 def _text(value: Any, field: str) -> str:
@@ -20,13 +20,22 @@ def _text(value: Any, field: str) -> str:
     return value.strip()
 
 
-def _source_id(source: Any, field: str) -> str:
-    if not isinstance(source, dict):
-        raise ValueError(f"{field} must be an object")
-    return _text(source.get(f"{field}_id"), f"{field}.{field}_id")
+def _canonical_url(value: Any) -> str:
+    url = _text(value, "final_values.canonical_url")
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        raise ValueError("final_values.canonical_url must be a valid URI with scheme and authority")
+    return url
 
 
-def _lineage(*, report: dict[str, Any], decision: dict[str, Any], strategy: dict[str, Any], brief: dict[str, Any], supplied: dict[str, Any] | None) -> dict[str, str]:
+def _lineage(
+    *,
+    report: dict[str, Any],
+    decision: dict[str, Any],
+    strategy: dict[str, Any],
+    brief: dict[str, Any],
+    supplied: dict[str, Any] | None,
+) -> dict[str, str]:
     sources = {
         "report_id": _text(report.get("report_id"), "report.report_id"),
         "decision_id": _text(decision.get("decision_id"), "decision.decision_id"),
@@ -62,7 +71,7 @@ def _final_values(final_values: Any) -> dict[str, Any]:
         result[field] = _text(final_values.get(field), f"final_values.{field}")
 
     if "canonical_url" in final_values:
-        result["canonical_url"] = _text(final_values["canonical_url"], "final_values.canonical_url")
+        result["canonical_url"] = _canonical_url(final_values["canonical_url"])
 
     if "source_refs" in final_values:
         refs = final_values["source_refs"]
