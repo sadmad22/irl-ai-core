@@ -105,6 +105,7 @@ def _early_result():
 
 def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypatch):
     calls = []
+    captured_assembly = {}
     early = _early_result()
 
     canonical = {"production_intent": dict(PRODUCTION_INTENT), "lineage": dict(LINEAGE)}
@@ -113,7 +114,10 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     boundary = {"delivery_id": "delivery_0123456789abcdef", "lifecycle_stage": "delivery_ready", "delivery_status": "ready"}
     adapter = {"execution_mode": "live", "response": {"platform_post_id": 123, "remote_status": "draft", "edit_url": "https://insurancereviewlab.com/wp-admin/post.php?post=123&action=edit"}}
 
-    def fake_assembly(**kwargs): calls.append("assembly"); return assembly
+    def fake_assembly(**kwargs):
+        captured_assembly.update(kwargs)
+        calls.append("assembly")
+        return assembly
     def fake_package(**kwargs): calls.append("package"); return package
     def fake_boundary(**kwargs): calls.append("boundary"); return boundary
     def fake_adapter(**kwargs): calls.append("wordpress"); return adapter
@@ -126,6 +130,8 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     result = orchestrator.build_production_orchestration(project_name="demo", result=early, deliver=True)
 
     assert calls == ["assembly", "package", "boundary", "wordpress"]
+    assert captured_assembly["artifacts"]["optimization"] == FINAL_OPTIMIZATION
+    assert "seo_validation" not in captured_assembly["artifacts"]
     assert result["lifecycle_stage"] == "human_review"
     assert result["completed_stages"][-4:] == list(CANONICAL_STAGES[-4:])
     assert result["production"]["wordpress"]["publish"] is False
