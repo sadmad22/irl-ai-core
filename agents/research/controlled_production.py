@@ -43,15 +43,26 @@ def create_controlled_production_run(*, project_name: str, production_id: str, o
     return {"run_id": _run_id(project, production), "schema_version": SCHEMA_VERSION, "project_name": project, "production_id": production, "orchestration_id": orchestration, "status": "queued", "production_checkpoints": {"assembly_id": None, "package_id": None, "delivery_id": None}, "delivery": {"status": "not_started", "delivery_id": None, "post_id": None, "edit_url": None, "remote_status": None, "error": None}, "human_review": {"required": True, "status": "pending"}, "publication": {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}, "audit": _audit()}
 
 
+def _canonical_checkpoints(run: dict[str, Any]) -> dict[str, str]:
+    checkpoints = run.get("production_checkpoints")
+    if not isinstance(checkpoints, dict):
+        raise ValueError("ready_for_delivery requires canonical production checkpoints")
+    required = ("assembly_id", "package_id", "delivery_id")
+    values = {key: str(checkpoints.get(key, "")).strip() for key in required}
+    if not all(values.values()):
+        raise ValueError("ready_for_delivery requires canonical production checkpoints")
+    patterns = {"assembly_id": r"^assembly_[a-f0-9]{16}$", "package_id": r"^package_[a-f0-9]{16}$", "delivery_id": r"^delivery_[a-f0-9]{16}$"}
+    if any(not re.fullmatch(patterns[key], values[key]) for key in required):
+        raise ValueError("ready_for_delivery requires canonical production checkpoints")
+    return values
+
+
 def transition_controlled_production_run(run: dict[str, Any], *, status: str) -> dict[str, Any]:
     if not isinstance(run, dict): raise TypeError("run must be a dictionary")
     previous = str(run.get("status", ""))
     if previous not in _ALLOWED_TRANSITIONS: raise ValueError(f"Invalid existing controlled production status: {previous}")
     if status not in _ALLOWED_TRANSITIONS[previous]: raise ValueError(f"Invalid controlled production transition: {previous} -> {status}")
-    if status == "ready_for_delivery":
-        checkpoints = run.get("production_checkpoints")
-        if not isinstance(checkpoints, dict) or not all(str(checkpoints.get(key, "")).strip() for key in ("assembly_id", "package_id", "delivery_id")):
-            raise ValueError("ready_for_delivery requires canonical production checkpoints")
+    if status == "ready_for_delivery": _canonical_checkpoints(run)
     if status == "draft_delivered":
         delivery = run.get("delivery")
         if not isinstance(delivery, dict) or delivery.get("status") != "delivered" or delivery.get("remote_status") != "draft": raise ValueError("draft_delivered requires a delivered WordPress draft")
@@ -88,6 +99,14 @@ def _apply_production_checkpoints(run: dict[str, Any], orchestration: dict[str, 
     run["production_checkpoints"] = {"assembly_id": assembly["assembly_id"], "package_id": package["package_id"], "delivery_id": boundary["delivery_id"]}
 
 
+def _wordpress_checkpoint(orchestration: dict[str, Any]) -> dict[str, Any]:
+    production = orchestration.get("production")
+    wordpress = production.get("wordpress") if isinstance(production, dict) else None
+    if not isinstance(wordpress, dict):
+        raise ValueError("Canonical WordPress checkpoint is missing")
+    return wordpress
+
+
 def run_controlled_production(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None) -> dict[str, Any]:
     """Run one canonical controlled production cycle without permitting WordPress publication."""
     run = None
@@ -106,8 +125,8 @@ def run_controlled_production(project_name: str, *, llm_provider: Any, deliver: 
         _apply_production_checkpoints(run, orchestration)
         if not deliver:
             return transition_controlled_production_run(run, status="ready_for_delivery")
-        wordpress = orchestration.get("production", {}).get("wordpress")
-        if not isinstance(wordpress, dict) or wordpress.get("execution_mode") != "live" or wordpress.get("delivery_status") != "delivered" or wordpress.get("remote_status") != "draft" or wordpress.get("publish") is not False or wordpress.get("human_approval_required") is not True:
+        wordpress = _wordpress_checkpoint(orchestration)
+        if wordpress.get("execution_mode") != "live" or wordpress.get("delivery_status") != "delivered" or wordpress.get("remote_status") != "draft" or wordpress.get("publish") is not False or wordpress.get("human_approval_required") is not True:
             return mark_controlled_production_failed(run, error_type="WordPressDeliveryFailed", message="Canonical WordPress adapter did not return a delivered draft-only result.")
         post_id = wordpress.get("platform_post_id")
         if not isinstance(post_id, int) or post_id < 1: return mark_controlled_production_failed(run, error_type="WordPressDeliveryFailed", message="Canonical WordPress adapter did not return a valid post id.")
