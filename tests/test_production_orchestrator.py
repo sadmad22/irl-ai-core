@@ -12,12 +12,16 @@ def _quality():
     return {"quality_id": "quality_123", "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "article_draft_quality_ready", "outcome": "passed", "audit": {"validation_status": "validated"}}
 
 
+def _optimization():
+    return {"optimization_id": "optimization_123", "schema_version": "1.0", "method_version": "v1", "lifecycle_stage": "optimization_ready", "seo_title": "Consultant Liability Insurance", "meta_description": "Compare consultant liability insurance coverage and costs.", "primary_keyword": "consultant liability insurance", "slug": "consultant-liability-insurance", "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123"}}
+
+
 def test_stage_order_is_locked():
     assert STAGES == ("research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa", "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery")
 
 
 def test_non_delivery_orchestration_completes_selected_qa_mode():
-    result = {"research_report": {"report_id": "report_123"}, "content_brief": {"brief_id": "brief_123"}, "article_draft": _article(), "article_draft_quality": _quality(), "editorial_review": {"outcome": "approved"}, "seo_validation": {"outcome": "passed"}, "claim_audit": {"outcome": "passed"}, "publication": {"gate_status": "allowed"}}
+    result = {"research_report": {"report_id": "report_123"}, "content_brief": {"brief_id": "brief_123"}, "article_draft": _article(), "article_draft_quality": _quality(), "editorial_review": {"outcome": "approved"}, "final_optimization": _optimization(), "seo_validation": {"outcome": "passed"}, "claim_audit": {"outcome": "passed"}, "publication": {"gate_status": "allowed"}}
     assert "qa" in orchestrator._completed_stages(result)
     orchestration = build_production_orchestration(project_name="demo", result=result)
     assert orchestration["lifecycle_stage"] == "completed"
@@ -34,7 +38,7 @@ def test_canonical_production_intent_is_immutable():
 
 
 def test_matching_production_intent_is_accepted_as_canonical_copy():
-    result = {"production_intent": dict(PRODUCTION_INTENT)}
+    result = {"production_intent": dict(PRODUCTION_INTENT), "final_optimization": _optimization()}
     canonical = orchestrator._canonical_artifacts(result)
     assert canonical["production_intent"] == PRODUCTION_INTENT
     assert canonical["production_intent"] is not result["production_intent"]
@@ -44,6 +48,7 @@ def test_conflicting_lineage_is_rejected():
     result = {
         "lineage": {"draft_id": "draft_explicit"},
         "article_draft": {"draft_id": "draft_article"},
+        "final_optimization": _optimization(),
     }
     with pytest.raises(ValueError, match="Conflicting lineage for draft_id"):
         orchestrator._canonical_artifacts(result)
@@ -54,6 +59,7 @@ def test_matching_lineage_is_preserved():
         "lineage": {"draft_id": "draft_123"},
         "article_draft": {"draft_id": "draft_123", "report_id": "report_123"},
         "article_draft_quality": {"draft_id": "draft_123", "quality_id": "quality_123"},
+        "final_optimization": _optimization(),
     }
     canonical = orchestrator._canonical_artifacts(result)
     assert canonical["lineage"] == {"draft_id": "draft_123", "report_id": "report_123", "quality_id": "quality_123"}
@@ -67,7 +73,7 @@ def test_legacy_article_production_contract_is_not_used():
 
 
 def test_o7_dry_run_builds_boundary_and_never_calls_wordpress(monkeypatch: pytest.MonkeyPatch):
-    result = {"article_draft": _article(), "article_draft_quality": _quality(), "claim_audit": {"outcome": "passed"}, "editorial_review": {"outcome": "approved"}, "seo_validation": {"outcome": "passed"}, "media_strategy": {"status": "ready"}, "internal_linking": {"status": "ready"}, "external_linking": {"status": "ready"}, "taxonomy": {"categories": [], "tags": []}, "publication": {"gate_status": "allowed"}}
+    result = {"article_draft": _article(), "article_draft_quality": _quality(), "claim_audit": {"outcome": "passed"}, "editorial_review": {"outcome": "approved"}, "final_optimization": _optimization(), "seo_validation": {"outcome": "passed"}, "media_strategy": {"status": "ready"}, "internal_linking": {"status": "ready"}, "external_linking": {"status": "ready"}, "taxonomy": {"categories": [], "tags": []}, "publication": {"gate_status": "allowed"}}
     calls = {"adapter": 0, "boundary_mode": None}
 
     monkeypatch.setattr(orchestrator, "build_production_assembly", lambda **kwargs: {"assembly_id": "assembly_0123456789abcdef", "lifecycle_stage": "production_assembly_ready", "artifacts": kwargs["artifacts"]})
