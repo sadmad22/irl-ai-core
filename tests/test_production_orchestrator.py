@@ -16,6 +16,7 @@ def test_stage_order_is_locked():
 
 def test_non_delivery_orchestration_completes_selected_qa_mode():
     result = {"research_report": {"report_id": "report_123"}, "content_brief": {"brief_id": "brief_123"}, "article_draft": _article(), "article_draft_quality": _quality(), "editorial_review": {"outcome": "approved"}, "seo_validation": {"outcome": "passed"}, "claim_audit": {"outcome": "passed"}, "publication": {"gate_status": "allowed"}}
+    assert "qa" in orchestrator._completed_stages(result)
     orchestration = build_production_orchestration(project_name="demo", result=result)
     assert orchestration["lifecycle_stage"] == "completed"
     assert orchestration["current_stage"] is None
