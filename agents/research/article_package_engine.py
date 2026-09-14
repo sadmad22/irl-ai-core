@@ -79,6 +79,7 @@ def _lineage(artifacts: dict[str, Any]) -> dict[str, str]:
             result[key] = value
 
     optimization = _object(artifacts["optimization"], "optimization")
+    _optimization(optimization)
     optimization_id = _clean(optimization.get("optimization_id"))
     optimization_lineage = _object(optimization.get("lineage"), "optimization.lineage")
     if not optimization_id:
