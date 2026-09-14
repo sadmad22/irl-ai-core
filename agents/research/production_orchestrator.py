@@ -77,11 +77,16 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
 def _package_artifacts_from_assembly(assembly: dict[str, Any]) -> dict[str, Any]:
     """Build the Package input envelope strictly from the canonical Assembly output."""
     artifacts = copy.deepcopy(assembly["artifacts"])
-    lineage = copy.deepcopy(assembly["lineage"])
-    optimization = artifacts["optimization"]
-    optimization["optimization_id"] = lineage["optimization_id"]
-    optimization["lineage"] = {key: lineage[key] for key in ("report_id", "decision_id", "strategy_id", "brief_id")}
-    artifacts["lineage"] = lineage
+    lineage = assembly.get("lineage")
+    if not isinstance(lineage, dict):
+        return artifacts
+    optimization_id = str(lineage.get("optimization_id", "")).strip()
+    if optimization_id:
+        optimization = artifacts.get("optimization")
+        if isinstance(optimization, dict):
+            optimization["optimization_id"] = optimization_id
+            optimization["lineage"] = {key: lineage[key] for key in ("report_id", "decision_id", "strategy_id", "brief_id") if key in lineage}
+    artifacts["lineage"] = copy.deepcopy(lineage)
     return artifacts
 
 
