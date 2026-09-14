@@ -13,6 +13,7 @@ METHOD_VERSION = "v1"
 LIFECYCLE_STAGES = ("assembly_started", "inputs_validated", "artifacts_normalized", "production_assembly_ready", "failed")
 _REQUIRED_ARTIFACTS = ("article_draft", "quality", "claim_audit", "editorial_review", "optimization", "media", "linking", "taxonomy", "production_intent")
 _REQUIRED_LINEAGE = ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id")
+_OPTIMIZATION_LINEAGE = ("report_id", "decision_id", "strategy_id", "brief_id")
 _EXPECTED_INTENT = {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "production-assembly.schema.json"
 
@@ -66,6 +67,16 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
     optimization = _object(inputs["optimization"], "optimization")
     if not _text(optimization.get("seo_title")) or not _text(optimization.get("meta_description")):
         raise ProductionAssemblyEngineError("OPTIMIZATION_INCOMPLETE", "Final SEO title and meta description are required")
+    optimization_id = _text(optimization.get("optimization_id"))
+    optimization_lineage = _object(optimization.get("lineage"), "optimization.lineage")
+    if not optimization_id:
+        raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Final Optimization optimization_id is missing", ["optimization_id"])
+    for key in _OPTIMIZATION_LINEAGE:
+        if _text(optimization_lineage.get(key)) != _text(lineage.get(key)):
+            raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Final Optimization lineage conflicts with production lineage", [key])
+    supplied_optimization_id = _text(lineage.get("optimization_id"))
+    if not supplied_optimization_id or supplied_optimization_id != optimization_id:
+        raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "optimization_id lineage is inconsistent", ["optimization_id"])
 
     media = _object(inputs["media"], "media")
     images = media.get("images")
@@ -115,7 +126,10 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
 
 def _normalize(inputs: dict[str, Any]) -> dict[str, Any]:
     """Return canonical Article Package inputs without mutating caller-owned data."""
-    return {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
+    normalized = {name: copy.deepcopy(inputs[name]) for name in _REQUIRED_ARTIFACTS}
+    optimization = normalized["optimization"]
+    normalized["optimization"] = {key: optimization[key] for key in ("seo_title", "meta_description", "canonical_url") if key in optimization}
+    return normalized
 
 
 def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
@@ -128,6 +142,10 @@ def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
             raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", [key])
     if _text(lineage.get("quality_id")) != _text(quality.get("quality_id")):
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "quality_id lineage is inconsistent", ["quality_id"])
+    optimization_id = _text(inputs["optimization"].get("optimization_id"))
+    if not optimization_id or _text(lineage.get("optimization_id")) != optimization_id:
+        raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "optimization_id lineage is inconsistent", ["optimization_id"])
+    lineage["optimization_id"] = optimization_id
     return {key: _text(value) for key, value in lineage.items()}
 
 
