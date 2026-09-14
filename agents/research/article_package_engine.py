@@ -15,6 +15,7 @@ _REQUIRED_ARTIFACTS = (
     "article_draft", "quality", "claim_audit", "editorial_review",
     "optimization", "media", "linking", "taxonomy", "production_intent",
 )
+_OPTIMIZATION_LINEAGE = ("report_id", "decision_id", "strategy_id", "brief_id")
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared" / "schemas" / "article-package.schema.json"
 
 
@@ -76,6 +77,24 @@ def _lineage(artifacts: dict[str, Any]) -> dict[str, str]:
             mismatches.append(f"{key}:mismatch")
         else:
             result[key] = value
+
+    optimization = _object(artifacts["optimization"], "optimization")
+    _optimization(optimization)
+    optimization_id = _clean(optimization.get("optimization_id"))
+    optimization_lineage = _object(optimization.get("lineage"), "optimization.lineage")
+    if not optimization_id:
+        mismatches.append("optimization_id:missing")
+    supplied_optimization_id = _clean(result.get("optimization_id"))
+    if not supplied_optimization_id:
+        mismatches.append("optimization_id:missing")
+    elif optimization_id and supplied_optimization_id != optimization_id:
+        mismatches.append("optimization_id:mismatch")
+    for key in _OPTIMIZATION_LINEAGE:
+        optimization_value = _clean(optimization_lineage.get(key))
+        canonical_value = _clean(result.get(key))
+        if not optimization_value or not canonical_value or optimization_value != canonical_value:
+            mismatches.append(f"optimization.{key}:mismatch")
+
     if mismatches:
         raise ArticlePackageEngineError("LINEAGE_MISMATCH", "Production lineage is inconsistent", mismatches)
     return result

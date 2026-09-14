@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import copy
 
+import pytest
+
 from agents.research import production_orchestrator as orchestrator
+from agents.research.production_assembly_engine import ProductionAssemblyEngineError, build_production_assembly
 from agents.research.production_orchestrator import STAGES, execute_stage_plan
 
 CANONICAL_STAGES = (
@@ -103,6 +106,26 @@ def _early_result():
     return early
 
 
+def _production_artifacts():
+    return {
+        "article_draft": {
+            "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "draft_ready",
+            "content_type": "guide", "primary_keyword": "expat health insurance", "title": "Expat Health Insurance Guide", "slug": "expat-health-insurance-guide",
+            "sections": [{"section_id": "section_0", "heading": "Overview", "body": "Evidence-backed article text.", "purpose": "Explain the topic", "evidence_refs": ["evidence_1"], "claims": [{"claim_id": "claim_1", "text": "Evidence-backed article text.", "evidence_refs": ["evidence_1"], "grounding_status": "grounded"}]}],
+            "tables": [],
+        },
+        "quality": {"quality_id": "quality_123", "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "lifecycle_stage": "article_draft_quality_ready", "outcome": "passed", "audit": {"validation_status": "validated"}},
+        "claim_audit": {"outcome": "passed", "audit": {"validation_status": "validated"}},
+        "editorial_review": {"outcome": "approved", "audit": {"validation_status": "validated"}},
+        "optimization": {"optimization_id": "optimization_123", "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123"}, "seo_title": "Expat Health Insurance Guide", "meta_description": "A practical guide to expat health insurance.", "canonical_url": "https://insurancereviewlab.com/expat-health-insurance/"},
+        "media": {"images": [{"image_id": "image_1", "section_index": 0, "placement": "hero", "prompt": "Editorial insurance illustration", "alt_text": "Expat health insurance illustration", "materialization_status": "materialized", "asset_ref": "media_1"}]},
+        "linking": {"internal": [{"link_id": "link_internal_1", "section_index": 0, "target_url": "https://insurancereviewlab.com/insurance/", "anchor_text": "insurance coverage", "placement": "body"}], "external": []},
+        "taxonomy": {"categories": ["Expat Insurance"], "tags": ["health insurance"]},
+        "production_intent": copy.deepcopy(PRODUCTION_INTENT),
+        "lineage": copy.deepcopy(LINEAGE),
+    }
+
+
 def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypatch):
     calls = []
     captured_assembly = {}
@@ -136,6 +159,57 @@ def test_build_orchestration_uses_assembly_package_boundary_and_adapter(monkeypa
     assert result["completed_stages"][-4:] == list(CANONICAL_STAGES[-4:])
     assert result["production"]["wordpress"]["publish"] is False
     assert result["production"]["wordpress"]["human_approval_required"] is True
+
+
+def test_actual_orchestrator_assembly_package_chain_preserves_g02_lineage(monkeypatch):
+    captured = {}
+    real_assembly = orchestrator.build_production_assembly
+    real_package = orchestrator.build_article_package
+
+    def capture_assembly(**kwargs):
+        value = real_assembly(**kwargs)
+        captured["assembly"] = value
+        return value
+
+    def capture_package(**kwargs):
+        value = real_package(**kwargs)
+        captured["package"] = value
+        return value
+
+    monkeypatch.setattr(orchestrator, "build_production_assembly", capture_assembly)
+    monkeypatch.setattr(orchestrator, "build_article_package", capture_package)
+    monkeypatch.setattr(orchestrator, "build_production_delivery_boundary", lambda **kwargs: {"delivery_id": "delivery_0123456789abcdef", "lifecycle_stage": "delivery_ready", "delivery_status": "ready"})
+
+    result = orchestrator.build_production_orchestration(project_name="expat-health-insurance", result=_early_result() | _production_artifacts(), deliver=True, delivery_mode="dry_run")
+
+    assembly = captured["assembly"]
+    package = captured["package"]
+    assert result["lifecycle_stage"] == "completed"
+    assert {key: assembly["lineage"][key] for key in LINEAGE} == LINEAGE
+    assert assembly["lineage"]["optimization_id"] == "optimization_123"
+    assert {key: package["lineage"][key] for key in LINEAGE} == LINEAGE
+    assert package["lineage"]["optimization_id"] == assembly["lineage"]["optimization_id"]
+    assert package["optimization"]["seo_title"] == assembly["artifacts"]["optimization"]["seo_title"]
+    assert package["optimization"]["meta_description"] == assembly["artifacts"]["optimization"]["meta_description"]
+
+
+def test_g02_lineage_fields_do_not_disappear_at_assembly_package_boundary():
+    source = _production_artifacts()
+    assembly = build_production_assembly(project_name="expat-health-insurance", artifacts=source)
+    assert set(LINEAGE).issubset(assembly["lineage"])
+    assert "optimization_id" in assembly["lineage"]
+
+
+def test_g02_failure_classification_is_deterministic():
+    source = _production_artifacts()
+    source["optimization"]["lineage"]["report_id"] = "other_report"
+    messages = []
+    for _ in range(2):
+        try:
+            build_production_assembly(project_name="expat-health-insurance", artifacts=copy.deepcopy(source))
+        except ProductionAssemblyEngineError as exc:
+            messages.append((exc.code, exc.details))
+    assert messages == [("LINEAGE_MISMATCH", ("report_id",)), ("LINEAGE_MISMATCH", ("report_id",))]
 
 
 def test_wordpress_adapter_receives_the_exact_canonical_boundary(monkeypatch):

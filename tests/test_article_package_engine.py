@@ -11,6 +11,16 @@ from agents.research.article_package_engine import (
 )
 
 
+_CANONICAL_LINEAGE = {
+    "report_id": "report_123",
+    "decision_id": "decision_123",
+    "strategy_id": "strategy_123",
+    "brief_id": "brief_123",
+    "draft_id": "draft_123",
+    "quality_id": "quality_123",
+}
+
+
 def _artifacts(*, content_type: str = "guide") -> dict:
     draft = {
         "draft_id": "draft_123", "brief_id": "brief_123", "report_id": "report_123",
@@ -33,12 +43,16 @@ def _artifacts(*, content_type: str = "guide") -> dict:
         "article_draft": draft, "quality": quality,
         "claim_audit": {"outcome": "passed", "audit": {"validation_status": "validated"}},
         "editorial_review": {"outcome": "approved", "audit": {"validation_status": "validated"}},
-        "optimization": {"seo_title": "Expat Health Insurance Guide", "meta_description": "A practical guide to expat health insurance."},
+        "optimization": {
+            "optimization_id": "optimization_123",
+            "lineage": {key: _CANONICAL_LINEAGE[key] for key in ("report_id", "decision_id", "strategy_id", "brief_id")},
+            "seo_title": "Expat Health Insurance Guide", "meta_description": "A practical guide to expat health insurance."
+        },
         "media": {"images": [{"image_id": "image_1", "section_index": 0, "placement": "after_intro", "prompt": "Editorial illustration", "alt_text": "Expat health insurance illustration", "materialization_status": "materialized", "asset_ref": "media_1"}]},
         "linking": {"internal": [], "external": []},
         "taxonomy": {"categories": ["Expat Insurance"], "tags": ["health insurance"]},
         "production_intent": {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True},
-        "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123", "draft_id": "draft_123", "quality_id": "quality_123"},
+        "lineage": copy.deepcopy(_CANONICAL_LINEAGE) | {"optimization_id": "optimization_123"},
     }
 
 
@@ -49,6 +63,46 @@ def test_build_delivery_ready_package():
     assert package["delivery"]["publish"] is False
     assert package["media"]["images"][0]["asset_ref"] == "media_1"
     assert package["audit"]["validation_status"] == "validated"
+
+
+def test_package_preserves_canonical_six_id_lineage_and_optimization_id():
+    package = build_article_package(project_name="expat-health-insurance", artifacts=_artifacts())
+    assert {key: package["lineage"][key] for key in _CANONICAL_LINEAGE} == _CANONICAL_LINEAGE
+    assert package["lineage"]["optimization_id"] == "optimization_123"
+
+
+def test_package_retains_final_optimization_seo_values():
+    artifacts = _artifacts()
+    artifacts["seo_validation"] = {"seo_title": "Wrong Substitute", "meta_description": "Wrong substitute description."}
+    package = build_article_package(project_name="expat-health-insurance", artifacts=artifacts)
+    assert package["optimization"]["seo_title"] == artifacts["optimization"]["seo_title"]
+    assert package["optimization"]["meta_description"] == artifacts["optimization"]["meta_description"]
+
+
+def test_optimization_lineage_conflict_fails_closed():
+    artifacts = _artifacts()
+    artifacts["optimization"]["lineage"]["strategy_id"] = "other_strategy"
+    with pytest.raises(ArticlePackageEngineError) as exc:
+        build_article_package(project_name="expat-health-insurance", artifacts=artifacts)
+    assert exc.value.code == "LINEAGE_MISMATCH"
+
+
+def test_missing_optimization_id_fails_closed():
+    artifacts = _artifacts()
+    del artifacts["optimization"]["optimization_id"]
+    artifacts["lineage"].pop("optimization_id")
+    with pytest.raises(ArticlePackageEngineError) as exc:
+        build_article_package(project_name="expat-health-insurance", artifacts=artifacts)
+    assert exc.value.code == "LINEAGE_MISMATCH"
+
+
+def test_seo_validation_cannot_substitute_final_optimization():
+    artifacts = _artifacts()
+    artifacts["optimization"] = {"seo_title": "", "meta_description": ""}
+    artifacts["seo_validation"] = {"seo_title": "Substitute title", "meta_description": "Substitute description"}
+    with pytest.raises(ArticlePackageEngineError) as exc:
+        build_article_package(project_name="expat-health-insurance", artifacts=artifacts)
+    assert exc.value.code == "REQUIRED_ASSET_MISSING"
 
 
 def test_package_id_is_deterministic_and_input_is_not_mutated():

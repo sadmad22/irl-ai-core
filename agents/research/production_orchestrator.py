@@ -74,6 +74,22 @@ def _canonical_artifacts(result: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _package_artifacts_from_assembly(assembly: dict[str, Any]) -> dict[str, Any]:
+    """Build the Package input envelope strictly from the canonical Assembly output."""
+    artifacts = copy.deepcopy(assembly["artifacts"])
+    lineage = assembly.get("lineage")
+    if not isinstance(lineage, dict):
+        return artifacts
+    optimization_id = str(lineage.get("optimization_id", "")).strip()
+    if optimization_id:
+        optimization = artifacts.get("optimization")
+        if isinstance(optimization, dict):
+            optimization["optimization_id"] = optimization_id
+            optimization["lineage"] = {key: lineage[key] for key in ("report_id", "decision_id", "strategy_id", "brief_id") if key in lineage}
+    artifacts["lineage"] = copy.deepcopy(lineage)
+    return artifacts
+
+
 def _checkpoint_from_assembly(value: dict[str, Any]) -> dict[str, Any]:
     return {"assembly_id": value["assembly_id"], "lifecycle_stage": value["lifecycle_stage"]}
 
@@ -146,7 +162,7 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
         production["assembly"] = _checkpoint_from_assembly(assembly)
         completed.append("production_assembly")
         stage = "article_package"
-        package = build_article_package(project_name=project_name, artifacts=assembly["artifacts"], target_stage="delivery_ready")
+        package = build_article_package(project_name=project_name, artifacts=_package_artifacts_from_assembly(assembly), target_stage="delivery_ready")
         production["package"] = _checkpoint_from_package(package)
         completed.append("article_package")
         stage = "production_delivery_boundary"
