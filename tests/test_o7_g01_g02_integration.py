@@ -33,18 +33,38 @@ def _early() -> dict:
     return {"research_report": {}, "content_brief": {}, "article_draft": copy.deepcopy(a["article_draft"]), "article_draft_quality": copy.deepcopy(a["quality"]), "editorial_review": copy.deepcopy(a["editorial_review"]), "media": copy.deepcopy(a["media"]), "linking": copy.deepcopy(a["linking"]), "final_optimization": copy.deepcopy(OPTIMIZATION), "claim_audit": copy.deepcopy(a["claim_audit"]), "seo_validation": {}, "publication": {"gate_status": "allowed"}}
 
 
-def _canonical_orchestration(*, live: bool = False) -> tuple[dict, list]:
-    captured = []
-    original = orchestrator.deliver_wordpress_delivery_boundary
+def _canonical_orchestration(*, live: bool = False) -> tuple[dict, dict]:
+    captured = {"assembly": None, "package": None, "boundary": None, "wordpress": None}
+    original_assembly = orchestrator.build_production_assembly
+    original_package = orchestrator.build_article_package
+    original_boundary = orchestrator.build_production_delivery_boundary
+    original_wordpress = orchestrator.deliver_wordpress_delivery_boundary
+
+    def capture_assembly(**kwargs):
+        value = original_assembly(**kwargs); captured["assembly"] = value; return value
+
+    def capture_package(**kwargs):
+        value = original_package(**kwargs); captured["package"] = value; return value
+
+    def capture_boundary(**kwargs):
+        value = original_boundary(**kwargs); captured["boundary"] = value; return value
+
+    def capture_wordpress(**kwargs):
+        captured["wordpress"] = kwargs["boundary"]
+        return {"execution_mode": "live", "response": {"platform_post_id": 123, "remote_status": "draft", "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit"}}
+
+    orchestrator.build_production_assembly = capture_assembly
+    orchestrator.build_article_package = capture_package
+    orchestrator.build_production_delivery_boundary = capture_boundary
     if live:
-        def fake_adapter(**kwargs):
-            captured.append(kwargs["boundary"])
-            return {"execution_mode": "live", "response": {"platform_post_id": 123, "remote_status": "draft", "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit"}}
-        orchestrator.deliver_wordpress_delivery_boundary = fake_adapter
+        orchestrator.deliver_wordpress_delivery_boundary = capture_wordpress
     try:
         result = orchestrator.build_production_orchestration(project_name="expat-health-insurance", result=_early() | _artifacts(), deliver=True, delivery_mode="live" if live else "dry_run")
     finally:
-        orchestrator.deliver_wordpress_delivery_boundary = original
+        orchestrator.build_production_assembly = original_assembly
+        orchestrator.build_article_package = original_package
+        orchestrator.build_production_delivery_boundary = original_boundary
+        orchestrator.deliver_wordpress_delivery_boundary = original_wordpress
     return result, captured
 
 
@@ -53,22 +73,21 @@ def test_o7_g01_g02_exact_fourteen_stage_order():
 
 
 def test_o7_g01_g02_canonical_optimization_and_no_seo_substitution():
-    result, _ = _canonical_orchestration()
-    assert result["final_optimization"] == OPTIMIZATION
-    assert result["production"]["assembly"]["artifacts"]["optimization"] == OPTIMIZATION
-    assert "seo_validation" not in result["production"]["assembly"]["artifacts"]
+    _, captured = _canonical_orchestration()
+    assert captured["assembly"]["artifacts"]["optimization"] == OPTIMIZATION
+    assert "seo_validation" not in captured["assembly"]["artifacts"]
 
 
 def test_o7_g01_g02_first_four_lineage_and_optimization_id_survive_assembly():
-    result, _ = _canonical_orchestration()
-    lineage = result["production"]["assembly"]["lineage"]
+    _, captured = _canonical_orchestration()
+    lineage = captured["assembly"]["lineage"]
     assert {k: lineage[k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")} == {k: LINEAGE[k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")}
     assert lineage["optimization_id"] == "optimization_123"
 
 
 def test_o7_g01_g02_six_id_lineage_optimization_and_seo_survive_package():
-    result, _ = _canonical_orchestration()
-    package = result["production"]["package"]
+    _, captured = _canonical_orchestration()
+    package = captured["package"]
     assert {k: package["lineage"][k] for k in LINEAGE} == LINEAGE
     assert package["lineage"]["optimization_id"] == "optimization_123"
     assert package["optimization"]["seo_title"] == OPTIMIZATION["seo_title"]
@@ -93,7 +112,7 @@ def test_o7_g01_g02_dry_run_reaches_readiness_without_wordpress():
     assert result["production"]["wordpress"]["execution_mode"] == "dry_run"
     assert result["production"]["wordpress"]["delivery_status"] == "ready"
     assert result["production"]["wordpress"].get("platform_post_id") is None
-    assert captured == []
+    assert captured["wordpress"] is None
 
 
 def test_o7_g01_g02_controlled_draft_reaches_human_review_and_preserves_intent():
@@ -104,7 +123,7 @@ def test_o7_g01_g02_controlled_draft_reaches_human_review_and_preserves_intent()
         run = controlled_production.run_controlled_production("expat-health-insurance", llm_provider=object(), deliver=True)
     finally:
         monkeypatch.undo()
-    assert captured and captured[0] is orchestration["production"]["boundary"]
+    assert captured["wordpress"] is orchestration["production"]["boundary"]
     assert run["status"] == "human_review"
     assert run["delivery"]["remote_status"] == "draft"
     assert run["delivery"]["post_id"] == 123
@@ -151,4 +170,5 @@ def test_o7_g01_g02_orchestration_and_wordpress_failures_fail_closed():
 
 def test_o7_g01_g02_canonical_boundary_is_the_one_seen_by_adapter():
     result, captured = _canonical_orchestration(live=True)
-    assert captured and captured[0] is result["production"]["boundary"]
+    assert captured["wordpress"] is captured["boundary"]
+    assert result["production"]["wordpress"]["remote_status"] == "draft"
