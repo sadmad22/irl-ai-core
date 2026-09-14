@@ -37,10 +37,12 @@ Production Delivery Boundary
         ↓
 WordPress Adapter
         ↓
-O7 Controlled Production state
+O7 Controlled Production state/checkpoints
 ```
 
-preserves canonical identity, lineage, production intent, checkpoint semantics, fail-closed behavior, and human-review control.
+preserves canonical identity and lineage across the production artifact chain, while O7 preserves its own checkpoint/state-transition, delivery, publication-intent, and human-review controls.
+
+**Canonical lineage preservation is not the same requirement as O7 state persistence.** The six-ID production lineage and `optimization_id` MUST remain intact across the canonical production artifact boundaries where they are contractually carried (Final Optimization → Assembly → Package → Delivery Boundary). O7 MUST preserve the canonical checkpoint identities and `orchestration_id` needed for controlled-production traceability, but this contract does NOT require O7 to persist the full six-ID lineage or `optimization_id` as additional O7 state fields unless a separate O7 schema contract explicitly authorizes that change.
 
 The integration proof MUST exercise the existing canonical engines rather than reproduce their logic inside the tests.
 
@@ -114,6 +116,48 @@ report_id
 
 `optimization_id` identifies the Final Optimization artifact. It is an artifact identity and MUST NOT replace any production lineage identifier.
 
+### 5.1 Lineage Preservation vs O7 State Persistence
+
+For this reconciliation contract, the following distinction is normative:
+
+**Canonical lineage preservation** means that the required lineage identifiers remain unchanged when canonical production artifacts cross their defined boundaries:
+
+```text
+Final Optimization
+        ↓
+Assembly
+        ↓
+Package
+        ↓
+Delivery Boundary
+```
+
+**O7 state persistence** means that an identifier is physically represented as a field in the O7 Controlled Production state/schema.
+
+These are different requirements.
+
+O7 is required to preserve:
+
+- `orchestration_id`;
+- `assembly_id`;
+- `package_id`;
+- `delivery_id`;
+- the controlled production state and its publication/human-review invariants.
+
+O7 is **not** required by this contract to add or persist:
+
+- `report_id`;
+- `decision_id`;
+- `strategy_id`;
+- `brief_id`;
+- `draft_id`;
+- `quality_id`;
+- `optimization_id`.
+
+Those identifiers remain canonical lineage/traceability data in the production artifact chain. Any future requirement for O7 to persist them as first-class state fields MUST be introduced through a separate O7 schema/contract change and is outside this reconciliation.
+
+Therefore, an end-to-end traceability test MAY prove lineage preservation by inspecting the canonical artifacts and delivery/checkpoint references without asserting that O7 stores the complete six-ID lineage as its own fields.
+
 ## 6. G-02 Cross-Binding Invariants
 
 ### 6.1 Final Optimization → Assembly
@@ -157,6 +201,8 @@ The O7 production state MUST retain `orchestration_id` and these checkpoint iden
 A production run MUST NOT become delivery-ready unless the required canonical checkpoints are valid and present.
 
 A delivered run MUST have a valid delivery checkpoint and the corresponding controlled delivery state.
+
+Checkpoint preservation provides O7's controlled-production traceability into the canonical delivery chain. It does not imply that O7 stores the complete six-ID production lineage or the Final Optimization `optimization_id` as state fields.
 
 ## 8. O7 Production Intent Invariants
 
@@ -207,7 +253,7 @@ The O7 dry-run integration path MUST:
 
 1. execute the canonical production preparation path;
 2. validate the required production checkpoints;
-3. preserve G-01/G-02 identity and lineage;
+3. preserve G-01/G-02 identity and lineage across the canonical artifact chain;
 4. reach `ready_for_delivery` when the controlled pre-delivery conditions are satisfied;
 5. avoid WordPress side effects;
 6. produce no remote post ID;
@@ -248,7 +294,7 @@ A conflict is an error, not a merge or repair opportunity.
 
 ## 13. Determinism
 
-For identical valid upstream artifacts and identical lineage, the integrated O7 production result MUST preserve identical canonical lineage and optimization identity.
+For identical valid upstream artifacts and identical lineage, the integrated O7 production result MUST preserve identical canonical lineage and optimization identity across the canonical artifact chain and retain the same O7 checkpoint/control semantics.
 
 For identical conflicting inputs, the integration path MUST produce the same failure classification.
 
@@ -282,7 +328,7 @@ Owns external WordPress delivery mechanics. It consumes the canonical Delivery B
 
 ### O7 Controlled Production
 
-Owns production-run state, checkpoint/state-transition enforcement, controlled delivery status, and human-review gating. It does not become a second content-production engine.
+Owns production-run state, checkpoint/state-transition enforcement, controlled delivery status, and human-review gating. It does not become a second content-production engine or a second lineage store.
 
 ## 15. Prohibited Changes During Reconciliation
 
@@ -298,7 +344,8 @@ The reconciliation implementation MUST NOT:
 - introduce auto-publishing;
 - permit `publish=true` across the production path;
 - modify preserved production artifacts;
-- duplicate production logic inside integration tests.
+- duplicate production logic inside integration tests;
+- expand O7 state persistence to include the full canonical lineage without a separate O7 contract/schema authorization.
 
 ## 16. Required Integration Evidence
 
@@ -324,8 +371,8 @@ Before the gap can be closed, the integration test layer MUST explicitly prove:
 | R-16 | Missing checkpoint fails closed | Fail-Closed |
 | R-17 | Orchestration failure stops production | Fail-Closed |
 | R-18 | WordPress delivery failure stops production | Fail-Closed |
-| R-19 | No canonical lineage field disappears at any tested boundary | PASS |
-| R-20 | End-to-end O7 → G-01 → G-02 traceability is preserved | PASS |
+| R-19 | No canonical lineage field disappears at any tested canonical artifact boundary | PASS |
+| R-20 | End-to-end O7 → G-01 → G-02 traceability is preserved through canonical artifacts and O7 checkpoints without requiring full lineage persistence in O7 state | PASS |
 
 This matrix defines required evidence for the next phase. It does not authorize implementation until reviewed and approved.
 
@@ -335,7 +382,7 @@ The reconciliation gate is PASS only when:
 
 1. Every applicable R-series invariant has an explicit integration test.
 2. At least one test exercises the real Orchestrator → Assembly → Package → Delivery Boundary handoff.
-3. G-01 `optimization_id` and first-four lineage are preserved into O7 production state.
+3. G-01 `optimization_id` and first-four lineage are preserved through the canonical artifact chain and remain traceable to O7 through its canonical checkpoint/orchestration references; O7 full-lineage persistence is not required by this contract.
 4. The six-ID production lineage remains unchanged through package/delivery.
 5. Dry-run proves readiness without WordPress side effects.
 6. Controlled WordPress delivery proves draft-only behavior and `human_review`.
@@ -355,7 +402,8 @@ Stop immediately if:
 - `publish=true` can cross the production path;
 - `human_review` can be bypassed;
 - a preserved production artifact becomes modified or staged;
-- a provider/runtime implementation becomes necessary to establish the architecture contract rather than merely execute an already-supported boundary.
+- a provider/runtime implementation becomes necessary to establish the architecture contract rather than merely execute an already-supported boundary;
+- reconciliation work attempts to make O7 a second persistent store for the complete canonical production lineage without a separately approved O7 schema/contract change.
 
 ## 19. Implementation Gate
 
