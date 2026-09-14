@@ -75,7 +75,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> None:
         if _text(optimization_lineage.get(key)) != _text(lineage.get(key)):
             raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "Final Optimization lineage conflicts with production lineage", [key])
     supplied_optimization_id = _text(lineage.get("optimization_id"))
-    if not supplied_optimization_id or supplied_optimization_id != optimization_id:
+    if supplied_optimization_id and supplied_optimization_id != optimization_id:
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "optimization_id lineage is inconsistent", ["optimization_id"])
 
     media = _object(inputs["media"], "media")
@@ -143,7 +143,10 @@ def _lineage(inputs: dict[str, Any]) -> dict[str, str]:
     if _text(lineage.get("quality_id")) != _text(quality.get("quality_id")):
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "quality_id lineage is inconsistent", ["quality_id"])
     optimization_id = _text(inputs["optimization"].get("optimization_id"))
-    if not optimization_id or _text(lineage.get("optimization_id")) != optimization_id:
+    if not optimization_id:
+        raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "optimization_id lineage is missing", ["optimization_id"])
+    supplied_optimization_id = _text(lineage.get("optimization_id"))
+    if supplied_optimization_id and supplied_optimization_id != optimization_id:
         raise ProductionAssemblyEngineError("LINEAGE_MISMATCH", "optimization_id lineage is inconsistent", ["optimization_id"])
     lineage["optimization_id"] = optimization_id
     return {key: _text(value) for key, value in lineage.items()}
