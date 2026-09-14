@@ -7,6 +7,16 @@ import pytest
 from agents.research.production_assembly_engine import ProductionAssemblyEngineError, build_production_assembly
 
 
+_CANONICAL_LINEAGE = {
+    "report_id": "report_123",
+    "decision_id": "decision_123",
+    "strategy_id": "strategy_123",
+    "brief_id": "brief_123",
+    "draft_id": "draft_123",
+    "quality_id": "quality_123",
+}
+
+
 def _inputs() -> dict:
     return {
         "article_draft": {
@@ -18,12 +28,16 @@ def _inputs() -> dict:
         "quality": {"quality_id": "quality_123", "lifecycle_stage": "article_draft_quality_ready", "outcome": "passed", "audit": {"validation_status": "validated"}},
         "claim_audit": {"outcome": "passed", "audit": {"validation_status": "validated"}},
         "editorial_review": {"outcome": "approved", "audit": {"validation_status": "validated"}},
-        "optimization": {"seo_title": "Expat Health Insurance Guide", "meta_description": "A practical guide to expat health insurance.", "canonical_url": "https://insurancereviewlab.com/expat-health-insurance/"},
+        "optimization": {
+            "optimization_id": "optimization_123",
+            "lineage": {key: _CANONICAL_LINEAGE[key] for key in ("report_id", "decision_id", "strategy_id", "brief_id")},
+            "seo_title": "Expat Health Insurance Guide", "meta_description": "A practical guide to expat health insurance.", "canonical_url": "https://insurancereviewlab.com/expat-health-insurance/"
+        },
         "media": {"images": [{"image_id": "image_1", "section_index": 0, "placement": "hero", "prompt": "Editorial insurance illustration", "alt_text": "Expat health insurance illustration", "materialization_status": "materialized", "asset_ref": "media_1"}]},
         "linking": {"internal": [{"link_id": "link_internal_1", "section_index": 0, "target_url": "https://insurancereviewlab.com/insurance/", "anchor_text": "insurance coverage", "placement": "body"}], "external": []},
         "taxonomy": {"categories": ["Expat Insurance"], "tags": ["health insurance"]},
         "production_intent": {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True},
-        "lineage": {"report_id": "report_123", "decision_id": "decision_123", "strategy_id": "strategy_123", "brief_id": "brief_123", "draft_id": "draft_123", "quality_id": "quality_123"},
+        "lineage": copy.deepcopy(_CANONICAL_LINEAGE),
     }
 
 
@@ -32,6 +46,31 @@ def test_builds_ready_assembly():
     assert result["lifecycle_stage"] == "production_assembly_ready"
     assert result["audit"] == {"method": "production_assembly", "version": "v1", "validation_status": "validated"}
     assert result["artifacts"]["media"]["images"][0]["asset_ref"] == "media_1"
+
+
+def test_final_optimization_lineage_matches_assembly_lineage():
+    result = build_production_assembly(project_name="expat-health-insurance", artifacts=_inputs())
+    assert result["lineage"] == _CANONICAL_LINEAGE | {"optimization_id": "optimization_123"}
+
+
+@pytest.mark.parametrize("lineage_key", ["report_id", "decision_id", "strategy_id", "brief_id"])
+def test_final_optimization_lineage_mismatch_fails_closed(lineage_key):
+    source = _inputs()
+    source["optimization"]["lineage"][lineage_key] = f"other_{lineage_key}"
+    with pytest.raises(ProductionAssemblyEngineError, match="LINEAGE_MISMATCH"):
+        build_production_assembly(project_name="expat-health-insurance", artifacts=source)
+
+
+def test_missing_optimization_id_fails_closed():
+    source = _inputs()
+    del source["optimization"]["optimization_id"]
+    with pytest.raises(ProductionAssemblyEngineError, match="LINEAGE_MISMATCH"):
+        build_production_assembly(project_name="expat-health-insurance", artifacts=source)
+
+
+def test_assembly_lineage_preserves_canonical_six_ids():
+    result = build_production_assembly(project_name="expat-health-insurance", artifacts=_inputs())
+    assert {key: result["lineage"][key] for key in _CANONICAL_LINEAGE} == _CANONICAL_LINEAGE
 
 
 def test_assembly_id_is_deterministic():
