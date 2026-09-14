@@ -40,7 +40,7 @@ def create_controlled_production_run(*, project_name: str, production_id: str, o
     if not project: raise ValueError("project_name is required")
     if not re.fullmatch(r"production_[a-f0-9]{16}", production): raise ValueError("production_id must match ^production_[a-f0-9]{16}$")
     if not re.fullmatch(r"orchestration_[a-f0-9]{16}", orchestration): raise ValueError("orchestration_id must match ^orchestration_[a-f0-9]{16}$")
-    return {"run_id": _run_id(project, production), "schema_version": SCHEMA_VERSION, "project_name": project, "production_id": production, "orchestration_id": orchestration, "status": "queued", "production_checkpoints": {"assembly_id": None, "package_id": None, "delivery_id": None}, "delivery": {"status": "not_started", "delivery_id": None, "post_id": None, "edit_url": None, "remote_status": None, "error": None}, "human_review": {"required": True, "status": "pending"}, "publication": {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}, "audit": _audit()}
+    return {"run_id": _run_id(project, production), "schema_version": SCHEMA_VERSION, "project_name": project, "production_id": production, "orchestration_id": orchestration, "status": "queued", "production_checkpoints": {"assembly_id": None, "package_id": None, "delivery_id": None}, "delivery": {"status": "not_started", "delivery_id": None, "post_id": None, "edit_url": None, "remote_status": None, "error": None}, "human_review": {"required": True, "status": "pending"}, "publication": {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}, "audit": _audit()}
 
 
 def _canonical_checkpoints(run: dict[str, Any]) -> dict[str, str]:
