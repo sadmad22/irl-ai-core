@@ -55,8 +55,9 @@
     "publication": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mode", "publish", "human_approval_required"],
+      "required": ["target", "mode", "publish", "human_approval_required"],
       "properties": {
+        "target": {"const": "wordpress"},
         "mode": {"const": "wordpress_draft"},
         "publish": {"const": false},
         "human_approval_required": {"const": true}

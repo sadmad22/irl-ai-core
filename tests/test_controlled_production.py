@@ -45,7 +45,7 @@ def test_create_run_is_deterministic_and_queued() -> None:
     assert first["status"] == "queued"
     assert first["production_checkpoints"] == {"assembly_id": None, "package_id": None, "delivery_id": None}
     assert "topic" not in first
-    assert first["publication"] == {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+    assert first["publication"] == {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
 
 
 def test_controlled_production_does_not_accept_detached_topic() -> None:
@@ -121,7 +121,7 @@ def test_run_controlled_production_dry_run_stops_before_wordpress(monkeypatch: p
     assert result["production_checkpoints"] == {"assembly_id": "assembly_0123456789abcdef", "package_id": "package_0123456789abcdef", "delivery_id": "delivery_0123456789abcdef"}
     assert result["delivery"]["status"] == "not_started"
     assert result["delivery"]["post_id"] is None
-    assert result["publication"] == {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+    assert result["publication"] == {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
 
 
 def test_run_controlled_production_delivery_reaches_human_review(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -134,7 +134,7 @@ def test_run_controlled_production_delivery_reaches_human_review(monkeypatch: py
     assert run["status"] == "human_review"
     assert run["delivery"] == {"status": "delivered", "delivery_id": "delivery_0123456789abcdef", "post_id": 123, "edit_url": "https://example.test/wp-admin/post.php?post=123&action=edit", "remote_status": "draft", "error": None}
     assert run["human_review"] == {"required": True, "status": "pending"}
-    assert run["publication"] == {"mode": "wordpress_draft", "publish": False, "human_approval_required": True}
+    assert run["publication"] == {"target": "wordpress", "mode": "wordpress_draft", "publish": False, "human_approval_required": True}
 
 
 def test_run_controlled_production_orchestration_failure_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:

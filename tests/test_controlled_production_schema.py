@@ -33,6 +33,7 @@ def _base_run() -> dict:
         },
         "human_review": {"required": True, "status": "pending"},
         "publication": {
+            "target": "wordpress",
             "mode": "wordpress_draft",
             "publish": False,
             "human_approval_required": True,
