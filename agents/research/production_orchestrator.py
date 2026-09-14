@@ -123,6 +123,20 @@ def _production_template(context: dict[str, Any]) -> dict[str, Any]:
     return {"assembly": copy.deepcopy(production.get("assembly", {})), "package": copy.deepcopy(production.get("package", {})), "boundary": copy.deepcopy(production.get("boundary", {})), "wordpress": copy.deepcopy(production.get("wordpress", {}))}
 
 
+def _merge_stage_output(context: dict[str, Any], output: dict[str, Any], stage: str) -> None:
+    context.update(output)
+    production = _production_template(context)
+    supplied = output.get("production")
+    if isinstance(supplied, dict):
+        for checkpoint in production:
+            if isinstance(supplied.get(checkpoint), dict): production[checkpoint].update(copy.deepcopy(supplied[checkpoint]))
+    if stage == "production_assembly" and isinstance(output.get("production_assembly"), dict) and {"assembly_id", "lifecycle_stage"} <= output["production_assembly"].keys(): production["assembly"] = _checkpoint_from_assembly(output["production_assembly"])
+    if stage == "article_package" and isinstance(output.get("article_package"), dict) and isinstance(output["article_package"].get("identity"), dict): production["package"] = _checkpoint_from_package(output["article_package"])
+    if stage == "production_delivery_boundary" and isinstance(output.get("production_delivery_boundary"), dict) and {"delivery_id", "lifecycle_stage", "delivery_status"} <= output["production_delivery_boundary"].keys(): production["boundary"] = _checkpoint_from_boundary(output["production_delivery_boundary"])
+    if stage == "wordpress_delivery" and isinstance(output.get("wordpress_delivery"), dict): production["wordpress"] = _checkpoint_from_wordpress(output["wordpress_delivery"], live=output["wordpress_delivery"].get("execution_mode") == "live")
+    context["production"] = production
+
+
 def _terminal_lifecycle(context: dict[str, Any]) -> str:
     wordpress = _production_template(context)["wordpress"]
     if wordpress.get("execution_mode") == "live" and wordpress.get("delivery_status") == "delivered" and wordpress.get("remote_status") == "draft" and wordpress.get("publish") is False and wordpress.get("human_approval_required") is True: return "human_review"
@@ -198,17 +212,7 @@ def execute_stage_plan(*, project_name: str, stage_runner: StageRunner, start_st
         try:
             output = stage_runner(stage, copy.deepcopy(context))
             if not isinstance(output, dict): raise TypeError("Stage runner must return a dictionary")
-            context.update(output)
-            production = _production_template(context)
-            supplied = output.get("production")
-            if isinstance(supplied, dict):
-                for checkpoint in production:
-                    if isinstance(supplied.get(checkpoint), dict): production[checkpoint].update(copy.deepcopy(supplied[checkpoint]))
-            if stage == "production_assembly" and isinstance(output.get("production_assembly"), dict) and {"assembly_id", "lifecycle_stage"} <= output["production_assembly"].keys(): production["assembly"] = _checkpoint_from_assembly(output["production_assembly"])
-            if stage == "article_package" and isinstance(output.get("article_package"), dict) and isinstance(output["article_package"].get("identity"), dict): production["package"] = _checkpoint_from_package(output["article_package"])
-            if stage == "production_delivery_boundary" and isinstance(output.get("production_delivery_boundary"), dict) and {"delivery_id", "lifecycle_stage", "delivery_status"} <= output["production_delivery_boundary"].keys(): production["boundary"] = _checkpoint_from_boundary(output["production_delivery_boundary"])
-            if stage == "wordpress_delivery" and isinstance(output.get("wordpress_delivery"), dict): production["wordpress"] = _checkpoint_from_wordpress(output["wordpress_delivery"], live=output["wordpress_delivery"].get("execution_mode") == "live")
-            context["production"] = production
+            _merge_stage_output(context, output, stage)
             if stage not in completed: completed.append(stage)
         except Exception as exc:
             return _base_result(project_name, completed, _lineage_from_result(context), _production_template(context), lifecycle="failed", current=stage, error={"stage": stage, "type": type(exc).__name__, "message": str(exc)})
