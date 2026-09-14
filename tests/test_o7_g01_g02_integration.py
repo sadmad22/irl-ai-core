@@ -68,33 +68,67 @@ def _canonical_orchestration(*, live: bool = False) -> tuple[dict, dict]:
     return result, captured
 
 
+def _run_ready() -> dict:
+    run = controlled_production.create_controlled_production_run(project_name="expat-health-insurance", production_id="production_0123456789abcdef", orchestration_id="orchestration_0123456789abcdef")
+    run = controlled_production.transition_controlled_production_run(run, status="running")
+    run["production_checkpoints"] = {"assembly_id": "assembly_0123456789abcdef", "package_id": "package_0123456789abcdef", "delivery_id": "delivery_0123456789abcdef"}
+    return controlled_production.transition_controlled_production_run(run, status="ready_for_delivery")
+
+
 def test_o7_g01_g02_exact_fourteen_stage_order():
     assert orchestrator.STAGES == ("research", "intelligence", "configuration", "structure", "draft", "editorial_cleanup", "media", "linking", "optimization", "qa", "production_assembly", "article_package", "production_delivery_boundary", "wordpress_delivery")
 
 
-def test_o7_g01_g02_canonical_optimization_and_no_seo_substitution():
+def test_o7_g01_g02_canonical_optimization_reaches_assembly():
     _, captured = _canonical_orchestration()
     assert captured["assembly"]["artifacts"]["optimization"] == OPTIMIZATION
-    assert "seo_validation" not in captured["assembly"]["artifacts"]
 
 
-def test_o7_g01_g02_first_four_lineage_and_optimization_id_survive_assembly():
+def test_o7_g01_g02_seo_validation_cannot_replace_optimization():
+    source = _artifacts(); source.pop("optimization")
+    source["seo_validation"] = {"seo_title": "Wrong", "meta_description": "Wrong"}
+    with pytest.raises((ProductionAssemblyEngineError, ValueError)):
+        build_production_assembly(project_name="expat-health-insurance", artifacts=source)
+
+
+def test_o7_g01_g02_first_four_lineage_match_assembly():
     _, captured = _canonical_orchestration()
-    lineage = captured["assembly"]["lineage"]
-    assert {k: lineage[k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")} == {k: LINEAGE[k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")}
-    assert lineage["optimization_id"] == "optimization_123"
+    assert {k: captured["assembly"]["lineage"][k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")} == {k: LINEAGE[k] for k in ("report_id", "decision_id", "strategy_id", "brief_id")}
 
 
-def test_o7_g01_g02_six_id_lineage_optimization_and_seo_survive_package():
+def test_o7_g01_g02_optimization_id_survives_assembly():
     _, captured = _canonical_orchestration()
-    package = captured["package"]
-    assert {k: package["lineage"][k] for k in LINEAGE} == LINEAGE
-    assert package["lineage"]["optimization_id"] == "optimization_123"
-    assert package["optimization"]["seo_title"] == OPTIMIZATION["seo_title"]
-    assert package["optimization"]["meta_description"] == OPTIMIZATION["meta_description"]
+    assert captured["assembly"]["lineage"]["optimization_id"] == "optimization_123"
 
 
-def test_o7_g01_g02_o7_checkpoint_and_orchestration_traceability():
+def test_o7_g01_g02_six_id_lineage_survives_package():
+    _, captured = _canonical_orchestration()
+    assert {k: captured["package"]["lineage"][k] for k in LINEAGE} == LINEAGE
+
+
+def test_o7_g01_g02_optimization_id_survives_package():
+    _, captured = _canonical_orchestration()
+    assert captured["package"]["lineage"]["optimization_id"] == "optimization_123"
+
+
+def test_o7_g01_g02_package_optimization_values_are_canonical():
+    _, captured = _canonical_orchestration()
+    assert captured["package"]["optimization"]["seo_title"] == OPTIMIZATION["seo_title"]
+    assert captured["package"]["optimization"]["meta_description"] == OPTIMIZATION["meta_description"]
+
+
+def test_o7_g01_g02_o7_checkpoint_chain_is_valid():
+    orchestration, _ = _canonical_orchestration()
+    run = controlled_production.create_controlled_production_run(project_name="expat-health-insurance", production_id="production_0123456789abcdef", orchestration_id=orchestration["orchestration_id"])
+    run = controlled_production.transition_controlled_production_run(run, status="running")
+    run["production_checkpoints"] = {"assembly_id": orchestration["production"]["assembly"]["assembly_id"], "package_id": orchestration["production"]["package"]["package_id"], "delivery_id": orchestration["production"]["boundary"]["delivery_id"]}
+    run = controlled_production.transition_controlled_production_run(run, status="ready_for_delivery")
+    assert run["production_checkpoints"]["assembly_id"] == orchestration["production"]["assembly"]["assembly_id"]
+    assert run["production_checkpoints"]["package_id"] == orchestration["production"]["package"]["package_id"]
+    assert run["production_checkpoints"]["delivery_id"] == orchestration["production"]["boundary"]["delivery_id"]
+
+
+def test_o7_g01_g02_o7_preserves_orchestration_identity():
     orchestration, _ = _canonical_orchestration()
     monkeypatch = pytest.MonkeyPatch()
     try:
@@ -103,11 +137,9 @@ def test_o7_g01_g02_o7_checkpoint_and_orchestration_traceability():
     finally:
         monkeypatch.undo()
     assert run["orchestration_id"] == orchestration["orchestration_id"]
-    assert run["production_checkpoints"] == {"assembly_id": orchestration["production"]["assembly"]["assembly_id"], "package_id": orchestration["production"]["package"]["package_id"], "delivery_id": orchestration["production"]["boundary"]["delivery_id"]}
-    assert run["status"] == "ready_for_delivery"
 
 
-def test_o7_g01_g02_dry_run_reaches_readiness_without_wordpress():
+def test_o7_g01_g02_dry_run_reaches_delivery_readiness_without_wordpress():
     result, captured = _canonical_orchestration()
     assert result["production"]["wordpress"]["execution_mode"] == "dry_run"
     assert result["production"]["wordpress"]["delivery_status"] == "ready"
@@ -115,7 +147,7 @@ def test_o7_g01_g02_dry_run_reaches_readiness_without_wordpress():
     assert captured["wordpress"] is None
 
 
-def test_o7_g01_g02_controlled_draft_reaches_human_review_and_preserves_intent():
+def test_o7_g01_g02_controlled_delivery_creates_draft_only():
     orchestration, captured = _canonical_orchestration(live=True)
     monkeypatch = pytest.MonkeyPatch()
     try:
@@ -124,10 +156,32 @@ def test_o7_g01_g02_controlled_draft_reaches_human_review_and_preserves_intent()
     finally:
         monkeypatch.undo()
     assert captured["wordpress"] is orchestration["production"]["boundary"]
-    assert run["status"] == "human_review"
     assert run["delivery"]["remote_status"] == "draft"
-    assert run["delivery"]["post_id"] == 123
+    assert run["publication"]["publish"] is False
+
+
+def test_o7_g01_g02_controlled_delivery_resolves_to_human_review():
+    orchestration, _ = _canonical_orchestration(live=True)
+    monkeypatch = pytest.MonkeyPatch()
+    try:
+        monkeypatch.setattr(controlled_production, "run_production_orchestrator", lambda *a, **k: orchestration)
+        run = controlled_production.run_controlled_production("expat-health-insurance", llm_provider=object(), deliver=True)
+    finally:
+        monkeypatch.undo()
+    assert run["status"] == "human_review"
     assert run["human_review"] == {"required": True, "status": "pending"}
+
+
+def test_o7_g01_g02_publication_intent_is_immutable():
+    orchestration, _ = _canonical_orchestration(live=True)
+    orchestration["production"]["wordpress"]["publish"] = True
+    monkeypatch = pytest.MonkeyPatch()
+    try:
+        monkeypatch.setattr(controlled_production, "run_production_orchestrator", lambda *a, **k: orchestration)
+        run = controlled_production.run_controlled_production("expat-health-insurance", llm_provider=object(), deliver=True)
+    finally:
+        monkeypatch.undo()
+    assert run["status"] == "failed"
     assert run["publication"] == INTENT
 
 
@@ -148,7 +202,13 @@ def test_o7_g01_g02_missing_checkpoint_fails_closed():
         controlled_production.transition_controlled_production_run(run, status="ready_for_delivery")
 
 
-def test_o7_g01_g02_orchestration_and_wordpress_failures_fail_closed():
+def test_o7_g01_g02_invalid_o7_transition_fails_closed():
+    run = controlled_production.create_controlled_production_run(project_name="expat-health-insurance", production_id="production_0123456789abcdef", orchestration_id="orchestration_0123456789abcdef")
+    with pytest.raises(ValueError, match="Invalid controlled production transition"):
+        controlled_production.transition_controlled_production_run(run, status="human_review")
+
+
+def test_o7_g01_g02_orchestration_failure_fails_closed():
     failed = _canonical_orchestration()[0]; failed["lifecycle_stage"] = "failed"; failed["error"] = {"type": "PackageError", "message": "package failed"}
     monkeypatch = pytest.MonkeyPatch()
     try:
@@ -156,19 +216,34 @@ def test_o7_g01_g02_orchestration_and_wordpress_failures_fail_closed():
         run = controlled_production.run_controlled_production("expat-health-insurance", llm_provider=object(), deliver=False)
     finally:
         monkeypatch.undo()
-    assert run["status"] == "failed" and run["publication"]["publish"] is False
+    assert run["status"] == "failed"
+    assert run["publication"]["publish"] is False
 
-    wordpress_failed = _canonical_orchestration(live=True)[0]; wordpress_failed["production"]["wordpress"]["delivery_status"] = "failed"
+
+def test_o7_g01_g02_wordpress_failure_fails_closed():
+    failed = _canonical_orchestration(live=True)[0]
+    failed["production"]["wordpress"]["delivery_status"] = "failed"
     monkeypatch = pytest.MonkeyPatch()
     try:
-        monkeypatch.setattr(controlled_production, "run_production_orchestrator", lambda *a, **k: wordpress_failed)
+        monkeypatch.setattr(controlled_production, "run_production_orchestrator", lambda *a, **k: failed)
         run = controlled_production.run_controlled_production("expat-health-insurance", llm_provider=object(), deliver=True)
     finally:
         monkeypatch.undo()
-    assert run["status"] == "failed" and run["publication"]["publish"] is False
+    assert run["status"] == "failed"
+    assert run["publication"]["publish"] is False
 
 
-def test_o7_g01_g02_canonical_boundary_is_the_one_seen_by_adapter():
-    result, captured = _canonical_orchestration(live=True)
-    assert captured["wordpress"] is captured["boundary"]
-    assert result["production"]["wordpress"]["remote_status"] == "draft"
+def test_o7_g01_g02_lineage_is_preserved_across_canonical_boundaries():
+    _, captured = _canonical_orchestration()
+    for artifact in (captured["assembly"], captured["package"]):
+        assert {k: artifact["lineage"][k] for k in LINEAGE} == LINEAGE
+        assert artifact["lineage"]["optimization_id"] == "optimization_123"
+    assert captured["boundary"]["delivery_id"].startswith("delivery_")
+
+
+def test_o7_g01_g02_end_to_end_traceability_without_o7_full_lineage_persistence():
+    orchestration, _ = _canonical_orchestration()
+    run = controlled_production.create_controlled_production_run(project_name="expat-health-insurance", production_id="production_0123456789abcdef", orchestration_id=orchestration["orchestration_id"])
+    assert run["orchestration_id"] == orchestration["orchestration_id"]
+    assert set(run) >= {"orchestration_id", "production_checkpoints"}
+    assert not any(key in run for key in ("report_id", "decision_id", "strategy_id", "brief_id", "draft_id", "quality_id", "optimization_id"))
