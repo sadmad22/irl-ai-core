@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/intelligence.schema.json",
+  "title": "IRL AI Core Intelligence",
+  "description": "Canonical Intelligence artifact derived from a ResearchReport and its evidence lineage.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "intelligence_id": { "type": "string", "minLength": 1 },
+    "report_id": { "type": "string", "minLength": 1 },
+    "intent_interpretation": {
+      "$ref": "#/$defs/evidence_signal"
+    },
+    "ambiguity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["low", "medium", "high"] },
+        "explanation": { "type": "string", "minLength": 1 },
+        "evidence_refs": { "$ref": "#/$defs/evidence_refs" }
+      },
+      "required": ["level", "explanation", "evidence_refs"]
+    },
+    "topic_signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_signal" }
+    },
+    "source_type_signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_signal" }
+    },
+    "commercial_signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_signal" }
+    },
+    "decision_signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_signal" }
+    },
+    "unsupported_or_insufficient": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "schema_version": { "type": "string", "minLength": 1 },
+    "method_version": { "type": "string", "minLength": 1 },
+    "lifecycle_stage": { "type": "string", "const": "intelligence_ready" }
+  },
+  "$defs": {
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "evidence_signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence_refs": { "$ref": "#/$defs/evidence_refs" }
+      },
+      "required": ["summary", "evidence_refs"]
+    }
+  },
+  "required": [
+    "intelligence_id",
+    "report_id",
+    "intent_interpretation",
+    "ambiguity",
+    "topic_signals",
+    "source_type_signals",
+    "commercial_signals",
+    "decision_signals",
+    "unsupported_or_insufficient",
+    "schema_version",
+    "method_version",
+    "lifecycle_stage"
+  ]
+}
