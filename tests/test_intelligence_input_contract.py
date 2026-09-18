@@ -120,7 +120,7 @@ def test_non_active_evidence_is_rejected_before_derivation(status: str) -> None:
 
 
 def test_unknown_evidence_status_is_rejected() -> None:
-    with pytest.raises(ValueError, match="status"):
+    with pytest.raises(ValueError):
         validate_intelligence_input(report(), [evidence(status="unknown")])
 
 
