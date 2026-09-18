@@ -72,6 +72,22 @@ def test_research_report_requires_non_empty_report_id() -> None:
         validate_intelligence_input(report(report_id=""), [evidence()])
 
 
+def test_research_report_requires_evidence_refs() -> None:
+    invalid = report()
+    invalid.pop("evidence_refs")
+
+    with pytest.raises(ValueError, match="evidence_refs"):
+        validate_intelligence_input(invalid, [evidence()])
+
+
+def test_research_report_requires_search_intent() -> None:
+    invalid = report()
+    invalid.pop("search_intent")
+
+    with pytest.raises(ValueError, match="search_intent"):
+        validate_intelligence_input(invalid, [evidence()])
+
+
 def test_evidence_requires_matching_report_id() -> None:
     with pytest.raises(ValueError, match="report_id"):
         validate_intelligence_input(report(), [evidence(report_id="rr_other")])
@@ -85,6 +101,11 @@ def test_every_report_evidence_ref_must_resolve() -> None:
 def test_evidence_refs_must_not_be_empty() -> None:
     with pytest.raises(ValueError, match="evidence_refs"):
         validate_intelligence_input(report(refs=[]), [evidence()])
+
+
+def test_duplicate_evidence_refs_are_rejected() -> None:
+    with pytest.raises(ValueError, match="duplicate"):
+        validate_intelligence_input(report(refs=["ev_001", "ev_001"]), [evidence()])
 
 
 def test_duplicate_evidence_ids_are_rejected() -> None:
