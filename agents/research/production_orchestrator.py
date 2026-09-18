@@ -5,6 +5,8 @@ import hashlib
 import json
 from typing import Any, Callable
 
+from agents.intelligence.project_integration import build_intelligence_from_project
+
 from .article_package_engine import build_article_package
 from .content_research_pipeline import run_content_research_to_wordpress_draft
 from .production_assembly_engine import build_production_assembly
@@ -184,7 +186,10 @@ def build_production_orchestration(*, project_name: str, result: dict[str, Any],
 def _completed_stages(result: dict[str, Any]) -> list[str]:
     detected: set[str] = set()
     if isinstance(result.get("research_report"), dict): detected.add("research")
-    if isinstance(result.get("content_brief"), dict): detected.update({"intelligence", "configuration", "structure"})
+    intelligence = result.get("intelligence")
+    if isinstance(intelligence, dict) and intelligence.get("lifecycle_stage") == "intelligence_ready" and intelligence.get("intelligence_id") and intelligence.get("report_id"):
+        detected.add("intelligence")
+    if isinstance(result.get("content_brief"), dict): detected.update({"configuration", "structure"})
     if isinstance(result.get("article_draft"), dict): detected.add("draft")
     if isinstance(result.get("editorial_review"), dict): detected.add("editorial_cleanup")
     if isinstance(result.get("media", result.get("media_strategy")), dict): detected.add("media")
@@ -197,6 +202,7 @@ def _completed_stages(result: dict[str, Any]) -> list[str]:
 def run_production_orchestrator(project_name: str, *, llm_provider: Any, deliver: bool = False, connection: Any = None, transport: Callable[..., Any] | None = None, delivery_mode: str = "live") -> dict[str, Any]:
     """Coordinate upstream content production and, when requested, the canonical controlled production chain."""
     result = run_content_research_to_wordpress_draft(project_name, llm_provider=llm_provider, deliver=False, connection=connection, transport=transport)
+    result["intelligence"] = build_intelligence_from_project(project_name)
     return build_production_orchestration(project_name=project_name, result=result, deliver=deliver, connection=connection, transport=transport, delivery_mode=delivery_mode)
 
 
