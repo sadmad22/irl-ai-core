@@ -148,16 +148,6 @@ def _commercial_signals(
     report: dict[str, Any],
 ) -> list[dict[str, Any]]:
     refs = _refs_for_domain(report, "business")
-    commercial_terms = ("commercial", "purchase", "price", "cost", "buy", "transaction", "revenue")
-    for domain in _EVIDENCE_DOMAINS:
-        if domain == "business":
-            continue
-        for ref in _refs_for_domain(report, domain):
-            evidence = evidence_by_id[ref]
-            text = _signal_summary(evidence).lower()
-            if any(term in text for term in commercial_terms):
-                refs.append(ref)
-
     refs = list(dict.fromkeys(refs))
     if not refs:
         return []
