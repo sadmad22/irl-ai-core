@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from agents.intelligence.project_integration import (
     _normalize_evidence_provenance,
+    _normalize_evidence_source,
     build_intelligence_from_project,
 )
 from agents.research import production_orchestrator as orchestrator
@@ -112,3 +113,80 @@ def test_conflicting_evidence_provenance_versions_fail_closed():
         assert "Conflicting Evidence provenance version fields" in str(exc)
     else:
         raise AssertionError("Expected conflicting provenance versions to fail closed")
+
+
+def test_legacy_research_artifact_source_is_normalized_losslessly_in_runtime_copy():
+    evidence = {
+        "evidence_id": "ev_legacy_source",
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json",
+        },
+    }
+
+    normalized = _normalize_evidence_source(evidence)
+
+    assert normalized["source"] == {
+        "type": "research_artifact",
+        "source_id": "research/expat-health-insurance/serp-analysis.json",
+        "provider": "local",
+        "retrieved_at": None,
+    }
+    assert evidence["source"]["project"] == "expat-health-insurance"
+    assert evidence["source"]["artifact"] == "serp-analysis.json"
+
+
+def test_canonical_evidence_source_is_preserved():
+    evidence = {
+        "evidence_id": "ev_canonical_source",
+        "source": {
+            "type": "query",
+            "source_id": "expat health insurance",
+            "provider": "local",
+            "retrieved_at": "2026-08-21T12:45:59Z",
+        },
+    }
+
+    normalized = _normalize_evidence_source(evidence)
+
+    assert normalized == evidence
+
+
+def test_conflicting_evidence_source_shapes_fail_closed():
+    evidence = {
+        "evidence_id": "ev_source_conflict",
+        "source": {
+            "type": "research_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json",
+            "source_id": "unexpected",
+            "provider": "local",
+            "retrieved_at": None,
+        },
+    }
+
+    try:
+        _normalize_evidence_source(evidence)
+    except ValueError as exc:
+        assert "Conflicting Evidence source fields" in str(exc)
+    else:
+        raise AssertionError("Expected conflicting source shapes to fail closed")
+
+
+def test_unsupported_legacy_evidence_source_type_fails_closed():
+    evidence = {
+        "evidence_id": "ev_source_type",
+        "source": {
+            "type": "external_artifact",
+            "project": "expat-health-insurance",
+            "artifact": "serp-analysis.json",
+        },
+    }
+
+    try:
+        _normalize_evidence_source(evidence)
+    except ValueError as exc:
+        assert "Legacy Evidence source type is unsupported" in str(exc)
+    else:
+        raise AssertionError("Expected unsupported legacy source type to fail closed")
