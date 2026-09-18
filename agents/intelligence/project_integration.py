@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -37,7 +38,28 @@ def _load_evidence_records(project_name: str) -> list[dict[str, Any]]:
         elif isinstance(data, dict) and data.get("evidence_id"):
             records.append(data)
 
-    return sorted(records, key=lambda item: str(item["evidence_id"]))
+    return sorted(\n        (_normalize_evidence_provenance(item) for item in records),\n        key=lambda item: str(item["evidence_id"]),\n    )
+
+
+def _normalize_evidence_provenance(record: dict[str, Any]) -> dict[str, Any]:
+    """Normalize legacy Evidence provenance in a runtime-only copy."""
+    normalized = copy.deepcopy(record)
+    provenance = normalized.get("provenance")
+    if not isinstance(provenance, dict):
+        return normalized
+
+    has_legacy = "version" in provenance
+    has_canonical = "analyzer_version" in provenance
+
+    if has_legacy and has_canonical:
+        raise ValueError(
+            f"Conflicting Evidence provenance version fields: {record.get('evidence_id', '<unknown>')}"
+        )
+
+    if has_legacy:
+        provenance["analyzer_version"] = provenance.pop("version")
+
+    return normalized
 
 
 def build_intelligence_from_project(project_name: str) -> dict[str, Any]:
