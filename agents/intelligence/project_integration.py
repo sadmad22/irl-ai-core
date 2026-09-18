@@ -38,7 +38,10 @@ def _load_evidence_records(project_name: str) -> list[dict[str, Any]]:
         elif isinstance(data, dict) and data.get("evidence_id"):
             records.append(data)
 
-    return sorted(\n        (_normalize_evidence_provenance(item) for item in records),\n        key=lambda item: str(item["evidence_id"]),\n    )
+    return sorted(
+        (_normalize_evidence_provenance(item) for item in records),
+        key=lambda item: str(item["evidence_id"]),
+    )
 
 
 def _normalize_evidence_provenance(record: dict[str, Any]) -> dict[str, Any]:
