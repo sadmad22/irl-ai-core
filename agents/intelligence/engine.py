@@ -9,6 +9,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from agents.intelligence.input_contract import validate_intelligence_input
+from agents.intelligence.traceability import validate_intelligence_traceability
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -243,6 +244,11 @@ def _derive_intelligence(
     if errors:
         raise ValueError(f"Intelligence artifact is invalid: {errors[0].message}")
 
+    validate_intelligence_traceability(
+        result,
+        research_report,
+        evidence_by_id,
+    )
     return result
 
 
