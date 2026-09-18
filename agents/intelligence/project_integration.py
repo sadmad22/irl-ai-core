@@ -39,7 +39,12 @@ def _load_evidence_records(project_name: str) -> list[dict[str, Any]]:
             records.append(data)
 
     return sorted(
-        (_normalize_evidence_provenance(item) for item in records),
+        (
+            _normalize_evidence_source(
+                _normalize_evidence_provenance(item)
+            )
+            for item in records
+        ),
         key=lambda item: str(item["evidence_id"]),
     )
 
@@ -62,6 +67,53 @@ def _normalize_evidence_provenance(record: dict[str, Any]) -> dict[str, Any]:
     if has_legacy:
         provenance["analyzer_version"] = provenance.pop("version")
 
+    return normalized
+
+
+def _normalize_evidence_source(record: dict[str, Any]) -> dict[str, Any]:
+    """Normalize legacy Research-artifact source metadata in a runtime-only copy."""
+    normalized = copy.deepcopy(record)
+    source = normalized.get("source")
+    if not isinstance(source, dict):
+        return normalized
+
+    has_legacy = "project" in source or "artifact" in source
+    has_canonical = any(
+        key in source
+        for key in ("source_id", "provider", "retrieved_at")
+    )
+
+    if has_legacy and has_canonical:
+        raise ValueError(
+            f"Conflicting Evidence source fields: {record.get('evidence_id', '<unknown>')}"
+        )
+
+    if not has_legacy:
+        return normalized
+
+    if source.get("type") != "research_artifact":
+        raise ValueError(
+            f"Legacy Evidence source type is unsupported: {record.get('evidence_id', '<unknown>')}"
+        )
+
+    project = source.get("project")
+    artifact = source.get("artifact")
+    if (
+        not isinstance(project, str)
+        or not project.strip()
+        or not isinstance(artifact, str)
+        or not artifact.strip()
+    ):
+        raise ValueError(
+            f"Legacy Evidence source requires project and artifact: {record.get('evidence_id', '<unknown>')}"
+        )
+
+    normalized["source"] = {
+        "type": "research_artifact",
+        "source_id": f"research/{project}/{artifact}",
+        "provider": "local",
+        "retrieved_at": None,
+    }
     return normalized
 
 
