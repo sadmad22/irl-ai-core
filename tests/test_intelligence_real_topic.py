@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from agents.intelligence.project_integration import (\n    _normalize_evidence_provenance,\n    build_intelligence_from_project,\n)
+from agents.intelligence.project_integration import (
+    _normalize_evidence_provenance,
+    build_intelligence_from_project,
+)
 from agents.research import production_orchestrator as orchestrator
 
 
