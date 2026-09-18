@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agents.intelligence.project_integration import build_intelligence_from_project
+from agents.intelligence.project_integration import (\n    _normalize_evidence_provenance,\n    build_intelligence_from_project,\n)
 from agents.research import production_orchestrator as orchestrator
 
 
@@ -56,3 +56,56 @@ def test_content_brief_does_not_supply_intelligence_for_real_topic():
         "configuration",
         "structure",
     ]
+
+
+def test_legacy_evidence_version_is_normalized_only_in_runtime_copy():
+    evidence = {
+        "evidence_id": "ev_legacy",
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1",
+        },
+    }
+
+    normalized = _normalize_evidence_provenance(evidence)
+
+    assert normalized["provenance"]["analyzer_version"] == "v1"
+    assert "version" not in normalized["provenance"]
+    assert evidence["provenance"]["version"] == "v1"
+    assert "analyzer_version" not in evidence["provenance"]
+
+
+def test_canonical_evidence_analyzer_version_is_preserved():
+    evidence = {
+        "evidence_id": "ev_canonical",
+        "provenance": {
+            "analyzer": "serp-intent",
+            "method": "serp-intent-v1",
+            "analyzer_version": "1.0",
+        },
+    }
+
+    normalized = _normalize_evidence_provenance(evidence)
+
+    assert normalized == evidence
+    assert normalized["provenance"]["analyzer_version"] == "1.0"
+
+
+def test_conflicting_evidence_provenance_versions_fail_closed():
+    evidence = {
+        "evidence_id": "ev_conflict",
+        "provenance": {
+            "analyzer": "entity",
+            "method": "entity-v1",
+            "version": "v1",
+            "analyzer_version": "1.0",
+        },
+    }
+
+    try:
+        _normalize_evidence_provenance(evidence)
+    except ValueError as exc:
+        assert "Conflicting Evidence provenance version fields" in str(exc)
+    else:
+        raise AssertionError("Expected conflicting provenance versions to fail closed")
