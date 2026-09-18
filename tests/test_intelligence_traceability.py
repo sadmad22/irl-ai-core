@@ -99,6 +99,8 @@ def test_traceability_rejects_reference_outside_research_report() -> None:
 def test_traceability_rejects_unresolved_evidence() -> None:
     invalid = intelligence()
     invalid["intent_interpretation"]["evidence_refs"] = ["ev_missing"]
+    research = report()
+    research["evidence_refs"]["intent"] = ["ev_missing"]
 
     with pytest.raises(ValueError, match="unresolved Evidence"):
         validate_intelligence_traceability(
