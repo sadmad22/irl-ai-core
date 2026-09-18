@@ -83,6 +83,19 @@ def test_engine_builds_schema_valid_intelligence() -> None:
     assert result["commercial_signals"][0]["evidence_refs"] == ["ev_003"]
 
 
+def test_commercial_signals_do_not_leak_from_non_business_domains() -> None:
+    result = build_intelligence(
+        report(),
+        [
+            evidence(),
+            evidence("ev_002", domain="entity", source_type="serp", value="commercial price"),
+            evidence("ev_003", domain="business", source_type="business", value="cost"),
+        ],
+    )
+
+    assert result["commercial_signals"][0]["evidence_refs"] == ["ev_003"]
+
+
 def test_engine_is_deterministic() -> None:
     inputs = (
         report(),
