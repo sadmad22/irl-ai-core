@@ -106,7 +106,7 @@ def test_traceability_rejects_unresolved_evidence() -> None:
     with pytest.raises(ValueError, match="unresolved Evidence"):
         validate_intelligence_traceability(
             invalid,
-            report(),
+            research,
             {"ev_001": evidence()},
         )
 
