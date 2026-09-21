@@ -94,3 +94,36 @@ def test_output_is_deterministic() -> None:
     }
 
     assert build_editorial_evidence(**kwargs) == build_editorial_evidence(**kwargs)
+
+
+def test_invalid_section_index_fails_closed() -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="section_index"):
+        build_editorial_evidence(
+            evidence_records=[evidence("ev_1")],
+            source_pages={
+                "ev_1": {
+                    "section_index": 0,
+                    "url": "https://example.com",
+                    "title": "Example",
+                    "domain": "example.com",
+                    "text": "Source material.",
+                    "verification": "page_reviewed",
+                }
+            },
+        )
+
+    with pytest.raises(ValueError, match="section_index"):
+        build_editorial_evidence(
+            evidence_records=[evidence("ev_1")],
+            source_pages={
+                "ev_1": {
+                    "url": "https://example.com",
+                    "title": "Example",
+                    "domain": "example.com",
+                    "text": "Source material.",
+                    "verification": "page_reviewed",
+                }
+            },
+        )
