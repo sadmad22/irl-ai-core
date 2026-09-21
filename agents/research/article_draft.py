@@ -9,7 +9,7 @@ from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
 
 SCHEMA_VERSION = "1.1"
-METHOD_VERSION = "v3"
+METHOD_VERSION = "v4"
 
 
 def _draft_id(brief: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -28,9 +28,10 @@ def build_article_draft(
     *,
     content_brief: dict[str, Any],
     evidence_records: list[dict[str, Any]] | None = None,
+    editorial_evidence: list[dict[str, Any]] | None = None,
     llm_provider: Any,
 ) -> dict[str, Any]:
-    """Translate an approved Content Brief into reader-facing, evidence-grounded draft content."""
+    """Translate an approved Content Brief into a reader-facing Article Draft."""
     brief_id = str(content_brief.get("brief_id", "")).strip()
     report_id = str(content_brief.get("report_id", "")).strip()
     decision_id = str(content_brief.get("decision_id", "")).strip()
@@ -60,6 +61,17 @@ def build_article_draft(
         if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()
     }
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
+
+    editorial = [
+        item for item in (editorial_evidence or [])
+        if isinstance(item, dict) and str(item.get("evidence_id", "")).strip()
+    ]
+    editorial_by_section: dict[int, list[dict[str, Any]]] = {}
+    for item in editorial:
+        section_index = item.get("section_index")
+        if isinstance(section_index, int) and section_index >= 1:
+            editorial_by_section.setdefault(section_index, []).append(item)
+
     section_refs = ground_evidence_by_section(
         outline=outline,
         evidence_refs=normalized_refs,
@@ -70,6 +82,7 @@ def build_article_draft(
             "section_index": index,
             "evidence_refs": refs_for_section,
             "evidence_records": [grounded_records[ref] for ref in refs_for_section if ref in grounded_records],
+            "editorial_evidence": editorial_by_section.get(index + 1, []),
         }
         for index, refs_for_section in enumerate(section_refs)
     ]
@@ -81,11 +94,10 @@ def build_article_draft(
     )
     sections = writer_draft["sections"]
 
-    # Ground claims only after reader-facing prose exists. The grounding layer
-    # validates the writer output; it is not responsible for generating prose.
     claims_by_section = ground_claims_by_section(
         sections=sections,
         evidence_records=list(grounded_records.values()),
+        editorial_evidence=editorial,
         per_claim=1,
         require_match=True,
     )
@@ -100,6 +112,7 @@ def build_article_draft(
         "tables": writer_draft["tables"],
         "images": writer_draft["images"],
         "evidence_refs": normalized_refs,
+        "editorial_evidence": editorial,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
     return {
@@ -111,5 +124,5 @@ def build_article_draft(
         "schema_version": SCHEMA_VERSION,
         "lifecycle_stage": "draft_ready",
         **payload,
-        "audit": {"method": "content_brief_to_injected_llm_article_writer_and_grounding", "version": METHOD_VERSION, "validation_status": "pending"},
+        "audit": {"method": "content_brief_to_injected_llm_article_writer_and_editorial_source_evidence", "version": METHOD_VERSION, "validation_status": "pending"},
     }
