@@ -17,7 +17,7 @@ def _load_evidence_records(project: str) -> list[dict[str, Any]]:
     root = Path("research") / project
     records: list[dict[str, Any]] = []
     for path in sorted(root.glob("*.json")):
-        if "evidence" not in path.stem:
+        if "evidence" not in path.stem or path.stem == "editorial-evidence":
             continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -28,6 +28,19 @@ def _load_evidence_records(project: str) -> list[dict[str, Any]]:
         elif isinstance(data, dict) and data.get("evidence_id"):
             records.append(data)
     return sorted(records, key=lambda item: str(item["evidence_id"]))
+
+
+def _load_editorial_evidence(project: str) -> list[dict[str, Any]]:
+    path = Path("research") / project / "editorial-evidence.json"
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(data, list):
+        raise ValueError("editorial-evidence.json must contain an array")
+    return [item for item in data if isinstance(item, dict) and item.get("evidence_id")]
 
 
 def _save_if_changed(project: str, filename: str, data: dict[str, Any]) -> None:
@@ -43,9 +56,11 @@ def run(project_name: str, *, llm_provider: Any) -> dict[str, Any]:
 
     brief = _load(project_name, "content-brief.json")
     evidence_records = _load_evidence_records(project_name)
+    editorial_evidence = _load_editorial_evidence(project_name)
     draft = build_article_draft(
         content_brief=brief,
         evidence_records=evidence_records,
+        editorial_evidence=editorial_evidence,
         llm_provider=llm_provider,
     )
     _save_if_changed(project_name, "article-draft.json", draft)

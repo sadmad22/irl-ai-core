@@ -6,7 +6,7 @@ import json
 from typing import Any, Callable
 
 SCHEMA_VERSION = "1.1"
-METHOD_VERSION = "v1"
+METHOD_VERSION = "v2"
 
 _PROVIDER_KEYS = {"sections", "tables", "images"}
 _REQUIRED_IMAGE_FIELDS = {"image_id", "section_index", "placement", "prompt", "alt_text", "evidence_refs"}
@@ -21,8 +21,6 @@ _LEAKAGE_MARKERS = (
 
 
 class ArticleWriterLLMProviderProtocol:
-    """Documentation-only provider shape for an injected article-writing LLM."""
-
     def write(self, *, sections: list[dict[str, Any]], editorial_rules: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError
 
@@ -130,7 +128,7 @@ def write_article_draft(
     section_evidence: list[dict[str, Any]],
     llm_provider: Any,
 ) -> dict[str, Any]:
-    """Convert an approved Content Brief and grounded evidence into reader-facing draft assets."""
+    """Convert an approved Content Brief and grounded source material into draft assets."""
     _require_ready(content_brief)
     content_type = _text(content_brief.get("content_type"))
     if content_type not in {"guide", "comparison", "buyer_guide", "article"}:
@@ -149,19 +147,24 @@ def write_article_draft(
         purpose = _text(item.get("purpose"))
         refs = evidence.get("evidence_refs")
         records = evidence.get("evidence_records")
+        editorial = evidence.get("editorial_evidence", [])
         if not heading or not purpose or not isinstance(refs, list) or not refs or not isinstance(records, list):
             raise ValueError("Article Writer section evidence package is incomplete")
+        if not isinstance(editorial, list):
+            raise ValueError("Article Writer editorial_evidence must be an array")
         provider_sections.append({
             "section_index": index,
             "heading": heading,
             "purpose": purpose,
             "evidence_refs": list(dict.fromkeys(str(ref).strip() for ref in refs if str(ref).strip())),
             "evidence_records": copy.deepcopy(records),
+            "editorial_evidence": copy.deepcopy(editorial),
         })
 
     rules = {
         "reader_facing_prose": True,
         "use_evidence_as_source_material_not_visible_metadata": True,
+        "use_page_reviewed_editorial_evidence_when_available": True,
         "preserve_claim_meaning": True,
         "no_new_facts": True,
         "no_internal_ids_or_research_metadata_in_prose": True,
@@ -188,6 +191,12 @@ def write_article_draft(
         "tables": provider_result["tables"],
         "images": provider_result["images"],
         "evidence_refs": list(dict.fromkeys(str(ref).strip() for ref in content_brief["evidence_refs"] if str(ref).strip())),
+        "editorial_evidence": [
+            item
+            for section in provider_sections
+            for item in section["editorial_evidence"]
+            if isinstance(item, dict)
+        ],
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
     return {
@@ -200,7 +209,7 @@ def write_article_draft(
         "lifecycle_stage": "draft_ready",
         **payload,
         "audit": {
-            "method": "content_brief_to_injected_llm_article_writer",
+            "method": "content_brief_to_injected_llm_article_writer_and_grounding",
             "version": METHOD_VERSION,
             "validation_status": "pending",
         },
