@@ -76,3 +76,26 @@ Editorial Source Evidence references report_id indirectly through its underlying
 ## Determinism and Safety
 
 The builder is deterministic for the same Research Evidence and source-page inputs. It does not call Brave, OpenAI, or WordPress. Source retrieval is an explicit upstream operation so credentials and network access remain outside the deterministic Article Draft contract.
+
+
+## Production Integration Boundary
+
+The deterministic production path consumes an explicit upstream artifact:
+
+editorial-source-pages.json
+  -> editorial_source_evidence_agent
+  -> editorial-evidence.json
+  -> Article Draft Agent
+  -> Article Writer
+
+editorial-source-pages.json is retrieval output, not Research Evidence. It must contain
+source-page material keyed by the canonical Research Evidence `evidence_id`, including
+`section_index`, source metadata, source text, and verification state.
+
+The materialization agent performs no network access. If the upstream source-page artifact
+is absent, Editorial Source Evidence remains optional and inactive. If it is present,
+malformed section metadata fails closed and the resulting `editorial-evidence.json`
+is deterministic for the same inputs.
+
+The Article Draft Agent materializes Editorial Source Evidence before loading it, so the
+boundary cannot be accidentally bypassed when the explicit upstream artifact is present.

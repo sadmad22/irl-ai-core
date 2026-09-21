@@ -6,6 +6,7 @@ from typing import Any
 
 from .content_brief_agent import run as run_content_brief_agent
 from .article_draft import build_article_draft
+from .editorial_source_evidence_agent import run as run_editorial_source_evidence_agent
 
 
 def _load(project: str, filename: str) -> dict[str, Any]:
@@ -56,6 +57,7 @@ def run(project_name: str, *, llm_provider: Any) -> dict[str, Any]:
 
     brief = _load(project_name, "content-brief.json")
     evidence_records = _load_evidence_records(project_name)
+    run_editorial_source_evidence_agent(project_name)
     editorial_evidence = _load_editorial_evidence(project_name)
     draft = build_article_draft(
         content_brief=brief,
