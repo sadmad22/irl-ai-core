@@ -52,7 +52,7 @@ def test_snippet_only_editorial_evidence_is_not_used_for_grounding() -> None:
             "body": "International health insurance provides coverage across multiple countries.",
         }],
         evidence_records=[
-            record("ev_1", "unrelated travel insurance information")
+            record("ev_1", "unrelated information about accounting software")
         ],
         editorial_evidence=[
             editorial(
@@ -123,7 +123,7 @@ def test_editorial_source_from_wrong_section_cannot_ground_claim() -> None:
             "body": "The source page states that visitors receive unrelated benefits.",
         }],
         evidence_records=[
-            record("ev_1", "unrelated travel insurance information")
+            record("ev_1", "unrelated accounting software information")
         ],
         editorial_evidence=[
             editorial(
