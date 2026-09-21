@@ -34,13 +34,19 @@ def _load_research_evidence(project: str) -> list[dict[str, Any]]:
 
 def _normalize_source_pages(data: Any) -> dict[str, dict[str, Any]]:
     if isinstance(data, dict):
-        if all(isinstance(value, dict) for value in data.values()):
-            return {
-                str(key): value
-                for key, value in data.items()
-                if str(key).strip()
-            }
-        raise ValueError("editorial-source-pages.json must map evidence_id to source-page objects")
+        pages: dict[str, dict[str, Any]] = {}
+        for key, value in data.items():
+            evidence_id = str(key).strip()
+            if not evidence_id:
+                raise ValueError(
+                    "editorial-source-pages.json requires non-empty evidence_id keys"
+                )
+            if not isinstance(value, dict):
+                raise ValueError(
+                    "editorial-source-pages.json must map evidence_id to source-page objects"
+                )
+            pages[evidence_id] = value
+        return pages
 
     if isinstance(data, list):
         pages: dict[str, dict[str, Any]] = {}
@@ -50,6 +56,10 @@ def _normalize_source_pages(data: Any) -> dict[str, dict[str, Any]]:
             evidence_id = str(item.get("evidence_id", "")).strip()
             if not evidence_id:
                 raise ValueError("Editorial source page requires evidence_id")
+            if evidence_id in pages:
+                raise ValueError(
+                    f"Editorial source page contains duplicate evidence_id: {evidence_id}"
+                )
             page = {key: value for key, value in item.items() if key != "evidence_id"}
             pages[evidence_id] = page
         return pages
@@ -78,7 +88,9 @@ def run(project_name: str) -> list[dict[str, Any]]:
     if not source_path.exists():
         return []
 
-    source_pages = _normalize_source_pages(_load_json(project_name, "editorial-source-pages.json"))
+    source_pages = _normalize_source_pages(
+        _load_json(project_name, "editorial-source-pages.json")
+    )
     evidence_records = _load_research_evidence(project_name)
     editorial_evidence = build_editorial_evidence(
         evidence_records=evidence_records,
