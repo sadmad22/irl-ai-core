@@ -6,7 +6,7 @@ from typing import Any
 
 from .claim_evidence_canonical import meaningful_overlap
 
-METHOD_VERSION = "v2"
+METHOD_VERSION = "v3"
 _MIN_MEANINGFUL_OVERLAP = 2
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
@@ -63,11 +63,18 @@ def ground_claims_by_section(
     for section_index, section in enumerate(sections, start=1):
         section_refs = [str(ref).strip() for ref in section.get("evidence_refs", []) if str(ref).strip()]
         candidates = [global_index[ref] for ref in section_refs if ref in global_index]
-        editorial_candidates = [editorial_index[ref] for ref in section_refs if ref in editorial_index]
+        editorial_candidates = [
+            editorial_index[ref]
+            for ref in section_refs
+            if ref in editorial_index
+            and editorial_index[ref].get("section_index") == section_index
+        ]
         sentences = [item.strip() for item in _SENTENCE_SPLIT.split(str(section.get("body", ""))) if item.strip()]
         claims: list[dict[str, Any]] = []
 
         for claim_index, sentence in enumerate(sentences, start=1):
+            selected_refs: list[str] = []
+
             if editorial_candidates:
                 scored_editorial = sorted(
                     ((item, _editorial_score(sentence, item)) for item in editorial_candidates),
@@ -82,7 +89,11 @@ def ground_claims_by_section(
                     for item in selected_editorial
                     if str(item.get("evidence_id", "")).strip() in global_index
                 ]
-            else:
+
+            # Editorial source material is an enhancement to canonical Research
+            # Evidence grounding, not a replacement. If it cannot ground a claim,
+            # retain the established Research Evidence path.
+            if not selected_refs:
                 scored = sorted(
                     ((record, _score(sentence, record)) for record in candidates),
                     key=lambda item: (-item[1], str(item[0].get("evidence_id", ""))),
