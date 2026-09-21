@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import copy
-import hashlib
-import json
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
@@ -18,18 +15,6 @@ def _evidence_id(record: dict[str, Any]) -> str:
     if not value:
         raise ValueError("Research Evidence requires evidence_id")
     return value
-
-
-def _editorial_id(*, evidence_id: str, url: str, text: str) -> str:
-    digest = hashlib.sha256(
-        json.dumps(
-            {"evidence_id": evidence_id, "url": url, "text": text},
-            sort_keys=True,
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()[:16]
-    return f"{evidence_id}:{digest}"
 
 
 def build_editorial_evidence(
@@ -55,11 +40,14 @@ def build_editorial_evidence(
         domain = _text(page.get("domain"))
         source_text = _text(page.get("text"))
         verification = _text(page.get("verification"))
+        section_index = page.get("section_index")
 
         if not url or not title or not domain or not source_text:
             continue
         if verification not in {"snippet_only", "page_reviewed"}:
             raise ValueError(f"Unsupported editorial evidence verification: {verification}")
+        if isinstance(section_index, bool) or not isinstance(section_index, int) or section_index < 1:
+            raise ValueError("Editorial Source Evidence requires integer section_index >= 1")
 
         status = "ready" if verification == "page_reviewed" else "candidate"
         method = "serp-page-editorial-v1" if verification == "page_reviewed" else "serp-snippet-editorial-v1"
@@ -67,7 +55,7 @@ def build_editorial_evidence(
         outputs.append(
             {
                 "evidence_id": evidence_id,
-                "section_index": int(page.get("section_index", 1)),
+                "section_index": section_index,
                 "status": status,
                 "text": source_text,
                 "source": {
@@ -81,21 +69,7 @@ def build_editorial_evidence(
                     "method": method,
                     "verification": verification,
                 },
-                "_source_material_id": _editorial_id(
-                    evidence_id=evidence_id,
-                    url=url,
-                    text=source_text,
-                ),
             }
         )
 
     return outputs
-
-
-def strip_internal_editorial_metadata(editorial_evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    cleaned: list[dict[str, Any]] = []
-    for item in editorial_evidence:
-        value = copy.deepcopy(item)
-        value.pop("_source_material_id", None)
-        cleaned.append(value)
-    return cleaned
