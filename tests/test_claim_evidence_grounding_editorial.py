@@ -120,7 +120,7 @@ def test_editorial_source_from_wrong_section_cannot_ground_claim() -> None:
     result = ground_claims_by_section(
         sections=[{
             "evidence_refs": ["ev_1"],
-            "body": "The source page states that consultants receive unrelated coverage.",
+            "body": "The source page states that visitors receive unrelated benefits.",
         }],
         evidence_records=[
             record("ev_1", "unrelated travel insurance information")
