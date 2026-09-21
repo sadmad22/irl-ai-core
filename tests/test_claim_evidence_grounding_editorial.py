@@ -107,3 +107,25 @@ def test_editorial_evidence_is_section_scoped() -> None:
     assert result[0][0]["evidence_refs"] == ["ev_1"]
     assert result[1][0]["grounding_status"] == "grounded"
     assert result[1][0]["evidence_refs"] == ["ev_1"]
+
+
+def test_editorial_source_from_wrong_section_cannot_ground_claim() -> None:
+    result = ground_claims_by_section(
+        sections=[{
+            "evidence_refs": ["ev_1"],
+            "body": "The source page states that consultants receive unrelated coverage.",
+        }],
+        evidence_records=[
+            record("ev_1", "Research record without matching wording.")
+        ],
+        editorial_evidence=[
+            editorial(
+                "ev_1",
+                2,
+                "The source page states that consultants receive unrelated coverage.",
+            )
+        ],
+    )
+
+    assert result[0][0]["grounding_status"] == "blocked"
+    assert result[0][0]["evidence_refs"] == []
