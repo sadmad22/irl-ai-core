@@ -14,7 +14,26 @@ def record(evidence_id: str, data: str) -> dict:
     }
 
 
-def editorial(evidence_id: str, section_index: int, text: str, status: str = "ready") -> dict:
+def unrelated_record(evidence_id: str) -> dict:
+    return {
+        "evidence_id": evidence_id,
+        "domain": "accounting",
+        "claim": {"type": "software", "attribute": "bookkeeping automation"},
+        "value": {
+            "type": "description",
+            "data": "Tax filing automation for small accounting firms.",
+        },
+        "subject": {"type": "audience", "id": "accountants"},
+        "source": {"artifact": "research"},
+    }
+
+
+def editorial(
+    evidence_id: str,
+    section_index: int,
+    text: str,
+    status: str = "ready",
+) -> dict:
     return {
         "evidence_id": evidence_id,
         "section_index": section_index,
@@ -45,14 +64,45 @@ def test_page_reviewed_editorial_evidence_preserves_canonical_research_id() -> N
     assert result[0][0]["evidence_refs"] == ["ev_1"]
 
 
-def test_snippet_only_editorial_evidence_is_not_used_for_grounding() -> None:
+def test_snippet_only_editorial_evidence_is_ignored_when_research_evidence_can_ground() -> None:
+    sections = [{
+        "evidence_refs": ["ev_1"],
+        "body": "International health insurance provides coverage across multiple countries.",
+    }]
+    evidence_records = [
+        record("ev_1", "international health insurance coverage")
+    ]
+
+    without_editorial = ground_claims_by_section(
+        sections=sections,
+        evidence_records=evidence_records,
+    )
+    with_candidate_editorial = ground_claims_by_section(
+        sections=sections,
+        evidence_records=evidence_records,
+        editorial_evidence=[
+            editorial(
+                "ev_1",
+                1,
+                "International health insurance provides coverage across multiple countries.",
+                status="candidate",
+            )
+        ],
+    )
+
+    assert with_candidate_editorial == without_editorial
+    assert with_candidate_editorial[0][0]["grounding_status"] == "grounded"
+    assert with_candidate_editorial[0][0]["evidence_refs"] == ["ev_1"]
+
+
+def test_snippet_only_editorial_evidence_cannot_ground_when_research_evidence_cannot() -> None:
     result = ground_claims_by_section(
         sections=[{
             "evidence_refs": ["ev_1"],
             "body": "International health insurance provides coverage across multiple countries.",
         }],
         evidence_records=[
-            record("ev_1", "unrelated information about accounting software")
+            unrelated_record("ev_1")
         ],
         editorial_evidence=[
             editorial(
