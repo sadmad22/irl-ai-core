@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from agents.research.editorial_source_evidence_agent import run
 
 
@@ -104,7 +106,73 @@ def test_invalid_section_metadata_fails_closed(tmp_path, monkeypatch) -> None:
         encoding="utf-8",
     )
 
-    import pytest
-
     with pytest.raises(ValueError, match="section_index"):
+        run("e2e-project")
+
+
+def test_duplicate_evidence_id_fails_closed(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    root = tmp_path / "research" / "e2e-project"
+    root.mkdir(parents=True)
+
+    (root / "authority-evidence.json").write_text(
+        json.dumps([{"evidence_id": "ev_1"}]),
+        encoding="utf-8",
+    )
+    (root / "editorial-source-pages.json").write_text(
+        json.dumps(
+            [
+                {
+                    "evidence_id": "ev_1",
+                    "section_index": 1,
+                    "url": "https://example.com/one",
+                    "title": "Example One",
+                    "domain": "example.com",
+                    "text": "First source material.",
+                    "verification": "page_reviewed",
+                },
+                {
+                    "evidence_id": "ev_1",
+                    "section_index": 1,
+                    "url": "https://example.com/two",
+                    "title": "Example Two",
+                    "domain": "example.com",
+                    "text": "Second source material.",
+                    "verification": "page_reviewed",
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate evidence_id"):
+        run("e2e-project")
+
+
+def test_blank_dict_evidence_id_fails_closed(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    root = tmp_path / "research" / "e2e-project"
+    root.mkdir(parents=True)
+
+    (root / "authority-evidence.json").write_text(
+        json.dumps([{"evidence_id": "ev_1"}]),
+        encoding="utf-8",
+    )
+    (root / "editorial-source-pages.json").write_text(
+        json.dumps(
+            {
+                "": {
+                    "section_index": 1,
+                    "url": "https://example.com",
+                    "title": "Example",
+                    "domain": "example.com",
+                    "text": "Source material.",
+                    "verification": "page_reviewed",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="non-empty evidence_id"):
         run("e2e-project")
