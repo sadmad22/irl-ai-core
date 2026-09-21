@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agents.research.editorial_source_evidence import build_editorial_evidence, strip_internal_editorial_metadata
+from agents.research.editorial_source_evidence import build_editorial_evidence
 
 
 def evidence(evidence_id: str) -> dict:
@@ -22,7 +22,7 @@ def test_page_reviewed_source_becomes_ready_editorial_evidence() -> None:
         },
     )
 
-    assert strip_internal_editorial_metadata(result) == [
+    assert result == [
         {
             "evidence_id": "ev_1",
             "section_index": 2,
