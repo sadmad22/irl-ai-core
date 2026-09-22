@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from agents.intelligence.project_integration import (
+    _load_evidence_records,
     _normalize_evidence_provenance,
     _normalize_evidence_source,
     build_intelligence_from_project,
@@ -60,6 +61,26 @@ def test_content_brief_does_not_supply_intelligence_for_real_topic():
         "configuration",
         "structure",
     ]
+
+
+def test_editorial_source_evidence_is_excluded_from_intelligence_input(tmp_path, monkeypatch):
+    project = tmp_path / "research" / "boundary-test"
+    project.mkdir(parents=True)
+
+    (project / "research-evidence.json").write_text(
+        '[{"evidence_id": "ev_research"}]',
+        encoding="utf-8",
+    )
+    (project / "editorial-evidence.json").write_text(
+        '[{"evidence_id": "ev_editorial", "section_index": 1, "text": "reader-facing source material"}]',
+        encoding="utf-8",
+    )
+
+    monkeypatch.chdir(tmp_path)
+
+    records = _load_evidence_records("boundary-test")
+
+    assert [item["evidence_id"] for item in records] == ["ev_research"]
 
 
 def test_legacy_evidence_version_is_normalized_only_in_runtime_copy():
