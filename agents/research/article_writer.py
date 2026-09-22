@@ -154,6 +154,7 @@ def write_article_draft(
             raise ValueError("Article Writer editorial_evidence must be an array")
         provider_sections.append({
             "section_index": index,
+            "heading": heading,
             "purpose": purpose,
             "evidence_refs": list(dict.fromkeys(str(ref).strip() for ref in refs if str(ref).strip())),
             "evidence_records": copy.deepcopy(records),
