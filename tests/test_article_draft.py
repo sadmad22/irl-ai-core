@@ -79,6 +79,37 @@ def _build():
     )
 
 
+def test_writer_receives_heading_as_context_without_generating_it():
+    captured = {}
+
+    class CapturingWriter(FakeWriter):
+        def write(self, *, sections, editorial_rules):
+            captured["sections"] = sections
+            captured["rules"] = editorial_rules
+            return super().write(sections=sections, editorial_rules=editorial_rules)
+
+    build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+        llm_provider=CapturingWriter(),
+    )
+
+    assert [section["heading"] for section in captured["sections"]] == [
+        "What Is Expat Health Insurance?",
+        "How to Compare Plans",
+    ]
+    assert all(section["purpose"] for section in captured["sections"])
+    assert captured["rules"]["evidence_constrained_prose"] is True
+    assert captured["rules"]["factual_claims_must_be_supported_by_assigned_evidence"] is True
+    assert captured["rules"]["do_not_use_unassigned_evidence"] is True
+    assert captured["rules"]["omit_or_reframe_unsupported_factual_statements"] is True
+    assert captured["rules"]["avoid_broad_unsourced_generalizations"] is True
+    assert captured["rules"]["heading_is_external"] is True
+    assert "The section heading is supplied externally and must not be generated." in captured["rules"]["evidence_constrained_writing_instructions"]
+    assert "assigned to that section" in captured["rules"]["evidence_constrained_writing_instructions"]
+    assert "must not be generated" in captured["rules"]["evidence_constrained_writing_instructions"]
+
+
 def test_article_draft_contract_shape():
     draft = _build()
     assert draft["lifecycle_stage"] == "draft_ready"
