@@ -79,7 +79,7 @@ def _build():
     )
 
 
-def test_writer_receives_evidence_constrained_rules_without_section_heading():
+def test_writer_receives_heading_as_context_without_generating_it():
     captured = {}
 
     class CapturingWriter(FakeWriter):
@@ -94,7 +94,10 @@ def test_writer_receives_evidence_constrained_rules_without_section_heading():
         llm_provider=CapturingWriter(),
     )
 
-    assert all("heading" not in section for section in captured["sections"])
+    assert [section["heading"] for section in captured["sections"]] == [
+        "What Is Expat Health Insurance?",
+        "How to Compare Plans",
+    ]
     assert all(section["purpose"] for section in captured["sections"])
     assert captured["rules"]["evidence_constrained_prose"] is True
     assert captured["rules"]["factual_claims_must_be_supported_by_assigned_evidence"] is True
@@ -102,6 +105,7 @@ def test_writer_receives_evidence_constrained_rules_without_section_heading():
     assert captured["rules"]["omit_or_reframe_unsupported_factual_statements"] is True
     assert captured["rules"]["avoid_broad_unsourced_generalizations"] is True
     assert captured["rules"]["heading_is_external"] is True
+    assert "The section heading is supplied externally and must not be generated." in captured["rules"]["evidence_constrained_writing_instructions"]
     assert "assigned to that section" in captured["rules"]["evidence_constrained_writing_instructions"]
     assert "must not be generated" in captured["rules"]["evidence_constrained_writing_instructions"]
 
