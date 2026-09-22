@@ -154,7 +154,6 @@ def write_article_draft(
             raise ValueError("Article Writer editorial_evidence must be an array")
         provider_sections.append({
             "section_index": index,
-            "heading": heading,
             "purpose": purpose,
             "evidence_refs": list(dict.fromkeys(str(ref).strip() for ref in refs if str(ref).strip())),
             "evidence_records": copy.deepcopy(records),
@@ -168,6 +167,26 @@ def write_article_draft(
         "preserve_claim_meaning": True,
         "no_new_facts": True,
         "no_internal_ids_or_research_metadata_in_prose": True,
+        "evidence_constrained_prose": True,
+        "factual_claims_must_be_supported_by_assigned_evidence": True,
+        "do_not_use_unassigned_evidence": True,
+        "omit_or_reframe_unsupported_factual_statements": True,
+        "avoid_broad_unsourced_generalizations": True,
+        "heading_is_external": True,
+        "evidence_constrained_writing_instructions": (
+            "Write each section only from the evidence assigned to that section. "
+            "For every factual or externally verifiable statement, use information "
+            "directly supported by the assigned evidence records or available "
+            "page-reviewed editorial evidence. Do not introduce facts, figures, "
+            "provider details, coverage details, costs, comparisons, statistics, "
+            "or recommendations from general knowledge or from evidence assigned "
+            "to another section. If the assigned evidence does not support a factual "
+            "statement, omit it or narrow/reframe it so that it does not make an "
+            "unsupported factual claim. Prefer precise evidence-supported statements "
+            "over broad unsourced generalizations. Use concise reader-facing "
+            "transitions where needed, but do not add unsupported factual content. "
+            "The section heading is supplied externally and must not be generated."
+        ),
         "tables_are_structured_and_evidence_linked": True,
         "images_are_specs_only_until_media_generation": True,
     }
