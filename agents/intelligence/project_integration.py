@@ -22,7 +22,10 @@ def _load_evidence_records(project_name: str) -> list[dict[str, Any]]:
 
     records: list[dict[str, Any]] = []
     for path in sorted(root.glob("*.json")):
-        if "evidence" not in path.stem or path.name == "evidence.json":
+        if (
+            "evidence" not in path.stem
+            or path.name in {"evidence.json", "editorial-evidence.json"}
+        ):
             continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
