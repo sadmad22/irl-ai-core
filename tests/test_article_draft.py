@@ -46,7 +46,7 @@ def _brief():
         ],
         "required_entities": ["Cigna Global"],
         "required_questions": ["What does it cost?"],
-        "evidence_refs": ["ev_1", "ev_2"],
+        "evidence_refs": ["ev_1", "ev_2", "ev_3", "ev_4", "ev_5"],
         "editorial_constraints": ["verify factual claims"],
         "audit": {"method": "test", "version": "v1", "validation_status": "pending"},
     }
