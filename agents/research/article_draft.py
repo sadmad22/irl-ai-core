@@ -65,7 +65,7 @@ def build_article_draft(
     }
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
 
-    require_ready_sections(
+    readiness_results = require_ready_sections(
         outline=outline,
         evidence_refs=normalized_refs,
         evidence_records=list(grounded_records.values()),
@@ -81,11 +81,7 @@ def build_article_draft(
         if isinstance(section_index, int) and section_index >= 1:
             editorial_by_section.setdefault(section_index, []).append(item)
 
-    section_refs = ground_evidence_by_section(
-        outline=outline,
-        evidence_refs=normalized_refs,
-        evidence_records=list(grounded_records.values()),
-    )
+    section_refs = [item["eligible_evidence_refs"] for item in readiness_results]
     section_evidence = [
         {
             "section_index": index,
