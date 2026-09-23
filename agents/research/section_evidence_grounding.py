@@ -24,21 +24,31 @@ def _section_key(section: dict[str, Any]) -> str:
     text = f"{section.get('heading', '')} {section.get('purpose', '')}".lower()
     aliases = (
         ("introduction", "introduction"),
+        ("what is", "introduction"),
         ("what you need to know", "what_you_need_to_know"),
+        ("what coverage you need", "coverage_and_key_factors"),
+        ("what each option covers", "coverage_and_key_factors"),
         ("coverage", "coverage_and_key_factors"),
         ("key factors", "coverage_and_key_factors"),
+        ("costs and value", "costs_and_pricing_factors"),
+        ("costs and limits", "costs_and_pricing_factors"),
         ("cost", "costs_and_pricing_factors"),
         ("pricing", "costs_and_pricing_factors"),
+        ("quick comparison", "how_to_compare_options"),
+        ("how to choose", "how_to_compare_options"),
+        ("key selection criteria", "how_to_compare_options"),
+        ("pros and cons", "how_to_compare_options"),
         ("compare", "how_to_compare_options"),
         ("frequently asked", "frequently_asked_questions"),
         ("faq", "frequently_asked_questions"),
+        ("common mistakes", "what_you_need_to_know"),
         ("sources", "sources_and_editorial_methodology"),
         ("methodology", "sources_and_editorial_methodology"),
     )
     for needle, key in aliases:
         if needle in text:
             return key
-    return "introduction"
+    return ""
 
 
 def _record_text(record: dict[str, Any]) -> str:
