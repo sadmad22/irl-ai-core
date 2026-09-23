@@ -53,10 +53,9 @@ def _install_test_evidence_contract(monkeypatch):
         report_id = str(result["report_id"])
         keyword = str(result["primary_keyword"])
 
-        source = {
-            "type": "query",
-            "source_id": "test:production-hardening",
-            "provider": "local",
+        source_base = {
+            "type": "official",
+            "provider": "local-test",
             "retrieved_at": captured_at,
         }
         provenance = {
@@ -65,52 +64,56 @@ def _install_test_evidence_contract(monkeypatch):
             "method": "deterministic_test",
         }
 
-        coverage_record = build_observation(
-            report_id=report_id,
-            domain="coverage",
-            subject={"type": "keyword", "id": keyword},
-            claim={"type": "coverage_fact", "attribute": "coverage_options"},
-            value={"type": "categorical", "data": "coverage options"},
-            source=source,
-            provenance=provenance,
-            confidence=1.0,
-            captured_at=captured_at,
-        )
+        required_records = [
+            ("topic", "topic_definition", "definition", "Expat health insurance is international health coverage for people living abroad.", "source:official-definition"),
+            ("intent", "query_intent", "primary_intent", "Informational", "source:query"),
+            ("topic", "topic_scope", "scope", "Coverage scope depends on the plan and destination.", "source:official-scope"),
+            ("eligibility", "eligibility", "who_needs_it", "People living abroad can evaluate this type of coverage.", "source:official-eligibility"),
+            ("use_case", "use_case", "primary_use", "The primary use is to address health coverage needs while living abroad.", "source:official-use"),
+            ("coverage", "coverage_fact", "coverage", "Plans provide defined healthcare coverage according to their terms.", "source:official-coverage"),
+            ("coverage", "coverage_fact", "benefit", "A plan may provide stated healthcare benefits under its terms.", "source:official-benefit"),
+            ("coverage", "exclusion_fact", "exclusion", "Plan exclusions define circumstances not covered under the terms.", "source:official-exclusion"),
+            ("market", "pricing_fact", "premium", "Annual premium is a concrete pricing fact for the evaluated plan.", "source:official-premium"),
+            ("market", "pricing_factor", "cost_driver", "Coverage level is a cost driver that can affect pricing.", "source:official-cost-driver"),
+            ("market", "pricing_factor", "price_variable", "Deductible level is a price variable.", "source:official-price-variable"),
+            ("comparison", "comparison_fact", "criterion", "Coverage, cost, and network are comparison criteria.", "source:official-criterion"),
+            ("comparison", "option_attribute", "coverage_difference", "Options can differ in the coverage they provide.", "source:official-coverage-difference"),
+            ("comparison", "option_attribute", "cost_difference", "Options can differ in cost based on their terms.", "source:official-cost-difference"),
+            ("question", "question_fact", "question", "Readers may ask what expat health insurance covers.", "source:official-question"),
+            ("answer", "answer_fact", "answer", "The answer should describe the applicable coverage terms from the source.", "source:official-answer"),
+            ("source", "source_identity", "source", "The article uses identified research sources.", "source:official-source"),
+            ("provenance", "provenance_fact", "method", "Evidence is produced through a documented deterministic method.", "source:official-method"),
+            ("lineage", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
+        ]
 
-        cost_record = build_observation(
-            report_id=report_id,
-            domain="market",
-            subject={"type": "keyword", "id": keyword},
-            claim={"type": "market_fact", "attribute": "premium_cost"},
-            value={"type": "numeric", "data": 1200},
-            source=source,
-            provenance=provenance,
-            confidence=1.0,
-            captured_at=captured_at,
-        )
+        refs = list(result.get("evidence_refs", []))
+        for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
+            source = dict(source_base)
+            source["source_id"] = source_id
+            if domain == "intent":
+                source["type"] = "query"
 
-        (root / "test-evidence-coverage.json").write_text(
-            json.dumps(coverage_record, indent=4, ensure_ascii=False),
-            encoding="utf-8",
-        )
-        (root / "test-evidence-cost.json").write_text(
-            json.dumps(cost_record, indent=4, ensure_ascii=False),
-            encoding="utf-8",
-        )
+            record = build_observation(
+                report_id=report_id,
+                domain=domain,
+                subject={"type": "keyword", "id": keyword},
+                claim={"type": claim_type, "attribute": attribute},
+                value={"type": "text", "data": data},
+                source=source,
+                provenance=provenance,
+                confidence=1.0,
+                captured_at=captured_at,
+                evidence_id=f"ev_hardening_{index:02d}_{project_name}",
+            )
+            (root / f"test-evidence-required-{index:02d}.json").write_text(
+                json.dumps(record, indent=4, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            refs.append(record["evidence_id"])
 
         brief_path = root / "content-brief.json"
         brief = json.loads(brief_path.read_text(encoding="utf-8"))
-        refs = list(brief.get("evidence_refs", []))
-
-        for evidence_id in (
-            coverage_record["evidence_id"],
-            cost_record["evidence_id"],
-        ):
-            if evidence_id not in refs:
-                refs.append(evidence_id)
-
-        brief["evidence_refs"] = refs
-
+        brief["evidence_refs"] = list(dict.fromkeys(refs))
         brief_path.write_text(
             json.dumps(brief, indent=4, ensure_ascii=False),
             encoding="utf-8",
