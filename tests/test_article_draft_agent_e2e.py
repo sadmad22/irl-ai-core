@@ -66,28 +66,59 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
         }),
         encoding="utf-8",
     )
-    (root / "evidence-coverage.json").write_text(
-        json.dumps({
-            "evidence_id": "ev_test_coverage_options",
-            "domain": "coverage",
-            "claim": {"type": "coverage_fact", "attribute": "coverage"},
-            "value": {"type": "categorical", "data": "coverage options"},
+    required_records = [
+        ("topic", "topic_definition", "definition", "Expat health insurance is international health coverage for people living abroad.", "source:official-definition"),
+        ("intent", "query_intent", "primary_intent", "Informational", "source:query"),
+        ("topic", "topic_scope", "scope", "Coverage scope depends on the plan and destination.", "source:official-scope"),
+        ("eligibility", "eligibility", "who_needs_it", "People living abroad can evaluate this type of coverage.", "source:official-eligibility"),
+        ("use_case", "use_case", "primary_use", "The primary use is to address health coverage needs while living abroad.", "source:official-use"),
+        ("coverage", "coverage_fact", "coverage", "Plans provide defined healthcare coverage according to their terms.", "source:official-coverage"),
+        ("coverage", "coverage_fact", "benefit", "A plan may provide stated healthcare benefits under its terms.", "source:official-benefit"),
+        ("coverage", "exclusion_fact", "exclusion", "Plan exclusions define circumstances not covered under the terms.", "source:official-exclusion"),
+        ("market", "pricing_fact", "premium", "Annual premium is a concrete pricing fact for the evaluated plan.", "source:official-premium"),
+        ("market", "pricing_factor", "cost_driver", "Coverage level is a cost driver that can affect pricing.", "source:official-cost-driver"),
+        ("market", "pricing_factor", "price_variable", "Deductible level is a price variable.", "source:official-price-variable"),
+        ("comparison", "comparison_fact", "criterion", "Coverage, cost, and network are comparison criteria.", "source:official-criterion"),
+        ("comparison", "option_attribute", "coverage_difference", "Options can differ in the coverage they provide.", "source:official-coverage-difference"),
+        ("comparison", "option_attribute", "cost_difference", "Options can differ in cost based on their terms.", "source:official-cost-difference"),
+        ("question", "question_fact", "question", "Readers may ask what expat health insurance covers.", "source:official-question"),
+        ("answer", "answer_fact", "answer", "The answer should describe the applicable coverage terms from the source.", "source:official-answer"),
+        ("source", "source_identity", "source", "The article uses identified research sources.", "source:official-source"),
+        ("provenance", "provenance_fact", "method", "Evidence is produced through a documented deterministic method.", "source:official-method"),
+        ("lineage", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
+    ]
+
+    for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
+        record = {
+            "evidence_id": f"ev_test_required_{index}",
+            "report_id": "rr_draft_demo",
+            "schema_version": "1.0",
+            "type": "observation",
+            "domain": domain,
             "subject": {"type": "keyword", "id": "best expat health insurance"},
-            "source": {"artifact": "evidence-coverage.json"},
-        }),
-        encoding="utf-8",
-    )
-    (root / "evidence-cost.json").write_text(
-        json.dumps({
-            "evidence_id": "ev_test_cost_premium",
-            "domain": "market",
-            "claim": {"type": "market_fact", "attribute": "premium"},
-            "value": {"type": "numeric", "data": 1200},
-            "subject": {"type": "keyword", "id": "best expat health insurance"},
-            "source": {"artifact": "evidence-cost.json"},
-        }),
-        encoding="utf-8",
-    )
+            "claim": {"type": claim_type, "attribute": attribute},
+            "value": {"type": "text", "data": data},
+            "source": {
+                "type": "official" if domain != "intent" else "query",
+                "source_id": source_id,
+                "provider": "test",
+                "retrieved_at": "2026-09-23T12:00:00Z",
+            },
+            "provenance": {
+                "analyzer": "e2e_test",
+                "analyzer_version": "1.0",
+                "method": "deterministic_test",
+            },
+            "confidence": 1.0,
+            "relation": "supports",
+            "derived_from": [],
+            "captured_at": "2026-09-23T12:00:00Z",
+            "status": "active",
+        }
+        (root / f"evidence-required-{index}.json").write_text(
+            json.dumps(record, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
     return root
 
 
