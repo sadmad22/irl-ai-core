@@ -1,7 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Source Model",
+  "$id": "https://irl-ai-core.local/schemas/source.schema.json",
+  "title": "IRL Source Model",
+  "description": "Canonical source identity and retrieval metadata. Authority is evaluated separately and is not stored as a source-global property.",
   "type": "object",
-  "properties": {},
-  "required": []
+  "additionalProperties": false,
+  "required": ["source_id", "type", "provider", "retrieved_at"],
+  "properties": {
+    "source_id": { "type": "string", "minLength": 1 },
+    "type": { "type": "string", "minLength": 1 },
+    "provider": { "type": "string", "minLength": 1 },
+    "retrieved_at": { "type": "string", "minLength": 1, "format": "date-time" }
+  }
 }
