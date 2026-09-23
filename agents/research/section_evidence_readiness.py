@@ -202,10 +202,13 @@ def _claim_list(items: list[dict[str, str]]) -> list[dict[str, str]]:
 
 def evaluate_section_readiness(
     *,
+    report_id: str,
     outline: list[dict[str, Any]],
     evidence_refs: list[str],
     evidence_records: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
+    if not str(report_id).strip():
+        raise ValueError("Section readiness requires report_id")
     if not isinstance(outline, list) or not outline:
         raise ValueError("Section readiness requires a non-empty outline")
     if not isinstance(evidence_refs, list) or not evidence_refs:
@@ -262,6 +265,9 @@ def evaluate_section_readiness(
         for record in eligible_records:
             if _claim_ref(record) not in required_families:
                 continue
+            if str(record.get("report_id", "")).strip() != str(report_id).strip():
+                invalid_records.append(record)
+                continue
             if not list(_EVIDENCE_VALIDATOR.iter_errors(record)):
                 continue
             invalid_records.append(record)
@@ -285,7 +291,14 @@ def evaluate_section_readiness(
                         "freshness": "UNKNOWN",
                         "lineage": "FAIL",
                     },
-                    reasons=["evidence_contract_invalid"],
+                    reasons=[
+                        "lineage_invalid"
+                        if any(
+                            str(record.get("report_id", "")).strip() != str(report_id).strip()
+                            for record in invalid_records
+                        )
+                        else "evidence_contract_invalid"
+                    ],
                     evidence_count=len(eligible_refs),
                 )
             )
@@ -440,11 +453,13 @@ def evaluate_section_readiness(
 
 def require_ready_sections(
     *,
+    report_id: str,
     outline: list[dict[str, Any]],
     evidence_refs: list[str],
     evidence_records: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     results = evaluate_section_readiness(
+        report_id=report_id,
         outline=outline,
         evidence_refs=evidence_refs,
         evidence_records=evidence_records,
