@@ -143,6 +143,17 @@ def _lineage_state(record: dict[str, Any]) -> str:
     return "PASS"
 
 
+def _dedupe_claims(items: list[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[tuple[str, str]] = set()
+    result: list[dict[str, str]] = []
+    for item in items:
+        key = (item["claim_type"], item["attribute"])
+        if key not in seen:
+            result.append({"claim_type": key[0], "attribute": key[1]})
+            seen.add(key)
+    return result
+
+
 def _result(
     *,
     section_index: int,
@@ -162,8 +173,8 @@ def _result(
         "section_key": section_key,
         "readiness": readiness,
         "eligible_evidence_refs": list(dict.fromkeys(eligible_refs)),
-        "supported_required_claims": list(dict.fromkeys(tuple(sorted(item.items())) for item in supported)),
-        "missing_required_claims": list(dict.fromkeys(tuple(sorted(item.items())) for item in missing)),
+        "supported_required_claims": _dedupe_claims(supported),
+        "missing_required_claims": _dedupe_claims(missing),
         "dimension_results": dimensions,
         "reason_codes": list(dict.fromkeys(reasons)),
         "audit": {
@@ -298,14 +309,22 @@ def evaluate_section_readiness(
             continue
 
         supporting: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        claim_policies: dict[tuple[str, str], str] = {}
         for required_claim in claim_map["required_claims"]:
             family = (required_claim["claim_type"], required_claim["attribute"])
+            claim_policies[family] = str(required_claim["evidence_kind"])
             matches = []
             for record in eligible_records:
                 if _claim_ref(record) != family:
                     continue
-                depth_class, substantive, _ = _depth_class(record, required_claim=family)
-                if depth_class == "D2" and substantive:
+                depth_class, substantive, _ = _depth_class(
+                    record,
+                    required_claim=family if required_claim["evidence_kind"] == "substantive" else None,
+                )
+                if required_claim["evidence_kind"] == "signal":
+                    if depth_class == "D0":
+                        matches.append(record)
+                elif depth_class == "D2" and substantive:
                     matches.append(record)
             if matches:
                 supporting[family] = matches
@@ -321,9 +340,15 @@ def evaluate_section_readiness(
         relevance = "PASS"
         coverage = "PASS" if not missing else "FAIL"
 
-        used_records = [record for records in supporting.values() for record in records]
+        used_records = [
+            record
+            for family, records in supporting.items()
+            for record in records
+            if claim_policies.get(family) == "substantive"
+        ]
         authority_states = [_authority_state(record, True) for record in used_records]
         authority = "FAIL" if "FAIL" in authority_states else ("UNKNOWN" if "UNKNOWN" in authority_states else "PASS")
+
 
         root_ids = [root for record in eligible_records if (root := _root_identity(record))]
         unique_roots = set(root_ids)
