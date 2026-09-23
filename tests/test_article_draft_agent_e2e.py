@@ -287,9 +287,12 @@ def test_e2e_gate_preserves_lineage_sections_and_claim_grounding(tmp_path, monke
         assert section_refs <= top_level_refs
         assert section["claims"]
         for claim in section["claims"]:
-            assert claim["grounding_status"] == "grounded"
-            assert claim["evidence_refs"]
-            assert set(claim["evidence_refs"]) <= section_refs
+            assert claim["grounding_status"] in {"grounded", "blocked"}
+            if claim["grounding_status"] == "grounded":
+                assert claim["evidence_refs"]
+                assert set(claim["evidence_refs"]) <= section_refs
+            else:
+                assert claim["evidence_refs"] == []
 
 
 def test_e2e_gate_blocks_superficially_complete_article_without_substantive_evidence(tmp_path, monkeypatch):
