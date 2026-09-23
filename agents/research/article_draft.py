@@ -6,7 +6,6 @@ from typing import Any
 
 from .article_writer import write_article_draft
 from .claim_evidence_grounding import ground_claims_by_section
-from .section_evidence_grounding import ground_evidence_by_section
 from .section_evidence_readiness import require_ready_sections
 
 SCHEMA_VERSION = "1.1"
