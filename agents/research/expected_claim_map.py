@@ -20,7 +20,7 @@ EXPECTED_CLAIM_MAP: dict[str, dict[str, Any]] = {
         "heading": "Introduction",
         "required_claims": [
             _claim("topic_definition", "definition", "required", "substantive"),
-            _claim("query_intent", "primary_intent", "required", "substantive"),
+            _claim("query_intent", "primary_intent", "required", "signal"),
         ],
         "supporting_claims": [
             _claim("entity_presence", "mentioned", "supporting", "signal"),
