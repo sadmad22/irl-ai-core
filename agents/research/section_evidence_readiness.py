@@ -12,6 +12,8 @@ from .section_evidence_grounding import _section_key, ground_evidence_by_section
 SCHEMA_VERSION = "1.0"
 POLICY_VERSION = "v1"
 
+_DIVERSITY_REQUIRED_SECTIONS = {"how_to_compare_options"}
+
 _ROOT = Path(__file__).resolve().parents[2]
 _EVIDENCE_SCHEMA = json.loads(
     (_ROOT / "shared" / "schemas" / "evidence.schema.json").read_text(encoding="utf-8")
@@ -357,14 +359,20 @@ def evaluate_section_readiness(
         authority = "FAIL" if "FAIL" in authority_states else ("UNKNOWN" if "UNKNOWN" in authority_states else "PASS")
 
 
-        root_ids = [root for record in eligible_records if (root := _root_identity(record))]
+        root_ids = [root for record in used_records if (root := _root_identity(record))]
         unique_roots = set(root_ids)
-        if len(root_ids) > 1 and len(unique_roots) == 1:
+        if key not in _DIVERSITY_REQUIRED_SECTIONS:
+            diversity = "PASS"
+            diversity_reason = "diversity_not_required"
+        elif len(root_ids) > 1 and len(unique_roots) == 1:
             diversity = "FAIL"
             diversity_reason = "same_source_origin"
         elif len(root_ids) == 0:
             diversity = "UNKNOWN"
             diversity_reason = "independence_unknown"
+        elif len(unique_roots) < 2:
+            diversity = "FAIL"
+            diversity_reason = "diversity_insufficient"
         else:
             diversity = "PASS"
             diversity_reason = "independent_source"
