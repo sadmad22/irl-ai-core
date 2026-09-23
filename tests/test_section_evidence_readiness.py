@@ -229,37 +229,37 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
 
 
 def test_duplicate_source_origin_is_not_counted_as_diversity():
-    outline = [{"heading": "Costs and Pricing Factors", "purpose": "Explain pricing factors."}]
+    outline = [{"heading": "How to Compare Options", "purpose": "Explain factual option differences."}]
     records = [
         _record(
-            evidence_id="ev_premium",
-            claim_type="pricing_fact",
-            attribute="premium",
+            evidence_id="ev_criterion",
+            claim_type="comparison_fact",
+            attribute="criterion",
             source_id="source:same",
-            domain="market",
-            value="Annual premium is a concrete pricing fact.",
+            domain="comparison",
+            value="Coverage and cost are comparison criteria.",
         ),
         _record(
-            evidence_id="ev_driver",
-            claim_type="pricing_factor",
-            attribute="cost_driver",
+            evidence_id="ev_coverage_difference",
+            claim_type="option_attribute",
+            attribute="coverage_difference",
             source_id="source:same",
-            domain="market",
-            value="Coverage level is a pricing cost driver.",
+            domain="comparison",
+            value="Options can differ in the coverage they provide.",
         ),
         _record(
-            evidence_id="ev_variable",
-            claim_type="pricing_factor",
-            attribute="price_variable",
+            evidence_id="ev_cost_difference",
+            claim_type="option_attribute",
+            attribute="cost_difference",
             source_id="source:same",
-            domain="market",
-            value="Deductible level is a pricing variable.",
+            domain="comparison",
+            value="Options can differ in cost based on their terms.",
         ),
     ]
 
     result = evaluate_section_readiness(
         outline=outline,
-        evidence_refs=["ev_premium", "ev_driver", "ev_variable"],
+        evidence_refs=["ev_criterion", "ev_coverage_difference", "ev_cost_difference"],
         evidence_records=records,
     )
 
