@@ -116,6 +116,15 @@ def build_article_draft(
         "tables": writer_draft["tables"],
         "images": writer_draft["images"],
         "evidence_refs": normalized_refs,
+        "section_evidence_contracts": [
+            {
+                "section_index": item["section_index"],
+                "heading": outline[item["section_index"] - 1]["heading"],
+                "status": "ready",
+                "evidence_refs": item["eligible_evidence_refs"],
+            }
+            for item in readiness_results
+        ],
         "editorial_evidence": editorial,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }
