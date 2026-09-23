@@ -7,7 +7,6 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from agents.research import article_draft
-from agents.research.evidence.domain_common import build_observation
 from agents.research.section_evidence_readiness import evaluate_section_readiness, require_ready_sections
 
 
@@ -110,6 +109,19 @@ def test_ready_when_required_claims_have_eligible_support():
         ("topic_definition", "definition"),
         ("query_intent", "primary_intent"),
     }
+
+
+def test_unknown_section_is_blocked_instead_of_defaulting_to_introduction():
+    result = evaluate_section_readiness(
+        outline=[{"heading": "Unmapped Research Section", "purpose": "unknown"}],
+        evidence_refs=["ev_definition", "ev_intent"],
+        evidence_records=_intro_evidence(),
+    )
+
+    assert result[0]["readiness"] == "BLOCKED"
+    assert result[0]["section_key"] == ""
+    assert result[0]["reason_codes"] == ["context_missing"]
+
 
 
 def test_insufficient_when_required_claim_is_uncovered():
