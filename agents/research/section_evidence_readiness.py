@@ -220,6 +220,7 @@ def evaluate_section_readiness(
         outline=outline,
         evidence_refs=normalized_refs,
         evidence_records=evidence_records,
+        per_section=max(1, len(indexed)),
     )
 
     results: list[dict[str, Any]] = []
