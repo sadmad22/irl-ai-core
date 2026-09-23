@@ -155,7 +155,7 @@ Typical reasons:
 - untraceable Evidence;
 - broken required lineage;
 - invalid/superseded/invalidated Evidence being presented as active support;
-- no trustworthy section-eligible Evidence can be established when the section requires substantive support;
+- section-level eligibility cannot be established or trusted when the section requires substantive support;
 - an essential readiness input is missing and cannot safely be interpreted.
 
 BLOCKED means:
@@ -192,6 +192,8 @@ A hard invalidity affecting the required evidence basis yields `BLOCKED`.
 ### Step 3 — Preserve Section Eligibility
 
 Only Evidence already accepted by the Section Evidence Eligibility boundary may contribute to claim coverage.
+
+If the eligibility evaluation is missing or cannot be trusted, this is a hard prerequisite failure and the section is BLOCKED. If eligibility is valid but returns no supporting Evidence, the section is INSUFFICIENT because the claim space is unsupported.
 
 No fallback to:
 
