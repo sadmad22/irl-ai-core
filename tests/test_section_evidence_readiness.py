@@ -143,6 +143,7 @@ def test_insufficient_when_required_claim_is_uncovered():
 
 def test_insufficient_when_section_has_no_eligible_evidence():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_unrelated"],
         evidence_records=[
@@ -171,6 +172,7 @@ def test_blocked_when_eligible_evidence_violates_canonical_contract():
     del bad["provenance"]["analyzer_version"]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_bad"],
         evidence_records=[bad],
@@ -191,6 +193,7 @@ def test_blocked_when_derived_evidence_has_no_lineage():
     )
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_derived"],
         evidence_records=[bad],
@@ -222,6 +225,7 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
     ]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=records,
@@ -262,6 +266,7 @@ def test_duplicate_source_origin_is_not_counted_as_diversity():
     ]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=outline,
         evidence_refs=["ev_criterion", "ev_coverage_difference", "ev_cost_difference"],
         evidence_records=records,
