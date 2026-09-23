@@ -169,7 +169,7 @@ def test_article_draft_contract_shape():
     assert draft["report_id"] == "rr_001"
     assert draft["decision_id"] == "dec_001"
     assert draft["strategy_id"] == "strat_001"
-    assert draft["evidence_refs"] == ["ev_1", "ev_2"]
+    assert draft["evidence_refs"] == ["ev_1", "ev_2", "ev_3", "ev_4", "ev_5"]
     assert len(draft["sections"]) == 2
     assert len(draft["images"]) == 1
 
