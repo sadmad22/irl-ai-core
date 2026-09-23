@@ -107,18 +107,46 @@ def _authority_state(record: dict[str, Any], required: bool) -> str:
     return "UNKNOWN"
 
 
-def _root_identity(record: dict[str, Any]) -> str | None:
+def _root_identities(
+    record: dict[str, Any],
+    indexed: dict[str, dict[str, Any]],
+    visiting: set[str] | None = None,
+) -> set[str]:
+    visiting = set(visiting or ())
+    evidence_id = str(record.get("evidence_id", "")).strip()
+    if evidence_id:
+        if evidence_id in visiting:
+            return {f"cycle:{evidence_id}"}
+        visiting.add(evidence_id)
+
+    if str(record.get("type", "")).strip() == "derived":
+        roots: set[str] = set()
+        derived_from = record.get("derived_from")
+        if isinstance(derived_from, list):
+            for parent_id in derived_from:
+                normalized_parent = str(parent_id).strip()
+                if not normalized_parent:
+                    continue
+                parent = indexed.get(normalized_parent)
+                if parent is None:
+                    roots.add(f"evidence:{normalized_parent}")
+                else:
+                    roots.update(_root_identities(parent, indexed, visiting))
+        return roots
+
     source = _source(record)
     for key in ("source_id", "url", "document_id", "artifact"):
         value = str(source.get(key, "")).strip()
         if value:
-            return value
-    roots = record.get("derived_from")
-    if isinstance(roots, list) and roots:
-        normalized = sorted(str(item).strip() for item in roots if str(item).strip())
-        if normalized:
-            return "derived:" + "|".join(normalized)
-    return None
+            return {value}
+    return set()
+
+
+def _root_identity(record: dict[str, Any], indexed: dict[str, dict[str, Any]]) -> str | None:
+    roots = sorted(_root_identities(record, indexed))
+    if not roots:
+        return None
+    return "||".join(roots)
 
 
 def _freshness_state(records: list[dict[str, Any]]) -> str:
@@ -371,7 +399,7 @@ def evaluate_section_readiness(
         authority = "FAIL" if "FAIL" in authority_states else ("UNKNOWN" if "UNKNOWN" in authority_states else "PASS")
 
 
-        root_ids = [root for record in used_records if (root := _root_identity(record))]
+        root_ids = [root for record in used_records if (root := _root_identity(record, indexed))]
         unique_roots = set(root_ids)
         if key not in _DIVERSITY_REQUIRED_SECTIONS:
             diversity = "PASS"
