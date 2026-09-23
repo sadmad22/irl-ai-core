@@ -115,6 +115,7 @@ def test_ready_when_required_claims_have_eligible_support():
 
 def test_unknown_section_is_blocked_instead_of_defaulting_to_introduction():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=[{"heading": "Unmapped Research Section", "purpose": "unknown"}],
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
@@ -128,6 +129,7 @@ def test_unknown_section_is_blocked_instead_of_defaulting_to_introduction():
 
 def test_insufficient_when_required_claim_is_uncovered():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition"],
         evidence_records=_intro_evidence(),
@@ -353,6 +355,7 @@ def test_ready_gate_allows_writer_path_to_continue():
 
 def test_readiness_result_is_deterministic():
     kwargs = {
+        "report_id": "rr_test",
         "outline": _outline(),
         "evidence_refs": ["ev_definition", "ev_intent"],
         "evidence_records": _intro_evidence(),
