@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-import copy
+import json
+from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from agents.research import article_draft
 from agents.research.evidence.domain_common import build_observation
@@ -74,6 +76,23 @@ def _intro_evidence():
     ]
 
 
+def test_readiness_result_matches_schema():
+    result = evaluate_section_readiness(
+        outline=_outline(),
+        evidence_refs=["ev_definition", "ev_intent"],
+        evidence_records=_intro_evidence(),
+    )
+    schema = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "shared"
+            / "schemas"
+            / "section-evidence-readiness.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema).validate(result[0])
+
+
 def test_ready_when_required_claims_have_eligible_support():
     result = evaluate_section_readiness(
         outline=_outline(),
@@ -84,9 +103,10 @@ def test_ready_when_required_claims_have_eligible_support():
     assert len(result) == 1
     assert result[0]["readiness"] == "READY"
     assert result[0]["missing_required_claims"] == []
-    assert set(result[0]["supported_required_claims"]) == {
-        ("claim_type", "attribute")
-    } if False else {
+    assert {
+        (item["claim_type"], item["attribute"])
+        for item in result[0]["supported_required_claims"]
+    } == {
         ("topic_definition", "definition"),
         ("query_intent", "primary_intent"),
     }
@@ -197,39 +217,45 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
 
 
 def test_duplicate_source_origin_is_not_counted_as_diversity():
+    outline = [{"heading": "Costs and Pricing Factors", "purpose": "Explain pricing factors."}]
     records = [
         _record(
-            evidence_id="ev_definition",
-            claim_type="topic_definition",
-            attribute="definition",
+            evidence_id="ev_premium",
+            claim_type="pricing_fact",
+            attribute="premium",
             source_id="source:same",
+            domain="market",
+            value="Annual premium is a concrete pricing fact.",
         ),
         _record(
-            evidence_id="ev_scope",
-            claim_type="topic_scope",
-            attribute="scope",
+            evidence_id="ev_driver",
+            claim_type="pricing_factor",
+            attribute="cost_driver",
             source_id="source:same",
-            value="Coverage considerations vary by destination and plan scope.",
+            domain="market",
+            value="Coverage level is a pricing cost driver.",
         ),
         _record(
-            evidence_id="ev_intent",
-            claim_type="query_intent",
-            attribute="primary_intent",
-            source_type="query",
-            source_id="source:query",
-            domain="intent",
-            value="Informational",
+            evidence_id="ev_variable",
+            claim_type="pricing_factor",
+            attribute="price_variable",
+            source_id="source:same",
+            domain="market",
+            value="Deductible level is a pricing variable.",
         ),
     ]
-    # The Introduction does not require topic_scope, so duplicate substantive
-    # roots are added through a supporting candidate without changing coverage.
+
     result = evaluate_section_readiness(
-        outline=_outline(),
-        evidence_refs=["ev_definition", "ev_scope", "ev_intent"],
+        outline=outline,
+        evidence_refs=["ev_premium", "ev_driver", "ev_variable"],
         evidence_records=records,
     )
 
-    assert result[0]["dimension_results"]["diversity"] == "PASS"
+    assert result[0]["dimension_results"]["coverage"] == "PASS"
+    assert result[0]["dimension_results"]["diversity"] == "FAIL"
+    assert "diversity_insufficient" in result[0]["reason_codes"]
+    assert result[0]["readiness"] == "INSUFFICIENT"
+
 
 
 def test_gate_prevents_writer_from_receiving_unready_section(monkeypatch):
