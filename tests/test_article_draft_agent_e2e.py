@@ -66,28 +66,59 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
         }),
         encoding="utf-8",
     )
-    (root / "evidence-coverage.json").write_text(
-        json.dumps({
-            "evidence_id": "ev_test_coverage_options",
-            "domain": "coverage",
-            "claim": {"type": "coverage_fact", "attribute": "coverage"},
-            "value": {"type": "categorical", "data": "coverage options"},
+    required_records = [
+        ("topic", "topic_definition", "definition", "Expat health insurance is international health coverage for people living abroad.", "source:official-definition"),
+        ("intent", "query_intent", "primary_intent", "Informational", "source:query"),
+        ("topic", "topic_scope", "scope", "Coverage scope depends on the plan and destination.", "source:official-scope"),
+        ("eligibility", "eligibility", "who_needs_it", "People living abroad can evaluate this type of coverage.", "source:official-eligibility"),
+        ("use_case", "use_case", "primary_use", "The primary use is to address health coverage needs while living abroad.", "source:official-use"),
+        ("coverage", "coverage_fact", "coverage", "Plans provide defined healthcare coverage according to their terms.", "source:official-coverage"),
+        ("coverage", "coverage_fact", "benefit", "A plan may provide stated healthcare benefits under its terms.", "source:official-benefit"),
+        ("coverage", "exclusion_fact", "exclusion", "Plan exclusions define circumstances not covered under the terms.", "source:official-exclusion"),
+        ("market", "pricing_fact", "premium", "Annual premium is a concrete pricing fact for the evaluated plan.", "source:official-premium"),
+        ("market", "pricing_factor", "cost_driver", "Coverage level is a cost driver that can affect pricing.", "source:official-cost-driver"),
+        ("market", "pricing_factor", "price_variable", "Deductible level is a price variable.", "source:official-price-variable"),
+        ("comparison", "comparison_fact", "criterion", "Coverage, cost, and network are comparison criteria.", "source:official-criterion"),
+        ("comparison", "option_attribute", "coverage_difference", "Options can differ in the coverage they provide.", "source:official-coverage-difference"),
+        ("comparison", "option_attribute", "cost_difference", "Options can differ in cost based on their terms.", "source:official-cost-difference"),
+        ("question", "question_fact", "question", "Readers may ask what expat health insurance covers.", "source:official-question"),
+        ("answer", "answer_fact", "answer", "The answer should describe the applicable coverage terms from the source.", "source:official-answer"),
+        ("source", "source_identity", "source", "The article uses identified research sources.", "source:official-source"),
+        ("provenance", "provenance_fact", "method", "Evidence is produced through a documented deterministic method.", "source:official-method"),
+        ("evidence", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
+    ]
+
+    for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
+        record = {
+            "evidence_id": f"ev_test_required_{index}",
+            "report_id": "rr_draft_demo",
+            "schema_version": "1.0",
+            "type": "observation",
+            "domain": domain,
             "subject": {"type": "keyword", "id": "best expat health insurance"},
-            "source": {"artifact": "evidence-coverage.json"},
-        }),
-        encoding="utf-8",
-    )
-    (root / "evidence-cost.json").write_text(
-        json.dumps({
-            "evidence_id": "ev_test_cost_premium",
-            "domain": "market",
-            "claim": {"type": "market_fact", "attribute": "premium"},
-            "value": {"type": "numeric", "data": 1200},
-            "subject": {"type": "keyword", "id": "best expat health insurance"},
-            "source": {"artifact": "evidence-cost.json"},
-        }),
-        encoding="utf-8",
-    )
+            "claim": {"type": claim_type, "attribute": attribute},
+            "value": {"type": "text", "data": data},
+            "source": {
+                "type": "official" if domain != "intent" else "query",
+                "source_id": source_id,
+                "provider": "test",
+                "retrieved_at": "2026-09-23T12:00:00Z",
+            },
+            "provenance": {
+                "analyzer": "e2e_test",
+                "analyzer_version": "1.0",
+                "method": "deterministic_test",
+            },
+            "confidence": 1.0,
+            "relation": "supports",
+            "derived_from": [],
+            "captured_at": "2026-09-23T12:00:00Z",
+            "status": "active",
+        }
+        (root / f"evidence-required-{index}.json").write_text(
+            json.dumps(record, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
     return root
 
 
@@ -103,6 +134,7 @@ def _inject_test_evidence_into_brief(monkeypatch, root: Path):
         for evidence_id in (
             "ev_test_coverage_options",
             "ev_test_cost_premium",
+            *[f"ev_test_required_{index}" for index in range(1, 20)],
         ):
             if evidence_id not in refs:
                 refs.append(evidence_id)
@@ -194,3 +226,98 @@ def test_writer_agent_requires_a_publishable_content_brief(tmp_path, monkeypatch
     with pytest.raises(ValueError, match="content_brief_ready"):
         from agents.research.article_draft import build_article_draft
         build_article_draft(content_brief=json.loads((root / "content-brief.json").read_text()), llm_provider=FakeWriter())
+
+
+def test_e2e_gate_preserves_lineage_sections_and_claim_grounding(tmp_path, monkeypatch):
+    root = _seed(tmp_path, "gate-regression")
+    monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
+
+    original_build = article_draft_agent.build_article_draft
+    pre_gate = {}
+
+    def wrapped_build(*, content_brief, evidence_records=None, editorial_evidence=None, llm_provider):
+        pre_gate["brief"] = {
+            key: json.loads(json.dumps(content_brief[key]))
+            for key in ("brief_id", "report_id", "decision_id", "strategy_id", "evidence_refs", "outline")
+        }
+        return original_build(
+            content_brief=content_brief,
+            evidence_records=evidence_records,
+            editorial_evidence=editorial_evidence,
+            llm_provider=llm_provider,
+        )
+
+    monkeypatch.setattr(article_draft_agent, "build_article_draft", wrapped_build)
+
+    draft = run("gate-regression", llm_provider=FakeWriter())
+
+    assert pre_gate["brief"]["brief_id"] == draft["brief_id"]
+    assert pre_gate["brief"]["report_id"] == draft["report_id"]
+    assert pre_gate["brief"]["decision_id"] == draft["decision_id"]
+    assert pre_gate["brief"]["strategy_id"] == draft["strategy_id"]
+    assert draft["evidence_refs"] == pre_gate["brief"]["evidence_refs"]
+
+    expected_sections = [
+        (index, item["heading"], item["purpose"])
+        for index, item in enumerate(pre_gate["brief"]["outline"], start=1)
+    ]
+    actual_sections = [
+        (index, section["heading"], section["purpose"])
+        for index, section in enumerate(draft["sections"], start=1)
+    ]
+    assert actual_sections == expected_sections
+
+    contracts = draft["section_evidence_contracts"]
+    assert len(contracts) == len(expected_sections)
+    for contract, (index, heading, _) in zip(contracts, expected_sections):
+        assert contract["section_index"] == index
+        assert contract["heading"] == heading
+        assert contract["status"] == "ready"
+        assert contract["evidence_refs"]
+
+    top_level_refs = set(draft["evidence_refs"])
+    claims = [claim for section in draft["sections"] for claim in section["claims"]]
+    claim_ids = [claim["claim_id"] for claim in claims]
+    assert len(claim_ids) == len(set(claim_ids))
+
+    for section, contract in zip(draft["sections"], contracts):
+        section_refs = set(section["evidence_refs"])
+        assert section_refs == set(contract["evidence_refs"])
+        assert section_refs <= top_level_refs
+        assert section["claims"]
+        for claim in section["claims"]:
+            assert claim["grounding_status"] in {"grounded", "blocked"}
+            if claim["grounding_status"] == "grounded":
+                assert claim["evidence_refs"]
+                assert set(claim["evidence_refs"]) <= section_refs
+            else:
+                assert claim["evidence_refs"] == []
+
+
+def test_e2e_gate_blocks_superficially_complete_article_without_substantive_evidence(tmp_path, monkeypatch):
+    root = _seed(tmp_path, "gate-blocked")
+    monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
+
+    # Keep the brief lineage and surface signals intact, but remove the
+    # substantive premium evidence required by the Costs section.
+    (root / "evidence-required-9.json").unlink()
+
+    class TrackingWriter(FakeWriter):
+        calls = 0
+
+        def write(self, *, sections, editorial_rules):
+            self.calls += 1
+            return super().write(sections=sections, editorial_rules=editorial_rules)
+
+    writer = TrackingWriter()
+
+    with pytest.raises(ValueError, match="Section Evidence Quality Gate blocked Article Writer"):
+        run("gate-blocked", llm_provider=writer)
+
+    assert writer.calls == 0
+    assert not (root / "article-draft.json").exists()
+
+    metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["status"] != "draft_ready"
