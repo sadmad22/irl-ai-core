@@ -77,6 +77,7 @@ def _intro_evidence():
 
 def test_readiness_result_matches_schema():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
@@ -94,6 +95,7 @@ def test_readiness_result_matches_schema():
 
 def test_ready_when_required_claims_have_eligible_support():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
@@ -360,6 +362,7 @@ def test_readiness_result_is_deterministic():
 
 def test_require_ready_sections_returns_results_for_ready_input():
     result = require_ready_sections(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
