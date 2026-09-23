@@ -70,7 +70,8 @@ def _record_text(record: dict[str, Any]) -> str:
 
 def _score(section_key: str, record: dict[str, Any]) -> tuple[int, str]:
     text = _record_text(record)
-    score = sum(1 for token in _SECTION_PROFILES.get(section_key, ()) if token in text)
+    profile = (_normalize(token) for token in _SECTION_PROFILES.get(section_key, ()))
+    score = sum(1 for token in profile if token and token in text)
     evidence_id = str(record.get("evidence_id", ""))
     return score, evidence_id
 
