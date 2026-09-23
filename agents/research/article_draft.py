@@ -7,6 +7,7 @@ from typing import Any
 from .article_writer import write_article_draft
 from .claim_evidence_grounding import ground_claims_by_section
 from .section_evidence_grounding import ground_evidence_by_section
+from .section_evidence_readiness import require_ready_sections
 
 SCHEMA_VERSION = "1.1"
 METHOD_VERSION = "v4"
@@ -61,6 +62,12 @@ def build_article_draft(
         if isinstance(record, dict) and str(record.get("evidence_id", "")).strip()
     }
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
+
+    require_ready_sections(
+        outline=outline,
+        evidence_refs=normalized_refs,
+        evidence_records=list(grounded_records.values()),
+    )
 
     editorial = [
         item for item in (editorial_evidence or [])
