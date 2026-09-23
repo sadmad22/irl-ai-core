@@ -53,20 +53,71 @@ def _brief():
 
 
 def _evidence_records():
+    base = {
+        "report_id": "rr_001",
+        "schema_version": "1.0",
+        "type": "observation",
+        "subject": {"type": "keyword", "id": "best expat health insurance"},
+        "source": {
+            "type": "official",
+            "source_id": "source:test",
+            "provider": "test",
+            "retrieved_at": "2026-09-23T12:00:00Z",
+        },
+        "provenance": {
+            "analyzer": "test",
+            "analyzer_version": "1.0",
+            "method": "deterministic_test",
+        },
+        "confidence": 1.0,
+        "relation": "supports",
+        "derived_from": [],
+        "captured_at": "2026-09-23T12:00:00Z",
+        "status": "active",
+    }
     return [
         {
+            **base,
             "evidence_id": "ev_1",
-            "domain": "entity",
-            "subject": {"type": "keyword", "id": "expat health insurance"},
-            "claim": {"type": "observation", "attribute": "coverage"},
-            "value": {"type": "categorical", "data": "international"},
+            "domain": "topic",
+            "claim": {"type": "topic_definition", "attribute": "definition"},
+            "value": {"type": "text", "data": "Expat health insurance provides international health coverage for people living abroad."},
         },
         {
+            **base,
             "evidence_id": "ev_2",
-            "domain": "serp",
-            "subject": {"type": "keyword", "id": "expat health insurance"},
-            "claim": {"type": "comparison_signal", "attribute": "provider"},
-            "value": {"type": "categorical", "data": "commercial"},
+            "domain": "intent",
+            "claim": {"type": "query_intent", "attribute": "primary_intent"},
+            "value": {"type": "categorical", "data": "Informational"},
+            "source": {
+                "type": "query",
+                "source_id": "source:query",
+                "provider": "test",
+                "retrieved_at": "2026-09-23T12:00:00Z",
+            },
+        },
+        {
+            **base,
+            "evidence_id": "ev_3",
+            "domain": "comparison",
+            "claim": {"type": "comparison_fact", "attribute": "criterion"},
+            "value": {"type": "text", "data": "Compare coverage, cost, and network terms when reviewing plans."},
+        },
+        {
+            **base,
+            "evidence_id": "ev_4",
+            "domain": "comparison",
+            "claim": {"type": "option_attribute", "attribute": "coverage_difference"},
+            "value": {"type": "text", "data": "Plans can differ in the coverage they provide."},
+            "source": {**base["source"], "source_id": "source:coverage"},
+        },
+        {
+            **base,
+            "evidence_id": "ev_5",
+            "domain": "comparison",
+            "claim": {"type": "option_attribute", "attribute": "cost_difference"},
+            "value": {"type": "text", "data": "Plans can differ in cost based on their terms."},
+            "source": {**base["source"], "source_id": "source:cost"},
         },
     ]
 
