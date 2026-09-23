@@ -85,8 +85,8 @@ def ground_evidence_by_section(
     """Rank Content Brief evidence_refs independently for each article section.
 
     Every returned reference is already present in the Content Brief lineage.
-    A deterministic fallback keeps every section grounded when its semantic
-    profile has no exact match, while still preferring the strongest matches.
+    Sections without a recognized semantic profile receive no eligible
+    Evidence rather than falling back to unrelated Evidence.
     """
     if per_section < 1:
         raise ValueError("per_section must be at least 1")
@@ -100,10 +100,6 @@ def ground_evidence_by_section(
     if not indexed:
         return [[] for _ in outline]
 
-    ranked = sorted(
-        indexed.values(),
-        key=lambda record: (-_score("introduction", record)[0], str(record.get("evidence_id", ""))),
-    )
     results: list[list[str]] = []
     for section in outline:
         key = _section_key(section)
