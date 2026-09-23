@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/section-evidence-readiness.schema.json",
+  "title": "IRL Section Evidence Readiness Result",
+  "description": "Deterministic pre-generation readiness result for one article section.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_version",
+    "section_index",
+    "section_key",
+    "readiness",
+    "eligible_evidence_refs",
+    "supported_required_claims",
+    "missing_required_claims",
+    "dimension_results",
+    "reason_codes",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "policy_version": { "type": "string", "minLength": 1 },
+    "section_index": { "type": "integer", "minimum": 1 },
+    "section_key": { "type": "string", "minLength": 1 },
+    "readiness": { "enum": ["READY", "INSUFFICIENT", "BLOCKED"] },
+    "eligible_evidence_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "supported_required_claims": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/claim_ref" }
+    },
+    "missing_required_claims": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/claim_ref" }
+    },
+    "dimension_results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["integrity", "relevance", "coverage", "authority", "diversity", "depth", "freshness", "lineage"],
+      "properties": {
+        "integrity": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "relevance": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "coverage": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "authority": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "diversity": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "depth": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "freshness": { "enum": ["PASS", "FAIL", "UNKNOWN"] },
+        "lineage": { "enum": ["PASS", "FAIL", "UNKNOWN"] }
+      }
+    },
+    "reason_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "version"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "expected_claim_map_version": { "type": "string", "minLength": 1 },
+            "evidence_count": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "claim_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_type", "attribute"],
+      "properties": {
+        "claim_type": { "type": "string", "minLength": 1 },
+        "attribute": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
