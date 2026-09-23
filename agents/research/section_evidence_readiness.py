@@ -253,8 +253,14 @@ def evaluate_section_readiness(
             continue
 
         eligible_records = [indexed[ref] for ref in eligible_refs if ref in indexed]
+        required_families = {
+            (item["claim_type"], item["attribute"])
+            for item in claim_map["required_claims"]
+        }
         invalid_records = []
         for record in eligible_records:
+            if _claim_ref(record) not in required_families:
+                continue
             if not list(_EVIDENCE_VALIDATOR.iter_errors(record)):
                 continue
             invalid_records.append(record)
