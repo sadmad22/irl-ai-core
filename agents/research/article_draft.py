@@ -53,6 +53,8 @@ def build_article_draft(
         raise ValueError("Content Brief.content_type is invalid")
     if not keyword:
         raise ValueError("Content Brief.primary_keyword is required")
+    if llm_provider is None:
+        raise ValueError("Article Draft requires an explicitly injected LLM provider")
 
     normalized_refs = list(dict.fromkeys(str(ref).strip() for ref in refs if str(ref).strip()))
     ref_set = set(normalized_refs)
