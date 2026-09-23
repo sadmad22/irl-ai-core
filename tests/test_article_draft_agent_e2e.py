@@ -85,7 +85,7 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
         ("answer", "answer_fact", "answer", "The answer should describe the applicable coverage terms from the source.", "source:official-answer"),
         ("source", "source_identity", "source", "The article uses identified research sources.", "source:official-source"),
         ("provenance", "provenance_fact", "method", "Evidence is produced through a documented deterministic method.", "source:official-method"),
-        ("lineage", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
+        ("evidence", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
     ]
 
     for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
