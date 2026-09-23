@@ -7,7 +7,7 @@ METHOD_VERSION = "v1"
 
 _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "introduction": ("overview", "definition", "intent", "entity", "authority", "serp", "topic"),
-    "what_you_need_to_know": ("entity", "market", "intent", "question", "overview", "topic"),
+    "what_you_need_to_know": ("entity", "market", "intent", "question", "overview", "topic", "definition", "scope", "eligibility", "use_case", "risk"),
     "coverage_and_key_factors": ("coverage", "benefit", "network", "exclusion", "medical", "claim", "factor"),
     "costs_and_pricing_factors": ("cost", "price", "pricing", "premium"),
     "how_to_compare_options": ("comparison", "compare", "competitor", "provider", "serp", "strategy", "score"),
