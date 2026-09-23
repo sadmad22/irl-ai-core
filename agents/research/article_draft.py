@@ -65,6 +65,7 @@ def build_article_draft(
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
 
     readiness_results = require_ready_sections(
+        report_id=report_id,
         outline=outline,
         evidence_refs=normalized_refs,
         evidence_records=list(grounded_records.values()),
