@@ -226,3 +226,95 @@ def test_writer_agent_requires_a_publishable_content_brief(tmp_path, monkeypatch
     with pytest.raises(ValueError, match="content_brief_ready"):
         from agents.research.article_draft import build_article_draft
         build_article_draft(content_brief=json.loads((root / "content-brief.json").read_text()), llm_provider=FakeWriter())
+
+
+def test_e2e_gate_preserves_lineage_sections_and_claim_grounding(tmp_path, monkeypatch):
+    root = _seed(tmp_path, "gate-regression")
+    monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
+
+    original_build = article_draft_agent.build_article_draft
+    pre_gate = {}
+
+    def wrapped_build(*, content_brief, evidence_records=None, editorial_evidence=None, llm_provider):
+        pre_gate["brief"] = {
+            key: json.loads(json.dumps(content_brief[key]))
+            for key in ("brief_id", "report_id", "decision_id", "strategy_id", "evidence_refs", "outline")
+        }
+        return original_build(
+            content_brief=content_brief,
+            evidence_records=evidence_records,
+            editorial_evidence=editorial_evidence,
+            llm_provider=llm_provider,
+        )
+
+    monkeypatch.setattr(article_draft_agent, "build_article_draft", wrapped_build)
+
+    draft = run("gate-regression", llm_provider=FakeWriter())
+
+    assert pre_gate["brief"]["brief_id"] == draft["brief_id"]
+    assert pre_gate["brief"]["report_id"] == draft["report_id"]
+    assert pre_gate["brief"]["decision_id"] == draft["decision_id"]
+    assert pre_gate["brief"]["strategy_id"] == draft["strategy_id"]
+    assert draft["evidence_refs"] == pre_gate["brief"]["evidence_refs"]
+
+    expected_sections = [
+        (index, item["heading"], item["purpose"])
+        for index, item in enumerate(pre_gate["brief"]["outline"], start=1)
+    ]
+    actual_sections = [
+        (index, section["heading"], section["purpose"])
+        for index, section in enumerate(draft["sections"], start=1)
+    ]
+    assert actual_sections == expected_sections
+
+    contracts = draft["section_evidence_contracts"]
+    assert len(contracts) == len(expected_sections)
+    for contract, (index, heading, _) in zip(contracts, expected_sections):
+        assert contract["section_index"] == index
+        assert contract["heading"] == heading
+        assert contract["status"] == "ready"
+        assert contract["evidence_refs"]
+
+    top_level_refs = set(draft["evidence_refs"])
+    claims = [claim for section in draft["sections"] for claim in section["claims"]]
+    claim_ids = [claim["claim_id"] for claim in claims]
+    assert len(claim_ids) == len(set(claim_ids))
+
+    for section, contract in zip(draft["sections"], contracts):
+        section_refs = set(section["evidence_refs"])
+        assert section_refs == set(contract["evidence_refs"])
+        assert section_refs <= top_level_refs
+        assert section["claims"]
+        for claim in section["claims"]:
+            assert claim["grounding_status"] == "grounded"
+            assert claim["evidence_refs"]
+            assert set(claim["evidence_refs"]) <= section_refs
+
+
+def test_e2e_gate_blocks_superficially_complete_article_without_substantive_evidence(tmp_path, monkeypatch):
+    root = _seed(tmp_path, "gate-blocked")
+    monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
+
+    # Keep the brief lineage and surface signals intact, but remove the
+    # substantive premium evidence required by the Costs section.
+    (root / "evidence-required-9.json").unlink()
+
+    class TrackingWriter(FakeWriter):
+        calls = 0
+
+        def write(self, *, sections, editorial_rules):
+            self.calls += 1
+            return super().write(sections=sections, editorial_rules=editorial_rules)
+
+    writer = TrackingWriter()
+
+    with pytest.raises(ValueError, match="Section Evidence Quality Gate blocked Article Writer"):
+        run("gate-blocked", llm_provider=writer)
+
+    assert writer.calls == 0
+    assert not (root / "article-draft.json").exists()
+
+    metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["status"] != "draft_ready"
