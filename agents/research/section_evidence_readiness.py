@@ -127,8 +127,7 @@ def _freshness_state(records: list[dict[str, Any]]) -> str:
     for record in records:
         if not str(record.get("captured_at", "")).strip():
             return "UNKNOWN"
-        source = _source(record)
-        if source.get("retrieved_at") in (None, "") and str(record.get("captured_at", "")).strip() == "":
+        if _source(record).get("retrieved_at") in (None, ""):
             return "UNKNOWN"
     return "PASS"
 
@@ -377,7 +376,14 @@ def evaluate_section_readiness(
             diversity = "PASS"
             diversity_reason = "independent_source"
 
-        depth = "PASS" if used_records and all(_depth_class(record, required_claim=_claim_ref(record))[1] for record in used_records) else "FAIL"
+        if not used_records:
+            depth = "UNKNOWN"
+        else:
+            depth = "PASS" if all(
+                _depth_class(record, required_claim=_claim_ref(record))[1]
+                for record in used_records
+            ) else "FAIL"
+
         freshness = _freshness_state(used_records)
         lineage_states = [_lineage_state(record) for record in used_records]
         lineage = "FAIL" if "FAIL" in lineage_states else "PASS"
@@ -398,6 +404,8 @@ def evaluate_section_readiness(
             reasons.append("dimension_unknown")
         if depth == "FAIL":
             reasons.append("depth_insufficient")
+        elif depth == "UNKNOWN" and used_records:
+            reasons.append("dimension_unknown")
         if freshness == "UNKNOWN":
             reasons.append("dimension_unknown")
         if lineage == "FAIL":
