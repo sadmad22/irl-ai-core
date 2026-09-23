@@ -236,6 +236,62 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
     assert "authority_insufficient" in result[0]["reason_codes"]
 
 
+def test_derived_evidence_from_same_root_is_not_counted_as_diversity():
+    outline = [{"heading": "How to Compare Options", "purpose": "Explain factual option differences."}]
+    records = [
+        _record(
+            evidence_id="ev_base",
+            claim_type="source_identity",
+            attribute="source",
+            source_id="source:base",
+            domain="source",
+            value="Base source artifact.",
+        ),
+        _record(
+            evidence_id="ev_criterion",
+            claim_type="comparison_fact",
+            attribute="criterion",
+            source_id="derived-source:criterion",
+            domain="comparison",
+            value="Coverage and cost are comparison criteria.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
+        ),
+        _record(
+            evidence_id="ev_coverage_difference",
+            claim_type="option_attribute",
+            attribute="coverage_difference",
+            source_id="derived-source:coverage",
+            domain="comparison",
+            value="Options can differ in the coverage they provide.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
+        ),
+        _record(
+            evidence_id="ev_cost_difference",
+            claim_type="option_attribute",
+            attribute="cost_difference",
+            source_id="derived-source:cost",
+            domain="comparison",
+            value="Options can differ in cost based on their terms.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
+        ),
+    ]
+
+    result = evaluate_section_readiness(
+        report_id="rr_test",
+        outline=outline,
+        evidence_refs=["ev_criterion", "ev_coverage_difference", "ev_cost_difference"],
+        evidence_records=records,
+    )
+
+    assert result[0]["dimension_results"]["coverage"] == "PASS"
+    assert result[0]["dimension_results"]["diversity"] == "FAIL"
+    assert "same_source_origin" in result[0]["reason_codes"]
+    assert result[0]["readiness"] == "INSUFFICIENT"
+
+
 def test_duplicate_source_origin_is_not_counted_as_diversity():
     outline = [{"heading": "How to Compare Options", "purpose": "Explain factual option differences."}]
     records = [
