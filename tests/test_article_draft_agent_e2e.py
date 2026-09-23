@@ -134,6 +134,7 @@ def _inject_test_evidence_into_brief(monkeypatch, root: Path):
         for evidence_id in (
             "ev_test_coverage_options",
             "ev_test_cost_premium",
+            *[f"ev_test_required_{index}" for index in range(1, 20)],
         ):
             if evidence_id not in refs:
                 refs.append(evidence_id)
