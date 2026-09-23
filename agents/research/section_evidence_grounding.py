@@ -9,7 +9,7 @@ _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "introduction": ("overview", "definition", "intent", "entity", "authority", "serp", "topic"),
     "what_you_need_to_know": ("entity", "market", "intent", "question", "overview", "topic"),
     "coverage_and_key_factors": ("coverage", "benefit", "network", "exclusion", "medical", "claim", "factor"),
-    "costs_and_pricing_factors": ("cost", "price", "pricing", "premium", "business", "value", "affiliate"),
+    "costs_and_pricing_factors": ("cost", "price", "pricing", "premium"),
     "how_to_compare_options": ("comparison", "compare", "competitor", "provider", "serp", "strategy", "score"),
     "frequently_asked_questions": ("question", "query", "intent", "faq", "answer"),
     "sources_and_editorial_methodology": ("authority", "evidence", "source", "provenance", "audit", "methodology"),
@@ -98,11 +98,17 @@ def ground_evidence_by_section(
     for section in outline:
         key = _section_key(section)
         candidates = sorted(
-            indexed.values(),
+            (
+                record
+                for record in indexed.values()
+                if _score(key, record)[0] > 0
+                and not (
+                    key == "costs_and_pricing_factors"
+                    and _normalize(record.get("domain")) == "business"
+                )
+            ),
             key=lambda record: (-_score(key, record)[0], str(record.get("evidence_id", ""))),
         )
         selected = candidates[: min(per_section, len(candidates))]
-        if not selected:
-            selected = ranked[: min(per_section, len(ranked))]
         results.append([str(record["evidence_id"]) for record in selected])
     return results

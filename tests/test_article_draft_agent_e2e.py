@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from agents.research import article_draft_agent
 from agents.research.article_draft_agent import run
 
 
@@ -65,12 +66,60 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
         }),
         encoding="utf-8",
     )
+    (root / "evidence-coverage.json").write_text(
+        json.dumps({
+            "evidence_id": "ev_test_coverage_options",
+            "domain": "coverage",
+            "claim": {"type": "coverage_fact", "attribute": "coverage"},
+            "value": {"type": "categorical", "data": "coverage options"},
+            "subject": {"type": "keyword", "id": "best expat health insurance"},
+            "source": {"artifact": "evidence-coverage.json"},
+        }),
+        encoding="utf-8",
+    )
+    (root / "evidence-cost.json").write_text(
+        json.dumps({
+            "evidence_id": "ev_test_cost_premium",
+            "domain": "market",
+            "claim": {"type": "market_fact", "attribute": "premium"},
+            "value": {"type": "numeric", "data": 1200},
+            "subject": {"type": "keyword", "id": "best expat health insurance"},
+            "source": {"artifact": "evidence-cost.json"},
+        }),
+        encoding="utf-8",
+    )
     return root
+
+
+
+def _inject_test_evidence_into_brief(monkeypatch, root: Path):
+    original = article_draft_agent.run_content_brief_agent
+
+    def wrapped(project_name: str):
+        result = original(project_name)
+        brief_path = root / "content-brief.json"
+        brief = json.loads(brief_path.read_text(encoding="utf-8"))
+        refs = list(brief.get("evidence_refs", []))
+        for evidence_id in (
+            "ev_test_coverage_options",
+            "ev_test_cost_premium",
+        ):
+            if evidence_id not in refs:
+                refs.append(evidence_id)
+        brief["evidence_refs"] = refs
+        brief_path.write_text(
+            json.dumps(brief, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        return brief
+
+    monkeypatch.setattr(article_draft_agent, "run_content_brief_agent", wrapped)
 
 
 def test_writer_agent_runs_full_downstream_path(tmp_path, monkeypatch):
     root = _seed(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
 
     draft = run("draft-demo", llm_provider=FakeWriter())
 
@@ -98,6 +147,7 @@ def test_writer_agent_runs_full_downstream_path(tmp_path, monkeypatch):
 def test_writer_agent_is_deterministic_and_does_not_mutate_upstream(tmp_path, monkeypatch):
     root = _seed(tmp_path, "stable-draft")
     monkeypatch.chdir(tmp_path)
+    _inject_test_evidence_into_brief(monkeypatch, root)
 
     first = run("stable-draft", llm_provider=FakeWriter())
     upstream_first = {

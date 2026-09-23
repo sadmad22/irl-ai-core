@@ -2,6 +2,8 @@ import json
 import shutil
 from pathlib import Path
 
+from agents.research import article_draft_agent
+from agents.research.evidence.domain_common import build_observation
 from agents.research import production_orchestrator as orchestrator
 from agents.research.final_optimization import build_final_optimization
 from agents.research.production_orchestrator import STAGES, run_production_orchestrator
@@ -40,6 +42,88 @@ def _prepare_project(source_root: Path, target_root: Path, project_name: str) ->
     return target
 
 
+def _install_test_evidence_contract(monkeypatch):
+    original = article_draft_agent.run_content_brief_agent
+
+    def wrapped(project_name: str):
+        result = original(project_name)
+        root = Path("research") / project_name
+
+        captured_at = "2026-08-21T12:45:59Z"
+        report_id = str(result["report_id"])
+        keyword = str(result["primary_keyword"])
+
+        source = {
+            "type": "query",
+            "source_id": "test:production-hardening",
+            "provider": "local",
+            "retrieved_at": captured_at,
+        }
+        provenance = {
+            "analyzer": "production_hardening_fixture",
+            "analyzer_version": "1.0",
+            "method": "deterministic_test",
+        }
+
+        coverage_record = build_observation(
+            report_id=report_id,
+            domain="coverage",
+            subject={"type": "keyword", "id": keyword},
+            claim={"type": "coverage_fact", "attribute": "coverage_options"},
+            value={"type": "categorical", "data": "coverage options"},
+            source=source,
+            provenance=provenance,
+            confidence=1.0,
+            captured_at=captured_at,
+        )
+
+        cost_record = build_observation(
+            report_id=report_id,
+            domain="market",
+            subject={"type": "keyword", "id": keyword},
+            claim={"type": "market_fact", "attribute": "premium_cost"},
+            value={"type": "numeric", "data": 1200},
+            source=source,
+            provenance=provenance,
+            confidence=1.0,
+            captured_at=captured_at,
+        )
+
+        (root / "test-evidence-coverage.json").write_text(
+            json.dumps(coverage_record, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        (root / "test-evidence-cost.json").write_text(
+            json.dumps(cost_record, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        brief_path = root / "content-brief.json"
+        brief = json.loads(brief_path.read_text(encoding="utf-8"))
+        refs = list(brief.get("evidence_refs", []))
+
+        for evidence_id in (
+            coverage_record["evidence_id"],
+            cost_record["evidence_id"],
+        ):
+            if evidence_id not in refs:
+                refs.append(evidence_id)
+
+        brief["evidence_refs"] = refs
+
+        brief_path.write_text(
+            json.dumps(brief, indent=4, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        return brief
+
+    monkeypatch.setattr(
+        article_draft_agent,
+        "run_content_brief_agent",
+        wrapped,
+    )
+
 def _run_contract(project_name: str) -> dict:
     result = run_production_orchestrator(project_name, llm_provider=FakeWriter(), deliver=False)
     assert result["project_name"] == project_name
@@ -65,6 +149,7 @@ def test_production_repeatability_across_two_isolated_projects(tmp_path, monkeyp
     _prepare_project(repo_root, tmp_path, PROJECT_A)
     _prepare_project(repo_root, tmp_path, PROJECT_B)
     monkeypatch.chdir(tmp_path)
+    _install_test_evidence_contract(monkeypatch)
 
     original_pipeline = orchestrator.run_content_research_to_wordpress_draft
 

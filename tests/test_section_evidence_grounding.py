@@ -38,7 +38,7 @@ def _records():
     ]
 
 
-def test_grounding_prefers_section_relevant_evidence():
+def test_grounding_rejects_internal_business_evidence_for_cost_section():
     result = ground_evidence_by_section(
         outline=_outline(),
         evidence_refs=["ev_cost", "ev_question", "ev_entity"],
@@ -46,7 +46,7 @@ def test_grounding_prefers_section_relevant_evidence():
         per_section=1,
     )
 
-    assert result == [["ev_entity"], ["ev_cost"], ["ev_question"]]
+    assert result[1] == []
 
 
 def test_grounding_is_deterministic_and_stays_within_lineage():
@@ -61,4 +61,72 @@ def test_grounding_is_deterministic_and_stays_within_lineage():
 
     assert first == second
     assert all(ref in kwargs["evidence_refs"] for refs in first for ref in refs)
-    assert all(refs for refs in first)
+    assert first == second
+
+
+def test_grounding_does_not_fallback_to_unrelated_evidence():
+    outline = [
+        {"heading": "Costs and Pricing Factors", "purpose": "explain pricing factors"},
+    ]
+
+    records = [
+        {
+            "evidence_id": "ev_business",
+            "domain": "business",
+            "claim": {"type": "business_value", "attribute": "pricing"},
+            "value": {"type": "categorical", "data": "commercial"},
+            "subject": {"type": "keyword", "id": "nurse insurance"},
+            "source": {"artifact": "search-metrics.json"},
+        },
+        {
+            "evidence_id": "ev_question",
+            "domain": "question",
+            "claim": {"type": "question", "attribute": "faq"},
+            "value": {"type": "boolean", "data": True},
+            "subject": {"type": "keyword", "id": "nurse insurance"},
+            "source": {"artifact": "question-analysis.json"},
+        },
+    ]
+
+    result = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=["ev_business", "ev_question"],
+        evidence_records=records,
+        per_section=2,
+    )
+
+    assert result == [[]]
+
+
+def test_grounding_keeps_eligible_cost_evidence():
+    outline = [
+        {"heading": "Costs and Pricing Factors", "purpose": "explain pricing factors"},
+    ]
+
+    records = [
+        {
+            "evidence_id": "ev_premium",
+            "domain": "market",
+            "claim": {"type": "premium", "attribute": "pricing"},
+            "value": {"type": "numeric", "data": 1200},
+            "subject": {"type": "keyword", "id": "nurse insurance"},
+            "source": {"artifact": "premium-analysis.json"},
+        },
+        {
+            "evidence_id": "ev_business",
+            "domain": "business",
+            "claim": {"type": "business_value", "attribute": "pricing"},
+            "value": {"type": "categorical", "data": "commercial"},
+            "subject": {"type": "keyword", "id": "nurse insurance"},
+            "source": {"artifact": "search-metrics.json"},
+        },
+    ]
+
+    result = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=["ev_premium", "ev_business"],
+        evidence_records=records,
+        per_section=2,
+    )
+
+    assert result == [["ev_premium"]]
