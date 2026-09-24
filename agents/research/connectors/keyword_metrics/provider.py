@@ -1,5 +1,6 @@
 from .base import KeywordMetricsProvider
 from .config import KEYWORD_METRICS_PROVIDER
+from ..production import require_production_provider
 from .providers.dataforseo import DataForSEOKeywordMetricsProvider
 from .providers.google_ads import GoogleAdsKeywordMetricsProvider
 from .providers.mock import MockKeywordMetricsProvider
@@ -22,6 +23,11 @@ def get_provider(provider_name: str | None = None) -> KeywordMetricsProvider:
             "Unsupported keyword metrics provider: "
             f"{selected}. Supported providers: {supported}"
         )
+    require_production_provider(
+        capability="Keyword Metrics",
+        provider=selected,
+        expected_provider="google_ads",
+    )
     return provider_class()
 
 

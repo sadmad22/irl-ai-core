@@ -1,5 +1,6 @@
 from .base import SERPProvider
 from .config import SERP_PROVIDER
+from ..production import require_production_provider
 from .providers.brave import BraveSERPProvider
 from .providers.dataforseo import DataForSEOSERPProvider
 from .providers.mock import MockSERPProvider
@@ -21,6 +22,11 @@ def get_provider(provider_name: str | None = None) -> SERPProvider:
         raise ValueError(
             f"Unsupported SERP provider: {selected}. Supported providers: {supported}"
         )
+    require_production_provider(
+        capability="SERP",
+        provider=selected,
+        expected_provider="brave",
+    )
     return provider_class()
 
 
