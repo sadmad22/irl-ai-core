@@ -14,7 +14,7 @@ METHOD_VERSION = "v1"
 SOURCE_MATERIAL_FILE = "source-material.json"
 SUBSTANTIVE_EVIDENCE_FILE = "substantive-evidence.json"
 
-_ROOT = Path(__file__).resolve().parents[2]
+_ROOT = Path(__file__).resolve().parents[3]
 _SCHEMA = json.loads(
     (_ROOT / "shared" / "schemas" / "substantive-source-material.schema.json").read_text(encoding="utf-8")
 )
