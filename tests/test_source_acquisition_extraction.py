@@ -2,14 +2,24 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections import deque
 from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
 from agents.research import agent
-from agents.research.source_acquisition import SourceAcquisitionError, acquire_source_document, canonicalize_url
-from agents.research.source_corpus import build_source_corpus_from_file
+from agents.research.source_acquisition import (
+    ACQUISITION_POLICY_VERSION,
+    SourceAcquisitionError,
+    acquire_source_document,
+    canonicalize_url,
+)
+from agents.research.source_corpus import (
+    DEFAULT_CACHE_MAX_AGE_SECONDS,
+    build_source_corpus_from_file,
+)
+from agents.research.source_extraction import EXTRACTION_POLICY_VERSION
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,16 +46,19 @@ class FakeResponse:
 
 
 class FakeTransport:
-    def __init__(self, responses: dict[str, FakeResponse]) -> None:
-        self.responses = responses
+    def __init__(self, responses: dict[str, FakeResponse | list[FakeResponse]]) -> None:
+        self.responses = {
+            url: deque(value if isinstance(value, list) else [value])
+            for url, value in responses.items()
+        }
         self.calls: list[tuple[str, dict]] = []
 
     def get(self, url: str, **kwargs):
         self.calls.append((url, kwargs))
-        response = self.responses.get(url)
-        if response is None:
+        queue = self.responses.get(url)
+        if queue is None or not queue:
             raise AssertionError(f"unexpected URL requested: {url}")
-        return response
+        return queue.popleft()
 
 
 HTML = b"""<!doctype html>
@@ -64,6 +77,30 @@ HTML = b"""<!doctype html>
     <footer><p>Footer boilerplate that must not be extracted.</p></footer>
   </body>
 </html>"""
+
+HTML_UPDATED = HTML.replace(
+    b"routine medical care.",
+    b"routine medical care and emergency treatment.",
+)
+
+
+def _manifest() -> dict:
+    return {
+        "schema_version": "1.0",
+        "project_name": "sample",
+        "sources": [
+            {
+                "url": "https://example.com/guide",
+                "source_id": "src_example",
+                "provider": "example.com",
+                "type": "official",
+            }
+        ],
+    }
+
+
+def _write_manifest(project: Path) -> None:
+    (project / "source-urls.json").write_text(json.dumps(_manifest()), encoding="utf-8")
 
 
 def test_canonicalize_url_normalizes_scheme_host_and_fragment():
@@ -133,22 +170,312 @@ def test_non_html_sources_fail_closed():
         )
 
 
+def test_source_corpus_records_cache_metadata_and_versioned_identity(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/guide": FakeResponse(
+                status_code=200,
+                headers={
+                    "content-type": "text/html; charset=utf-8",
+                    "etag": '"v1"',
+                    "last-modified": "Wed, 24 Sep 2026 09:00:00 GMT",
+                },
+                body=HTML,
+            )
+        }
+    )
+
+    documents, passages = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        now="2026-09-24T10:00:00+00:00",
+    )
+
+    _validator("source-documents.schema.json").validate(documents)
+    _validator("extracted-passages.schema.json").validate(passages)
+
+    assert documents["schema_version"] == "1.1"
+    assert passages["schema_version"] == "1.1"
+    assert documents["acquisition_policy_version"] == ACQUISITION_POLICY_VERSION
+    assert documents["extraction_policy_version"] == EXTRACTION_POLICY_VERSION
+    assert passages["acquisition_policy_version"] == ACQUISITION_POLICY_VERSION
+    assert passages["extraction_policy_version"] == EXTRACTION_POLICY_VERSION
+    document = documents["documents"][0]
+    assert document["cache_checked_at"] == "2026-09-24T10:00:00+00:00"
+    assert document["retrieved_at"] == "2026-09-24T10:00:00+00:00"
+    assert document["etag"] == '"v1"'
+    assert document["last_modified"] == "Wed, 24 Sep 2026 09:00:00 GMT"
+
+
+def test_source_corpus_reuses_fresh_cache_without_network_request(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    first_transport = FakeTransport(
+        {
+            "https://example.com/guide": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html", "etag": '"v1"'},
+                body=HTML,
+            )
+        }
+    )
+    documents, passages = build_source_corpus_from_file(
+        project,
+        transport=first_transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T10:00:00+00:00",
+    )
+
+    second_transport = FakeTransport({})
+    cached_documents, cached_passages = build_source_corpus_from_file(
+        project,
+        transport=second_transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T10:30:00+00:00",
+    )
+
+    assert cached_documents == documents
+    assert cached_passages == passages
+    assert second_transport.calls == []
+
+
+def test_stale_cache_304_preserves_document_identity_and_updates_check_time(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/guide": [
+                FakeResponse(
+                    status_code=200,
+                    headers={
+                        "content-type": "text/html",
+                        "etag": '"v1"',
+                        "last-modified": "Wed, 24 Sep 2026 09:00:00 GMT",
+                    },
+                    body=HTML,
+                ),
+                FakeResponse(
+                    status_code=304,
+                    headers={"etag": '"v1"', "last-modified": "Wed, 24 Sep 2026 09:00:00 GMT"},
+                ),
+            ]
+        }
+    )
+
+    first_documents, first_passages = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T10:00:00+00:00",
+    )
+    first_document = first_documents["documents"][0]
+    first_passage_ids = [item["passage_id"] for item in first_passages["passages"]]
+
+    second_documents, second_passages = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T12:00:00+00:00",
+    )
+    second_document = second_documents["documents"][0]
+
+    assert len(transport.calls) == 2
+    conditional_headers = transport.calls[1][1]["headers"]
+    assert conditional_headers["If-None-Match"] == '"v1"'
+    assert conditional_headers["If-Modified-Since"] == "Wed, 24 Sep 2026 09:00:00 GMT"
+    assert second_document["source_document_id"] == first_document["source_document_id"]
+    assert second_document["content_sha256"] == first_document["content_sha256"]
+    assert second_document["retrieved_at"] == first_document["retrieved_at"]
+    assert second_document["cache_checked_at"] == "2026-09-24T12:00:00+00:00"
+    assert [item["passage_id"] for item in second_passages["passages"]] == first_passage_ids
+
+
+def test_stale_cache_200_changed_content_replaces_document_and_extracts_again(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/guide": [
+                FakeResponse(
+                    status_code=200,
+                    headers={"content-type": "text/html", "etag": '"v1"'},
+                    body=HTML,
+                ),
+                FakeResponse(
+                    status_code=200,
+                    headers={"content-type": "text/html", "etag": '"v2"'},
+                    body=HTML_UPDATED,
+                ),
+            ]
+        }
+    )
+
+    first_documents, first_passages = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T10:00:00+00:00",
+    )
+    second_documents, second_passages = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=3600,
+        now="2026-09-24T12:00:00+00:00",
+    )
+
+    first_document = first_documents["documents"][0]
+    second_document = second_documents["documents"][0]
+    assert second_document["source_document_id"] != first_document["source_document_id"]
+    assert second_document["content_sha256"] != first_document["content_sha256"]
+    assert second_document["retrieved_at"] == "2026-09-24T12:00:00+00:00"
+    assert any(
+        "emergency treatment" in passage["text"]
+        for passage in second_passages["passages"]
+    )
+    assert all(
+        passage["source_document_id"] == second_document["source_document_id"]
+        for passage in second_passages["passages"]
+    )
+
+
+def test_stale_304_after_redirect_to_different_final_url_fails_closed():
+    first = "https://example.com/start"
+    cached_final = "https://example.com/final"
+    changed_final = "https://example.com/other"
+
+    cached = acquire_source_document(
+        url=cached_final,
+        source_id="src_example",
+        provider="example.com",
+        source_type="official",
+        transport=FakeTransport(
+            {
+                cached_final: FakeResponse(
+                    status_code=200,
+                    headers={"content-type": "text/html", "etag": '"v1"'},
+                    body=HTML,
+                )
+            }
+        ),
+        resolve_public_host=False,
+        captured_at="2026-09-24T10:00:00+00:00",
+    )
+
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": "/other"}),
+            changed_final: FakeResponse(status_code=304, headers={"etag": '"v1"'}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="URL mismatch"):
+        acquire_source_document(
+            url=first,
+            source_id="src_example",
+            provider="example.com",
+            source_type="official",
+            transport=transport,
+            resolve_public_host=False,
+            captured_at="2026-09-24T12:00:00+00:00",
+            cached_document=cached,
+        )
+
+
+def test_force_refresh_revalidates_even_when_cache_is_fresh(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/guide": [
+                FakeResponse(
+                    status_code=200,
+                    headers={"content-type": "text/html", "etag": '"v1"'},
+                    body=HTML,
+                ),
+                FakeResponse(status_code=304, headers={"etag": '"v1"'}),
+            ]
+        }
+    )
+
+    build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=DEFAULT_CACHE_MAX_AGE_SECONDS,
+        now="2026-09-24T10:00:00+00:00",
+    )
+    refreshed_documents, _ = build_source_corpus_from_file(
+        project,
+        transport=transport,
+        cache_max_age_seconds=DEFAULT_CACHE_MAX_AGE_SECONDS,
+        force_refresh=True,
+        now="2026-09-24T10:05:00+00:00",
+    )
+
+    assert len(transport.calls) == 2
+    assert refreshed_documents["documents"][0]["cache_checked_at"] == "2026-09-24T10:05:00+00:00"
+
+
+def test_policy_version_change_invalidates_existing_cache(tmp_path, monkeypatch):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    _write_manifest(project)
+
+    first_transport = FakeTransport(
+        {
+            "https://example.com/guide": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html"},
+                body=HTML,
+            )
+        }
+    )
+    build_source_corpus_from_file(
+        project,
+        transport=first_transport,
+        now="2026-09-24T10:00:00+00:00",
+    )
+
+    import agents.research.source_corpus as source_corpus
+
+    monkeypatch.setattr(
+        source_corpus,
+        "ACQUISITION_POLICY_VERSION",
+        ACQUISITION_POLICY_VERSION + ".test",
+    )
+
+    second_transport = FakeTransport(
+        {
+            "https://example.com/guide": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html"},
+                body=HTML,
+            )
+        }
+    )
+    build_source_corpus_from_file(
+        project,
+        transport=second_transport,
+        now="2026-09-24T10:05:00+00:00",
+    )
+    assert len(second_transport.calls) == 1
+
+
 def test_source_corpus_extracts_content_and_preserves_cache(tmp_path):
     project = tmp_path / "research" / "sample"
     project.mkdir(parents=True)
-    manifest = {
-        "schema_version": "1.0",
-        "project_name": "sample",
-        "sources": [
-            {
-                "url": "https://example.com/guide",
-                "source_id": "src_example",
-                "provider": "example.com",
-                "type": "official",
-            }
-        ],
-    }
-    (project / "source-urls.json").write_text(json.dumps(manifest), encoding="utf-8")
+    _write_manifest(project)
 
     transport = FakeTransport(
         {
