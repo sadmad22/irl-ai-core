@@ -5,7 +5,7 @@ import ipaddress
 import re
 import socket
 from datetime import datetime, timezone
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import requests
@@ -31,7 +31,10 @@ class HttpTransport(Protocol):
 
 
 def canonicalize_url(url: str) -> str:
-    parsed = urlsplit(str(url).strip())
+    try:
+        parsed = urlsplit(str(url).strip())
+    except ValueError as exc:
+        raise SourceAcquisitionError("source URL is malformed") from exc
     if parsed.scheme.lower() not in {"http", "https"}:
         raise SourceAcquisitionError("source URL must use http or https")
     if not parsed.hostname:
@@ -60,7 +63,23 @@ def canonicalize_url(url: str) -> str:
     return urlunsplit((parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, ""))
 
 
-def _assert_public_host(url: str) -> None:
+def _resolve_host_addresses(
+    hostname: str,
+    port: int,
+    resolver: Callable[..., list[tuple[Any, ...]]],
+) -> set[ipaddress.IPv4Address | ipaddress.IPv6Address]:
+    try:
+        results = resolver(hostname, port, type=socket.SOCK_STREAM)
+        return {ipaddress.ip_address(item[4][0]) for item in results}
+    except (OSError, ValueError, IndexError, KeyError) as exc:
+        raise SourceAcquisitionError(f"source hostname could not be resolved: {hostname}") from exc
+
+
+def _assert_public_host(
+    url: str,
+    *,
+    resolver: Callable[..., list[tuple[Any, ...]]] = socket.getaddrinfo,
+) -> None:
     parsed = urlsplit(url)
     hostname = parsed.hostname or ""
     normalized = hostname.lower().rstrip(".")
@@ -78,15 +97,14 @@ def _assert_public_host(url: str) -> None:
         return
 
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
-    try:
-        addresses = {
-            ipaddress.ip_address(item[4][0])
-            for item in socket.getaddrinfo(normalized, port, type=socket.SOCK_STREAM)
-        }
-    except OSError as exc:
-        raise SourceAcquisitionError(f"source hostname could not be resolved: {normalized}") from exc
+    first = _resolve_host_addresses(normalized, port, resolver)
+    second = _resolve_host_addresses(normalized, port, resolver)
 
-    if not addresses or any(not address.is_global for address in addresses):
+    if first != second:
+        raise SourceAcquisitionError(
+            "source hostname DNS resolution changed during safety validation"
+        )
+    if not first or any(not address.is_global for address in first):
         raise SourceAcquisitionError("source hostname resolves to a non-public IP address")
 
 
@@ -159,6 +177,7 @@ def acquire_source_document(
     max_redirects: int = DEFAULT_MAX_REDIRECTS,
     user_agent: str = DEFAULT_USER_AGENT,
     resolve_public_host: bool = True,
+    dns_resolver: Callable[..., list[tuple[Any, ...]]] = socket.getaddrinfo,
     captured_at: str | None = None,
     cached_document: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -183,7 +202,7 @@ def acquire_source_document(
     try:
         for _ in range(max_redirects + 1):
             if resolve_public_host:
-                _assert_public_host(current_url)
+                _assert_public_host(current_url, resolver=dns_resolver)
 
             response = transport_obj.get(
                 current_url,
@@ -203,6 +222,13 @@ def acquire_source_document(
                     if len(redirect_chain) >= max_redirects + 1:
                         raise SourceAcquisitionError("source redirect limit exceeded")
                     next_url = canonicalize_url(urljoin(current_url, str(location)))
+                    if (
+                        urlsplit(current_url).scheme == "https"
+                        and urlsplit(next_url).scheme == "http"
+                    ):
+                        raise SourceAcquisitionError(
+                            "HTTPS to HTTP redirect is not allowed"
+                        )
                     current_url = next_url
                     revalidation_headers = _cache_validators(
                         cached_document,

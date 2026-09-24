@@ -54,6 +54,14 @@ The boundary:
 - records requested URL, final URL, redirect chain, retrieval time, cache-check time, content type, content hash, raw HTML, ETag, and Last-Modified when supplied;
 - aborts the corpus when any declared source fails.
 
+SSRF hardening additionally:
+
+- validates each hostname before its request and validates every redirect destination independently;
+- rejects local/private, reserved, ULA, link-local, loopback, and other non-global IPv4/IPv6 addresses;
+- rejects malformed URLs and malformed/out-of-range ports with the same fail-closed acquisition error boundary;
+- blocks HTTPS-to-HTTP redirects unless a future explicit policy changes that behavior;
+- performs two DNS resolutions immediately before a hostname request and rejects a changed resolution set. This is a consistency check, not a complete defense against DNS TOCTOU/rebinding when the HTTP transport performs its own later resolution.
+
 Conditional requests use \`If-None-Match\` and/or \`If-Modified-Since\` only while the current destination matches the cached final URL. Redirects revalidate their destination before any reuse; validator metadata is not forwarded to an unrelated redirected host. A \`304 Not Modified\` response reuses the prior source document body and identity only when the final URL still matches the cached document.
 
 The default transport is requests. Tests inject a transport so network behavior is deterministic and does not require shell.cloud.
