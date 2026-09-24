@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SERP Provider Response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "keyword": {
+      "type": "string",
+      "minLength": 1
+    },
+    "country": {
+      "type": "string",
+      "minLength": 2
+    },
+    "language": {
+      "type": "string",
+      "minLength": 2
+    },
+    "position_semantics": {
+      "const": "provider_order"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "title",
+          "url",
+          "domain",
+          "snippet"
+        ]
+      }
+    }
+  },
+  "required": [
+    "provider",
+    "keyword",
+    "country",
+    "language",
+    "position_semantics",
+    "results"
+  ]
+}
