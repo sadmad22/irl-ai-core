@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Keyword Metrics Provider Response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "keyword": {
+      "type": "string",
+      "minLength": 1
+    },
+    "search_volume": {
+      "type": "number",
+      "minimum": 0
+    },
+    "competition": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "cpc": {
+      "type": "number",
+      "minimum": 0
+    },
+    "trend": {
+      "type": "array"
+    },
+    "language": {
+      "type": "string",
+      "minLength": 2
+    },
+    "country": {
+      "type": "string",
+      "minLength": 2
+    }
+  },
+  "required": [
+    "provider",
+    "keyword",
+    "search_volume",
+    "competition",
+    "cpc",
+    "trend",
+    "language",
+    "country"
+  ]
+}
