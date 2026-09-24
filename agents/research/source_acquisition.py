@@ -43,13 +43,15 @@ def canonicalize_url(url: str) -> str:
     if port is not None and not 1 <= port <= 65535:
         raise SourceAcquisitionError("source URL port is invalid")
 
-    netloc = hostname
+    is_ipv6 = ":" in hostname
+    host_for_netloc = f"[{hostname}]" if is_ipv6 else hostname
+    netloc = host_for_netloc
     if port is not None:
         default_port = (parsed.scheme.lower() == "http" and port == 80) or (
             parsed.scheme.lower() == "https" and port == 443
         )
         if not default_port:
-            netloc = f"{hostname}:{port}"
+            netloc = f"{host_for_netloc}:{port}"
 
     return urlunsplit((parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, ""))
 
@@ -92,8 +94,8 @@ def _decode_html(body: bytes, content_type: str) -> str:
     except (LookupError, UnicodeDecodeError):
         try:
             return body.decode("utf-8", errors="strict")
-        except UnicodeDecodeError:
-            raise SourceAcquisitionError("source HTML could not be decoded deterministically")
+        except UnicodeDecodeError as exc:
+            raise SourceAcquisitionError("source HTML could not be decoded deterministically") from exc
 
 
 def _read_limited_body(response: Any, *, max_bytes: int) -> bytes:
@@ -135,6 +137,8 @@ def acquire_source_document(
 ) -> dict[str, Any]:
     if not str(source_id).strip():
         raise SourceAcquisitionError("source_id is required")
+    if not str(provider).strip():
+        raise SourceAcquisitionError("provider is required")
     if source_type not in {"official", "institutional", "secondary"}:
         raise SourceAcquisitionError("source type is invalid")
     if timeout_seconds <= 0 or max_bytes <= 0 or max_redirects < 0:
@@ -168,9 +172,8 @@ def acquire_source_document(
                 if location:
                     if len(redirect_chain) >= max_redirects + 1:
                         raise SourceAcquisitionError("source redirect limit exceeded")
-                    next_url = canonicalize_url(urljoin(current_url, str(location)))
-                    current_url = next_url
-                    redirect_chain.append(next_url)
+                    current_url = canonicalize_url(urljoin(current_url, str(location)))
+                    redirect_chain.append(current_url)
                     continue
 
                 content_type = str(response.headers.get("content-type", "")).split(";", 1)[0].strip().lower()
