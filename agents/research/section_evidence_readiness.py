@@ -12,6 +12,8 @@ from .section_evidence_grounding import _section_key, ground_evidence_by_section
 SCHEMA_VERSION = "1.0"
 POLICY_VERSION = "v1"
 
+_DIVERSITY_REQUIRED_SECTIONS = {"how_to_compare_options"}
+
 _ROOT = Path(__file__).resolve().parents[2]
 _EVIDENCE_SCHEMA = json.loads(
     (_ROOT / "shared" / "schemas" / "evidence.schema.json").read_text(encoding="utf-8")
@@ -105,18 +107,46 @@ def _authority_state(record: dict[str, Any], required: bool) -> str:
     return "UNKNOWN"
 
 
-def _root_identity(record: dict[str, Any]) -> str | None:
+def _root_identities(
+    record: dict[str, Any],
+    indexed: dict[str, dict[str, Any]],
+    visiting: set[str] | None = None,
+) -> set[str]:
+    visiting = set(visiting or ())
+    evidence_id = str(record.get("evidence_id", "")).strip()
+    if evidence_id:
+        if evidence_id in visiting:
+            return {f"cycle:{evidence_id}"}
+        visiting.add(evidence_id)
+
+    if str(record.get("type", "")).strip() == "derived":
+        roots: set[str] = set()
+        derived_from = record.get("derived_from")
+        if isinstance(derived_from, list):
+            for parent_id in derived_from:
+                normalized_parent = str(parent_id).strip()
+                if not normalized_parent:
+                    continue
+                parent = indexed.get(normalized_parent)
+                if parent is None:
+                    roots.add(f"evidence:{normalized_parent}")
+                else:
+                    roots.update(_root_identities(parent, indexed, visiting))
+        return roots
+
     source = _source(record)
     for key in ("source_id", "url", "document_id", "artifact"):
         value = str(source.get(key, "")).strip()
         if value:
-            return value
-    roots = record.get("derived_from")
-    if isinstance(roots, list) and roots:
-        normalized = sorted(str(item).strip() for item in roots if str(item).strip())
-        if normalized:
-            return "derived:" + "|".join(normalized)
-    return None
+            return {value}
+    return set()
+
+
+def _root_identity(record: dict[str, Any], indexed: dict[str, dict[str, Any]]) -> str | None:
+    roots = sorted(_root_identities(record, indexed))
+    if not roots:
+        return None
+    return "||".join(roots)
 
 
 def _freshness_state(records: list[dict[str, Any]]) -> str:
@@ -125,8 +155,7 @@ def _freshness_state(records: list[dict[str, Any]]) -> str:
     for record in records:
         if not str(record.get("captured_at", "")).strip():
             return "UNKNOWN"
-        source = _source(record)
-        if source.get("retrieved_at") in (None, "") and str(record.get("captured_at", "")).strip() == "":
+        if _source(record).get("retrieved_at") in (None, ""):
             return "UNKNOWN"
     return "PASS"
 
@@ -201,10 +230,13 @@ def _claim_list(items: list[dict[str, str]]) -> list[dict[str, str]]:
 
 def evaluate_section_readiness(
     *,
+    report_id: str,
     outline: list[dict[str, Any]],
     evidence_refs: list[str],
     evidence_records: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
+    if not str(report_id).strip():
+        raise ValueError("Section readiness requires report_id")
     if not isinstance(outline, list) or not outline:
         raise ValueError("Section readiness requires a non-empty outline")
     if not isinstance(evidence_refs, list) or not evidence_refs:
@@ -261,6 +293,9 @@ def evaluate_section_readiness(
         for record in eligible_records:
             if _claim_ref(record) not in required_families:
                 continue
+            if str(record.get("report_id", "")).strip() != str(report_id).strip():
+                invalid_records.append(record)
+                continue
             if not list(_EVIDENCE_VALIDATOR.iter_errors(record)):
                 continue
             invalid_records.append(record)
@@ -284,7 +319,14 @@ def evaluate_section_readiness(
                         "freshness": "UNKNOWN",
                         "lineage": "FAIL",
                     },
-                    reasons=["evidence_contract_invalid"],
+                    reasons=[
+                        "lineage_invalid"
+                        if any(
+                            str(record.get("report_id", "")).strip() != str(report_id).strip()
+                            for record in invalid_records
+                        )
+                        else "evidence_contract_invalid"
+                    ],
                     evidence_count=len(eligible_refs),
                 )
             )
@@ -357,19 +399,32 @@ def evaluate_section_readiness(
         authority = "FAIL" if "FAIL" in authority_states else ("UNKNOWN" if "UNKNOWN" in authority_states else "PASS")
 
 
-        root_ids = [root for record in eligible_records if (root := _root_identity(record))]
+        root_ids = [root for record in used_records if (root := _root_identity(record, indexed))]
         unique_roots = set(root_ids)
-        if len(root_ids) > 1 and len(unique_roots) == 1:
+        if key not in _DIVERSITY_REQUIRED_SECTIONS:
+            diversity = "PASS"
+            diversity_reason = "diversity_not_required"
+        elif len(root_ids) > 1 and len(unique_roots) == 1:
             diversity = "FAIL"
             diversity_reason = "same_source_origin"
         elif len(root_ids) == 0:
             diversity = "UNKNOWN"
             diversity_reason = "independence_unknown"
+        elif len(unique_roots) < 2:
+            diversity = "FAIL"
+            diversity_reason = "diversity_insufficient"
         else:
             diversity = "PASS"
             diversity_reason = "independent_source"
 
-        depth = "PASS" if used_records and all(_depth_class(record, required_claim=_claim_ref(record))[1] for record in used_records) else "FAIL"
+        if not used_records:
+            depth = "UNKNOWN"
+        else:
+            depth = "PASS" if all(
+                _depth_class(record, required_claim=_claim_ref(record))[1]
+                for record in used_records
+            ) else "FAIL"
+
         freshness = _freshness_state(used_records)
         lineage_states = [_lineage_state(record) for record in used_records]
         lineage = "FAIL" if "FAIL" in lineage_states else "PASS"
@@ -390,6 +445,8 @@ def evaluate_section_readiness(
             reasons.append("dimension_unknown")
         if depth == "FAIL":
             reasons.append("depth_insufficient")
+        elif depth == "UNKNOWN" and used_records:
+            reasons.append("dimension_unknown")
         if freshness == "UNKNOWN":
             reasons.append("dimension_unknown")
         if lineage == "FAIL":
@@ -424,11 +481,13 @@ def evaluate_section_readiness(
 
 def require_ready_sections(
     *,
+    report_id: str,
     outline: list[dict[str, Any]],
     evidence_refs: list[str],
     evidence_records: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     results = evaluate_section_readiness(
+        report_id=report_id,
         outline=outline,
         evidence_refs=evidence_refs,
         evidence_records=evidence_records,

@@ -24,21 +24,31 @@ def _section_key(section: dict[str, Any]) -> str:
     text = f"{section.get('heading', '')} {section.get('purpose', '')}".lower()
     aliases = (
         ("introduction", "introduction"),
+        ("what is", "introduction"),
         ("what you need to know", "what_you_need_to_know"),
+        ("what coverage you need", "coverage_and_key_factors"),
+        ("what each option covers", "coverage_and_key_factors"),
         ("coverage", "coverage_and_key_factors"),
         ("key factors", "coverage_and_key_factors"),
+        ("costs and value", "costs_and_pricing_factors"),
+        ("costs and limits", "costs_and_pricing_factors"),
         ("cost", "costs_and_pricing_factors"),
         ("pricing", "costs_and_pricing_factors"),
+        ("quick comparison", "how_to_compare_options"),
+        ("how to choose", "how_to_compare_options"),
+        ("key selection criteria", "how_to_compare_options"),
+        ("pros and cons", "how_to_compare_options"),
         ("compare", "how_to_compare_options"),
         ("frequently asked", "frequently_asked_questions"),
         ("faq", "frequently_asked_questions"),
+        ("common mistakes", "what_you_need_to_know"),
         ("sources", "sources_and_editorial_methodology"),
         ("methodology", "sources_and_editorial_methodology"),
     )
     for needle, key in aliases:
         if needle in text:
             return key
-    return "introduction"
+    return ""
 
 
 def _record_text(record: dict[str, Any]) -> str:
@@ -60,7 +70,8 @@ def _record_text(record: dict[str, Any]) -> str:
 
 def _score(section_key: str, record: dict[str, Any]) -> tuple[int, str]:
     text = _record_text(record)
-    score = sum(1 for token in _SECTION_PROFILES.get(section_key, ()) if token in text)
+    profile = (_normalize(token) for token in _SECTION_PROFILES.get(section_key, ()))
+    score = sum(1 for token in profile if token and token in text)
     evidence_id = str(record.get("evidence_id", ""))
     return score, evidence_id
 
@@ -75,8 +86,8 @@ def ground_evidence_by_section(
     """Rank Content Brief evidence_refs independently for each article section.
 
     Every returned reference is already present in the Content Brief lineage.
-    A deterministic fallback keeps every section grounded when its semantic
-    profile has no exact match, while still preferring the strongest matches.
+    Sections without a recognized semantic profile receive no eligible
+    Evidence rather than falling back to unrelated Evidence.
     """
     if per_section < 1:
         raise ValueError("per_section must be at least 1")
@@ -90,10 +101,6 @@ def ground_evidence_by_section(
     if not indexed:
         return [[] for _ in outline]
 
-    ranked = sorted(
-        indexed.values(),
-        key=lambda record: (-_score("introduction", record)[0], str(record.get("evidence_id", ""))),
-    )
     results: list[list[str]] = []
     for section in outline:
         key = _section_key(section)

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/passage-bound-source-material.schema.json",
+  "title": "IRL Passage-Bound Source Material",
+  "description": "Validated source material whose every fact preserves source, source-document, and passage lineage from the extracted source corpus.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "project_name": { "type": "string", "minLength": 1 },
+    "request_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "acquisition_policy_version": { "type": "string", "minLength": 1 },
+    "extraction_policy_version": { "type": "string", "minLength": 1 },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_id": { "type": "string", "minLength": 1 },
+          "source_document_id": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "format": "uri", "minLength": 1 },
+          "provider": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "enum": ["official", "institutional", "secondary"] },
+          "retrieved_at": { "type": "string", "format": "date-time" },
+          "title": { "type": "string", "minLength": 1 },
+          "facts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "candidate_id": { "type": "string", "minLength": 1 },
+                "source_id": { "type": "string", "minLength": 1 },
+                "source_document_id": { "type": "string", "minLength": 1 },
+                "passage_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "claim_type": { "type": "string", "minLength": 1 },
+                "attribute": { "type": "string", "minLength": 1 },
+                "subject": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "id": { "type": "string", "minLength": 1 }
+                  },
+                  "required": ["type", "id"]
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["categorical", "numeric", "boolean", "text", "list", "object"]
+                    },
+                    "data": {}
+                  },
+                  "required": ["type", "data"]
+                },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "relation": { "type": "string", "enum": ["supports", "qualifies"] }
+              },
+              "required": [
+                "candidate_id", "source_id", "source_document_id", "passage_ids",
+                "claim_type", "attribute", "subject", "value", "confidence", "relation"
+              ]
+            }
+          }
+        },
+        "required": [
+          "source_id", "source_document_id", "url", "provider",
+          "type", "retrieved_at", "title", "facts"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version", "project_name", "request_fingerprint",
+    "acquisition_policy_version", "extraction_policy_version", "sources"
+  ]
+}

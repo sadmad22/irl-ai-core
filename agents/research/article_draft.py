@@ -65,6 +65,7 @@ def build_article_draft(
     grounded_records = {key: indexed_records[key] for key in sorted(ref_set) if key in indexed_records}
 
     readiness_results = require_ready_sections(
+        report_id=report_id,
         outline=outline,
         evidence_refs=normalized_refs,
         evidence_records=list(grounded_records.values()),
@@ -116,6 +117,15 @@ def build_article_draft(
         "tables": writer_draft["tables"],
         "images": writer_draft["images"],
         "evidence_refs": normalized_refs,
+        "section_evidence_contracts": [
+            {
+                "section_index": item["section_index"],
+                "heading": outline[item["section_index"] - 1]["heading"],
+                "status": "ready",
+                "evidence_refs": item["eligible_evidence_refs"],
+            }
+            for item in readiness_results
+        ],
         "editorial_evidence": editorial,
         "editorial_constraints": list(dict.fromkeys(str(value) for value in content_brief.get("editorial_constraints", []) if str(value).strip())),
     }

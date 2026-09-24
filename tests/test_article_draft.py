@@ -46,7 +46,7 @@ def _brief():
         ],
         "required_entities": ["Cigna Global"],
         "required_questions": ["What does it cost?"],
-        "evidence_refs": ["ev_1", "ev_2"],
+        "evidence_refs": ["ev_1", "ev_2", "ev_3", "ev_4", "ev_5"],
         "editorial_constraints": ["verify factual claims"],
         "audit": {"method": "test", "version": "v1", "validation_status": "pending"},
     }
@@ -169,9 +169,28 @@ def test_article_draft_contract_shape():
     assert draft["report_id"] == "rr_001"
     assert draft["decision_id"] == "dec_001"
     assert draft["strategy_id"] == "strat_001"
-    assert draft["evidence_refs"] == ["ev_1", "ev_2"]
+    assert draft["evidence_refs"] == ["ev_1", "ev_2", "ev_3", "ev_4", "ev_5"]
     assert len(draft["sections"]) == 2
     assert len(draft["images"]) == 1
+
+
+def test_article_draft_persists_ready_section_evidence_contracts():
+    draft = _build()
+    assert draft["section_evidence_contracts"] == [
+        {
+            "section_index": 1,
+            "heading": "What Is Expat Health Insurance?",
+            "status": "ready",
+            "evidence_refs": ["ev_1", "ev_2"],
+        },
+        {
+            "section_index": 2,
+            "heading": "How to Compare Plans",
+            "status": "ready",
+            "evidence_refs": ["ev_3", "ev_4", "ev_5"],
+        },
+    ]
+
 
 
 def test_article_draft_is_deterministic():

@@ -7,7 +7,6 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from agents.research import article_draft
-from agents.research.evidence.domain_common import build_observation
 from agents.research.section_evidence_readiness import evaluate_section_readiness, require_ready_sections
 
 
@@ -78,6 +77,7 @@ def _intro_evidence():
 
 def test_readiness_result_matches_schema():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
@@ -95,6 +95,7 @@ def test_readiness_result_matches_schema():
 
 def test_ready_when_required_claims_have_eligible_support():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
@@ -112,8 +113,23 @@ def test_ready_when_required_claims_have_eligible_support():
     }
 
 
+def test_unknown_section_is_blocked_instead_of_defaulting_to_introduction():
+    result = evaluate_section_readiness(
+        report_id="rr_test",
+        outline=[{"heading": "Unmapped Research Section", "purpose": "unknown"}],
+        evidence_refs=["ev_definition", "ev_intent"],
+        evidence_records=_intro_evidence(),
+    )
+
+    assert result[0]["readiness"] == "BLOCKED"
+    assert result[0]["section_key"] == ""
+    assert result[0]["reason_codes"] == ["context_missing"]
+
+
+
 def test_insufficient_when_required_claim_is_uncovered():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition"],
         evidence_records=_intro_evidence(),
@@ -127,6 +143,7 @@ def test_insufficient_when_required_claim_is_uncovered():
 
 def test_insufficient_when_section_has_no_eligible_evidence():
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_unrelated"],
         evidence_records=[
@@ -155,6 +172,7 @@ def test_blocked_when_eligible_evidence_violates_canonical_contract():
     del bad["provenance"]["analyzer_version"]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_bad"],
         evidence_records=[bad],
@@ -175,6 +193,7 @@ def test_blocked_when_derived_evidence_has_no_lineage():
     )
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_derived"],
         evidence_records=[bad],
@@ -206,6 +225,7 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
     ]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=records,
@@ -216,38 +236,95 @@ def test_weak_discovery_source_does_not_satisfy_substantive_claim():
     assert "authority_insufficient" in result[0]["reason_codes"]
 
 
-def test_duplicate_source_origin_is_not_counted_as_diversity():
-    outline = [{"heading": "Costs and Pricing Factors", "purpose": "Explain pricing factors."}]
+def test_derived_evidence_from_same_root_is_not_counted_as_diversity():
+    outline = [{"heading": "How to Compare Options", "purpose": "Explain factual option differences."}]
     records = [
         _record(
-            evidence_id="ev_premium",
-            claim_type="pricing_fact",
-            attribute="premium",
-            source_id="source:same",
-            domain="market",
-            value="Annual premium is a concrete pricing fact.",
+            evidence_id="ev_base",
+            claim_type="source_identity",
+            attribute="source",
+            source_id="source:base",
+            domain="source",
+            value="Base source artifact.",
         ),
         _record(
-            evidence_id="ev_driver",
-            claim_type="pricing_factor",
-            attribute="cost_driver",
-            source_id="source:same",
-            domain="market",
-            value="Coverage level is a pricing cost driver.",
+            evidence_id="ev_criterion",
+            claim_type="comparison_fact",
+            attribute="criterion",
+            source_id="derived-source:criterion",
+            domain="comparison",
+            value="Coverage and cost are comparison criteria.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
         ),
         _record(
-            evidence_id="ev_variable",
-            claim_type="pricing_factor",
-            attribute="price_variable",
-            source_id="source:same",
-            domain="market",
-            value="Deductible level is a pricing variable.",
+            evidence_id="ev_coverage_difference",
+            claim_type="option_attribute",
+            attribute="coverage_difference",
+            source_id="derived-source:coverage",
+            domain="comparison",
+            value="Options can differ in the coverage they provide.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
+        ),
+        _record(
+            evidence_id="ev_cost_difference",
+            claim_type="option_attribute",
+            attribute="cost_difference",
+            source_id="derived-source:cost",
+            domain="comparison",
+            value="Options can differ in cost based on their terms.",
+            evidence_type="derived",
+            derived_from=["ev_base"],
         ),
     ]
 
     result = evaluate_section_readiness(
+        report_id="rr_test",
         outline=outline,
-        evidence_refs=["ev_premium", "ev_driver", "ev_variable"],
+        evidence_refs=["ev_criterion", "ev_coverage_difference", "ev_cost_difference"],
+        evidence_records=records,
+    )
+
+    assert result[0]["dimension_results"]["coverage"] == "PASS"
+    assert result[0]["dimension_results"]["diversity"] == "FAIL"
+    assert "same_source_origin" in result[0]["reason_codes"]
+    assert result[0]["readiness"] == "INSUFFICIENT"
+
+
+def test_duplicate_source_origin_is_not_counted_as_diversity():
+    outline = [{"heading": "How to Compare Options", "purpose": "Explain factual option differences."}]
+    records = [
+        _record(
+            evidence_id="ev_criterion",
+            claim_type="comparison_fact",
+            attribute="criterion",
+            source_id="source:same",
+            domain="comparison",
+            value="Coverage and cost are comparison criteria.",
+        ),
+        _record(
+            evidence_id="ev_coverage_difference",
+            claim_type="option_attribute",
+            attribute="coverage_difference",
+            source_id="source:same",
+            domain="comparison",
+            value="Options can differ in the coverage they provide.",
+        ),
+        _record(
+            evidence_id="ev_cost_difference",
+            claim_type="option_attribute",
+            attribute="cost_difference",
+            source_id="source:same",
+            domain="comparison",
+            value="Options can differ in cost based on their terms.",
+        ),
+    ]
+
+    result = evaluate_section_readiness(
+        report_id="rr_test",
+        outline=outline,
+        evidence_refs=["ev_criterion", "ev_coverage_difference", "ev_cost_difference"],
         evidence_records=records,
     )
 
@@ -339,6 +416,7 @@ def test_ready_gate_allows_writer_path_to_continue():
 
 def test_readiness_result_is_deterministic():
     kwargs = {
+        "report_id": "rr_test",
         "outline": _outline(),
         "evidence_refs": ["ev_definition", "ev_intent"],
         "evidence_records": _intro_evidence(),
@@ -348,6 +426,7 @@ def test_readiness_result_is_deterministic():
 
 def test_require_ready_sections_returns_results_for_ready_input():
     result = require_ready_sections(
+        report_id="rr_test",
         outline=_outline(),
         evidence_refs=["ev_definition", "ev_intent"],
         evidence_records=_intro_evidence(),
