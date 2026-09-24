@@ -1,10 +1,12 @@
 from .base import SERPProvider
 from .config import SERP_PROVIDER
+from .providers.brave import BraveSERPProvider
 from .providers.dataforseo import DataForSEOSERPProvider
 from .providers.mock import MockSERPProvider
 
 
 PROVIDER_CLASSES = {
+    "brave": BraveSERPProvider,
     "dataforseo": DataForSEOSERPProvider,
     "mock": MockSERPProvider,
 }
