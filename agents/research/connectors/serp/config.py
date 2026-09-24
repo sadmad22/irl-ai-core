@@ -1,7 +1,7 @@
-from ..config import (
-    ACTIVE_PROVIDER,
-    BASE_URL,
-    LOGIN,
-    PASSWORD,
-    LOCATION_CODES,
-)
+import os
+
+
+SERP_PROVIDER = os.getenv("IRL_SERP_PROVIDER", "dataforseo").strip().lower()
+
+if not SERP_PROVIDER:
+    SERP_PROVIDER = "dataforseo"
