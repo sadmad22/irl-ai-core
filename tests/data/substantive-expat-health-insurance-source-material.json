@@ -1,0 +1,428 @@
+{
+  "schema_version": "1.0",
+  "project_name": "expat-health-insurance",
+  "sources": [
+    {
+      "source_id": "https://www.allianzcare.com/en/personal-international-health-insurance.html",
+      "url": "https://www.allianzcare.com/en/personal-international-health-insurance.html",
+      "provider": "Allianz Care",
+      "type": "official",
+      "retrieved_at": "2026-09-24",
+      "title": "International Health Insurance for Individuals",
+      "facts": [
+        {
+          "claim_type": "topic_definition",
+          "attribute": "definition",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "International health insurance is designed for people who spend long periods overseas and need healthcare cover abroad."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "topic_scope",
+          "attribute": "scope",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Coverage applies across the countries within the selected area of cover, with plan options that may include or exclude the USA."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "eligibility",
+          "attribute": "who_needs_it",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The plans are intended for people living or working abroad for extended periods, including expat professionals and families."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "use_case",
+          "attribute": "primary_use",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The primary use is to provide access to healthcare while living abroad, including diagnosis and post-treatment care."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "coverage",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "International health plans can cover in-patient, day-care, diagnosis, post-treatment care, and health and wellbeing checks."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "benefit",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Core plans can include hospital accommodation, surgery, oncology, rehabilitation, nursing at home, emergency outpatient treatment, maternity, and medical evacuation."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "exclusion_fact",
+          "attribute": "exclusion",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Pre-existing condition coverage depends on the underwriting terms and can be subject to policy-specific conditions or exclusions."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "comparison_fact",
+          "attribute": "criterion",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Area of cover and core plan level are key criteria for comparing international health insurance options."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "coverage_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Plan areas of cover can include worldwide coverage or worldwide coverage excluding the USA."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "what does international health insurance cover"
+          },
+          "value": {
+            "type": "text",
+            "data": "What does international health insurance cover?"
+          },
+          "confidence": 0.99,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "what does international health insurance cover"
+          },
+          "value": {
+            "type": "text",
+            "data": "It can cover emergency treatment as well as diagnosis, post-treatment care, and other benefits defined in the plan."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        }
+      ]
+    },
+    {
+      "source_id": "https://www.cignaglobal.com/resources/expat-health-insurance-explained",
+      "url": "https://www.cignaglobal.com/resources/expat-health-insurance-explained",
+      "provider": "Cigna Global",
+      "type": "official",
+      "retrieved_at": "2026-09-24",
+      "title": "Global Expat Health Insurance Explained",
+      "facts": [
+        {
+          "claim_type": "eligibility",
+          "attribute": "who_needs_it",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "International health insurance can serve working expats, digital nomads, seasonal workers, students, and retirees living abroad."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "use_case",
+          "attribute": "primary_use",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The coverage is intended to help with routine and emergency medical care while living outside the home country."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "coverage",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Depending on the plan, coverage can include dental care, hospital stays, preventive visits, vaccinations, lab work, and virtual care."
+          },
+          "confidence": 0.94,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "cost_driver",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Age, medical history, level of cover, included benefits, and location can affect the cost of an international expat policy."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "price_variable",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "A deductible is a policy variable that can influence the premium you pay."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "comparison_fact",
+          "attribute": "criterion",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "When comparing plans, evaluate country, level of cover, existing conditions, deductibles, and whether the coverage matches the intended stay."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "coverage_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Local, travel, and global health insurance differ in geographic scope and duration of coverage."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "are expat insurance and travel insurance the same"
+          },
+          "value": {
+            "type": "text",
+            "data": "Are expat insurance and travel insurance the same?"
+          },
+          "confidence": 0.99,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "are expat insurance and travel insurance the same"
+          },
+          "value": {
+            "type": "text",
+            "data": "No. Expat health insurance is intended for longer periods of living or working abroad, while travel insurance is designed for shorter trips."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        }
+      ]
+    },
+    {
+      "source_id": "https://www.internationalinsurance.com/health/",
+      "url": "https://www.internationalinsurance.com/health/",
+      "provider": "International Insurance",
+      "type": "secondary",
+      "retrieved_at": "2026-09-24",
+      "title": "International Health Insurance Coverage for Living Abroad",
+      "facts": [
+        {
+          "claim_type": "pricing_fact",
+          "attribute": "premium",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The source reports an average annual international medical insurance cost of about $6,900 based on historical sales data."
+          },
+          "confidence": 0.92,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "cost_driver",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Premiums vary with age, dependents, area of coverage, deductible or coinsurance, and maximum medical limit."
+          },
+          "confidence": 0.93,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "price_variable",
+          "subject": {
+            "type": "keyword",
+            "id": "expat health insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The selected area of coverage is a price variable; broader worldwide coverage can cost more than plans excluding high-cost countries."
+          },
+          "confidence": 0.93,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "comparison_fact",
+          "attribute": "criterion",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Area of coverage is a direct criterion for comparing international health insurance options."
+          },
+          "confidence": 0.94,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "coverage_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "One example compares worldwide coverage excluding several high-cost countries with worldwide coverage including all countries."
+          },
+          "confidence": 0.92,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "cost_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "international health insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "For the cited couple scenario, the annual cost was reported as $7,794 with the restricted area of cover versus $10,322 with worldwide coverage, using a $1,000 deductible."
+          },
+          "confidence": 0.92,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "how much does international health insurance cost"
+          },
+          "value": {
+            "type": "text",
+            "data": "How much does international health insurance cost?"
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "how much does international health insurance cost"
+          },
+          "value": {
+            "type": "text",
+            "data": "The source reports an average annual cost of about $6,900, while actual premiums vary substantially by policy and applicant."
+          },
+          "confidence": 0.92,
+          "relation": "supports"
+        }
+      ]
+    }
+  ]
+}
