@@ -76,6 +76,28 @@ def test_brave_normalizes_response_to_provider_order_and_url():
     assert 'google_rank' not in result
     assert 'rank_absolute' not in result['results'][0]
 
+def test_brave_nullable_description_normalizes_to_empty_snippet():
+    from agents.research.connectors.serp.providers.brave import BraveSERPProvider
+
+    payload = {
+        'web': {
+            'results': [
+                {
+                    'title': 'Result',
+                    'url': 'https://example.com/page',
+                    'description': None,
+                }
+            ]
+        }
+    }
+    provider = BraveSERPProvider(
+        session=FakeSession(response=FakeResponse(payload)),
+        api_key='test-key',
+    )
+
+    result = provider.get_results('kw', 'en', 'US')
+    assert result['results'][0]['snippet'] == ''
+
 def test_brave_request_maps_country_language_count_offset_and_freshness():
     from agents.research.connectors.serp.providers.brave import BraveSERPProvider
     session = FakeSession(response=FakeResponse(VALID_PAYLOAD))
