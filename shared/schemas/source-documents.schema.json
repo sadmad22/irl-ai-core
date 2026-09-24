@@ -32,12 +32,15 @@
             "maxItems": 5,
             "items": { "type": "string", "format": "uri" }
           },
-          "html": { "type": "string", "minLength": 1 }
+          "html": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "normalized_text": { "type": "string", "minLength": 1 }
         },
         "required": [
           "source_document_id", "source_id", "requested_url", "final_url",
           "provider", "type", "retrieved_at", "http_status", "content_type",
-          "content_sha256", "content_bytes", "redirect_chain", "html"
+          "content_sha256", "content_bytes", "redirect_chain", "html",
+          "title", "normalized_text"
         ]
       }
     }
