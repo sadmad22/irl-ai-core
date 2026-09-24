@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
 
+from .connectors.keyword_metrics.base import validate_keyword_metrics_response
 from .connectors.keyword_metrics.provider import get_provider
+from .connectors.serp.base import validate_serp_response
+from .connectors.serp.normalization import normalize_serp_url
 from .connectors.serp.provider import get_provider as get_serp_provider
-from .connectors.serp.providers.dataforseo import normalize_serp_url
 from .analyzers.competitor import analyze_competitors
 from .analyzers.entity import analyze_entities
 from .analyzers.question import analyze_questions
@@ -165,7 +167,9 @@ def run(project_name: str) -> None:
     else:
         print("Fetching search metrics...")
         metrics = get_provider().get_metrics(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
         )
     save_project_file_if_changed(project_name, SEARCH_METRICS_FILE, metrics)
 
@@ -176,7 +180,9 @@ def run(project_name: str) -> None:
     else:
         print("Fetching SERP data...")
         serp_results = get_serp_provider().get_results(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
         )
     serp_results = canonicalize_serp_results(serp_results)
     save_project_file_if_changed(project_name, SERP_ANALYSIS_FILE, serp_results)
