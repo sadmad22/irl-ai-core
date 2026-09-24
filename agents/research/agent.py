@@ -22,6 +22,10 @@ from .evidence.question import build_question_evidence
 from .evidence.business import build_business_evidence
 from .evidence.authority import build_authority_evidence
 from .evidence.substantive import SOURCE_MATERIAL_FILE, SUBSTANTIVE_EVIDENCE_FILE, build_substantive_evidence_from_file
+from .evidence.passage_bound import (
+    PASSAGE_BOUND_SOURCE_MATERIAL_FILE,
+    build_canonical_evidence_from_file,
+)
 from .source_corpus import SOURCE_URLS_FILE, build_source_corpus_from_file
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
@@ -252,10 +256,16 @@ def run(project_name: str) -> None:
     if (project_path / SOURCE_URLS_FILE).exists():
         build_source_corpus_from_file(project_path)
 
-    substantive_evidence = build_substantive_evidence_from_file(
-        report_id=report_id,
-        project_path=project_path,
-    )
+    if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
+        substantive_evidence = build_canonical_evidence_from_file(
+            report_id=report_id,
+            project_path=project_path,
+        )
+    else:
+        substantive_evidence = build_substantive_evidence_from_file(
+            report_id=report_id,
+            project_path=project_path,
+        )
 
     research_report = build_research_report(
         report_id=report_id,
