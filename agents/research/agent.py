@@ -22,6 +22,10 @@ from .evidence.question import build_question_evidence
 from .evidence.business import build_business_evidence
 from .evidence.authority import build_authority_evidence
 from .evidence.substantive import SOURCE_MATERIAL_FILE, SUBSTANTIVE_EVIDENCE_FILE, build_substantive_evidence_from_file
+from .evidence.passage_bound import (
+    PASSAGE_BOUND_SOURCE_MATERIAL_FILE,
+    build_canonical_evidence_from_file,
+)
 from .source_corpus import SOURCE_URLS_FILE, build_source_corpus_from_file
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
@@ -113,6 +117,23 @@ def get_canonical_serp_intent_evidence_ids(serp_intent_evidence: list[dict]) -> 
         for item in serp_intent_evidence
         if item.get("claim", {}).get("attribute") in canonical_attributes
     ]
+
+
+def build_substantive_evidence_for_project(*, report_id: str, project_path: Path) -> list[dict]:
+    """Select the canonical substantive Evidence producer for the project state.
+
+    Passage-bound material is authoritative whenever present. If it is absent,
+    the legacy source-material path remains available for pre-E projects.
+    """
+    if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
+        return build_canonical_evidence_from_file(
+            report_id=report_id,
+            project_path=project_path,
+        )
+    return build_substantive_evidence_from_file(
+        report_id=report_id,
+        project_path=project_path,
+    )
 
 
 def _source(project_name: str, artifact: str) -> dict:
@@ -252,7 +273,7 @@ def run(project_name: str) -> None:
     if (project_path / SOURCE_URLS_FILE).exists():
         build_source_corpus_from_file(project_path)
 
-    substantive_evidence = build_substantive_evidence_from_file(
+    substantive_evidence = build_substantive_evidence_for_project(
         report_id=report_id,
         project_path=project_path,
     )
