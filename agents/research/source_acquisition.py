@@ -31,7 +31,10 @@ class HttpTransport(Protocol):
 
 
 def canonicalize_url(url: str) -> str:
-    parsed = urlsplit(str(url).strip())
+    try:
+        parsed = urlsplit(str(url).strip())
+    except ValueError as exc:
+        raise SourceAcquisitionError("source URL is malformed") from exc
     if parsed.scheme.lower() not in {"http", "https"}:
         raise SourceAcquisitionError("source URL must use http or https")
     if not parsed.hostname:
