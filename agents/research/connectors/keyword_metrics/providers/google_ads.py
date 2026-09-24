@@ -471,7 +471,7 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
                 provider=self.provider_name,
             )
 
-        trend: list[dict[str, int]] = []
+        trend: list[dict[str, Any]] = []
         for volume in monthly_volumes:
             if not isinstance(volume, dict):
                 raise ProviderResponseError(
@@ -479,7 +479,7 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
                     provider=self.provider_name,
                 )
             year = self._integer_metric(volume.get("year"), field="year")
-            month = self._integer_metric(volume.get("month"), field="month")
+            month = self._normalize_month(volume.get("month"))
             monthly_searches = self._integer_metric(
                 volume.get("monthlySearches"),
                 field="monthlySearches",
@@ -506,6 +506,27 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         return validate_keyword_metrics_response(
             normalized,
             expected_provider=self.provider_name,
+        )
+
+    @staticmethod
+    def _normalize_month(value: object) -> int | str:
+        if isinstance(value, bool) or value is None:
+            raise ProviderResponseError(
+                "Google Ads monthly search volume month is unavailable.",
+                provider="google_ads",
+            )
+        if isinstance(value, int):
+            if 1 <= value <= 12:
+                return value
+            raise ProviderResponseError(
+                "Google Ads monthly search volume month is invalid.",
+                provider="google_ads",
+            )
+        if isinstance(value, str) and value.strip():
+            return value.strip().upper()
+        raise ProviderResponseError(
+            "Google Ads monthly search volume month is invalid.",
+            provider="google_ads",
         )
 
     @staticmethod
