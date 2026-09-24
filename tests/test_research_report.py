@@ -56,6 +56,7 @@ def test_builder_keeps_domain_evidence_separate():
         "question": ["question_1"],
         "business": ["business_1"],
         "authority": ["authority_1"],
+        "substantive": [],
     }
 
 

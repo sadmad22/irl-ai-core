@@ -27,9 +27,10 @@
         "entity": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
         "question": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
         "business": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-        "authority": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        "authority": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "substantive": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
       },
-      "required": ["intent", "entity", "question", "business", "authority"]
+      "required": ["intent", "entity", "question", "business", "authority", "substantive"]
     },
     "recommendation": { "type": "null" },
     "decision": { "type": "null" },

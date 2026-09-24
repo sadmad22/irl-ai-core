@@ -21,6 +21,7 @@ from .evidence.entity import build_entity_evidence
 from .evidence.question import build_question_evidence
 from .evidence.business import build_business_evidence
 from .evidence.authority import build_authority_evidence
+from .evidence.substantive import SOURCE_MATERIAL_FILE, SUBSTANTIVE_EVIDENCE_FILE, build_substantive_evidence_from_file
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
 from .decision_runner import run_decision_from_report
@@ -45,6 +46,8 @@ BUSINESS_ANALYSIS_FILE = "business-analysis.json"
 BUSINESS_EVIDENCE_FILE = "business-evidence.json"
 AUTHORITY_ANALYSIS_FILE = "authority-analysis.json"
 AUTHORITY_EVIDENCE_FILE = "authority-evidence.json"
+SUBSTANTIVE_RESEARCH_SOURCE_FILE = SOURCE_MATERIAL_FILE
+SUBSTANTIVE_EVIDENCE_OUTPUT_FILE = SUBSTANTIVE_EVIDENCE_FILE
 RESEARCH_REPORT_FILE = "research-report.json"
 RECOMMENDATION_FILE = "recommendation.json"
 DECISION_FILE = "decision.json"
@@ -244,6 +247,12 @@ def run(project_name: str) -> None:
     ]
     save_project_file_if_changed(project_name, AUTHORITY_EVIDENCE_FILE, authority_evidence)
 
+    project_path = Path("research") / project_name
+    substantive_evidence = build_substantive_evidence_from_file(
+        report_id=report_id,
+        project_path=project_path,
+    )
+
     research_report = build_research_report(
         report_id=report_id,
         metadata=load_project_file(project_name, "metadata.json"),
@@ -261,6 +270,7 @@ def run(project_name: str) -> None:
         question_evidence=[question_evidence],
         business_evidence=business_evidence,
         authority_evidence=authority_evidence,
+        substantive_evidence=substantive_evidence,
     )
     save_project_file_if_changed(project_name, RESEARCH_REPORT_FILE, research_report)
 

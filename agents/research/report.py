@@ -34,6 +34,7 @@ def build_research_report(
     question_evidence: list[dict[str, Any]] | None = None,
     business_evidence: list[dict[str, Any]] | None = None,
     authority_evidence: list[dict[str, Any]] | None = None,
+    substantive_evidence: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Assemble the canonical pre-decision research state."""
     if not report_id:
@@ -61,6 +62,7 @@ def build_research_report(
             "question": _refs(question_evidence),
             "business": _refs(business_evidence),
             "authority": _refs(authority_evidence),
+            "substantive": _refs(substantive_evidence),
         },
         "recommendation": None,
         "decision": None,
