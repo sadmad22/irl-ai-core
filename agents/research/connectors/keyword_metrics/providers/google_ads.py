@@ -105,7 +105,8 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         )
         self.location_ids = dict(location_ids or GOOGLE_ADS_LOCATION_IDS)
         self.language_ids = dict(language_ids or GOOGLE_ADS_LANGUAGE_IDS)
-        self._access_token = access_token
+        self._access_token = access_token.strip() if isinstance(access_token, str) else access_token
+        self._access_token_injected = access_token is not None
 
     @staticmethod
     def _normalize_customer_id(
@@ -136,9 +137,9 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
                 "Google Ads base URL is required.",
                 provider=self.provider_name,
             )
-        if not self.api_version:
+        if not self.api_version or not self.api_version.startswith("v") or not self.api_version[1:].isdigit():
             raise ProviderConfigurationError(
-                "Google Ads API version is required.",
+                "Google Ads API version must use a major version such as v25.",
                 provider=self.provider_name,
             )
         if not self.developer_token:
@@ -348,7 +349,7 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
                 cause=exc,
             ) from exc
 
-        if response.status_code == 401:
+        if response.status_code == 401 and not self._access_token_injected:
             token = self._refresh_access_token(force=True)
             headers["Authorization"] = f"Bearer {token}"
             try:
