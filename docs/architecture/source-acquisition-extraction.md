@@ -1,12 +1,12 @@
 # Source Acquisition and Extraction
 
-Version: 1.0
+Version: 1.1
 
 ## Purpose
 
 The Research Agent previously had a substantive Evidence conversion boundary that started from a prepared source-material.json. That boundary is intentionally preserved.
 
-This layer adds the missing upstream path:
+This layer adds the upstream path:
 
     source URLs
         ↓
@@ -24,7 +24,7 @@ This layer adds the missing upstream path:
         ↓
     substantive canonical Evidence
 
-The implementation therefore makes the system capable of retrieving and preserving source content without pretending that page text is already a verified claim.
+The implementation therefore retrieves and preserves source content without treating page text as a verified claim.
 
 ## Input
 
@@ -43,7 +43,7 @@ No SERP result, ranking, snippet, question-frequency record, entity record, or b
 
 Acquisition is fail-closed.
 
-The v1 boundary:
+The boundary:
 
 - accepts only HTTP(S);
 - rejects URL credentials;
@@ -51,18 +51,54 @@ The v1 boundary:
 - manually handles redirects so each destination can be validated;
 - accepts only HTML/XHTML content types;
 - applies request timeout, response byte, and redirect limits;
-- records requested URL, final URL, redirect chain, HTTP status, retrieval time, content type, content hash, and raw HTML;
+- records requested URL, final URL, redirect chain, retrieval time, cache-check time, content type, content hash, raw HTML, ETag, and Last-Modified when supplied;
 - aborts the corpus when any declared source fails.
+
+Conditional requests use \`If-None-Match\` and/or \`If-Modified-Since\` when cached validators exist. A \`304 Not Modified\` response reuses the prior source document body and identity while updating only the cache-check time.
 
 The default transport is requests. Tests inject a transport so network behavior is deterministic and does not require shell.cloud.
 
 ## Source Document
 
-source-documents.json is the immutable retrieval boundary for the run.
+source-documents.json is the retrieval boundary for the run.
 
-source_document_id is deterministic from the final URL and retrieved content hash. The same source content therefore maps to the same document identity, while changed content produces a new identity.
+\`source_document_id\` is deterministic from the final URL and retrieved content hash. The content identity therefore remains stable across revalidation when the URL and bytes are unchanged, while changed content produces a new identity.
 
-The document retains raw HTML and a normalized text representation. No factual claim is emitted at this stage.
+The document now retains:
+
+- \`retrieved_at\`: the time the current content identity was first retrieved;
+- \`cache_checked_at\`: the time the cached content was last checked against the source;
+- \`etag\`: the server ETag when available;
+- \`last_modified\`: the server Last-Modified value when available;
+- acquisition and extraction policy versions used for the corpus identity.
+
+A \`304\` keeps the original \`retrieved_at\`, content hash, source-document ID, HTML, and passages. A changed \`200\` produces a new content identity and re-runs deterministic extraction.
+
+## Freshness / Cache
+
+The corpus cache identity is derived from:
+
+    normalized source manifest
+        +
+    acquisition policy version
+        +
+    extraction policy version
+        ↓
+    request_fingerprint
+
+The default freshness window is 24 hours and is configurable through \`cache_max_age_seconds\`.
+
+Behavior:
+
+- Fresh cache → reuse without network access.
+- Stale cache → conditional revalidation using available validators.
+- \`304\` → preserve document and passage lineage, update \`cache_checked_at\`.
+- \`200\` with unchanged content identity → preserve document and passages, refresh cache metadata.
+- \`200\` with changed content → create a new source document and re-extract passages.
+- \`force_refresh=True\` → revalidate even when the cache is fresh.
+- Failed revalidation → fail closed; the stale corpus is not silently accepted as current.
+
+The cache is written only after the complete requested source set succeeds, preserving all-or-nothing corpus writes.
 
 ## Content Extraction
 
@@ -76,7 +112,8 @@ It:
 - preserves heading context;
 - removes duplicate blocks deterministically;
 - binds each passage to its source document;
-- records passage text hashes and character ranges in normalized text.
+- records passage text hashes and character ranges in normalized text;
+- exposes an explicit extraction policy version used by cache identity.
 
 The result is extracted-passages.json.
 
@@ -100,8 +137,6 @@ and no path that upgrades SERP or business signals into substantive facts.
 
 When source-urls.json exists, the Research Agent invokes the source corpus builder before the existing source-material.json conversion.
 
-Cached source documents/passages are reused when the source manifest fingerprint is unchanged. This prevents repeated Research/Content-Brief invocations from silently refetching the same corpus.
-
 The existing substantive Evidence layer remains authoritative for the transition into canonical Evidence. A project without source-urls.json keeps its prior behavior.
 
 ## Failure Semantics
@@ -112,6 +147,8 @@ The existing substantive Evidence layer remains authoritative for the transition
 - Non-HTML response: stop.
 - Oversized response: stop.
 - Missing/empty body: stop.
+- \`304\` without a valid cached source document: stop.
+- Invalid or incompatible cache metadata: do not reuse the cache; acquire a fresh corpus.
 - Unextractable document: stop.
 - Any source failure: do not write a partial source corpus.
 - No fallback to SERP snippets, rankings, search metrics, entity presence, question frequency, or business data.
@@ -132,4 +169,4 @@ After this layer, the remaining substantive acquisition gap is explicit and meas
         ↓
     Article Writer
 
-This keeps acquisition, extraction, fact extraction, evidence construction, quality assessment, and writing as separate auditable stages.
+This keeps acquisition, freshness, extraction, fact extraction, evidence construction, quality assessment, and writing as separate auditable stages.
