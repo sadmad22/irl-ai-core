@@ -244,3 +244,21 @@ def test_dataforseo_authentication_error_is_normalized():
     )
     with pytest.raises(ProviderAuthenticationError):
         provider.get_results("kw", "en", "US")
+
+def test_legacy_research_artifacts_remain_schema_compatible():
+    serp_schema = json.loads(
+        (ROOT / "shared/schemas/serp-analysis.schema.json").read_text()
+    )
+    metrics_schema = json.loads(
+        (ROOT / "shared/schemas/search-metrics.schema.json").read_text()
+    )
+    Draft202012Validator(serp_schema).validate(
+        json.loads(
+            (ROOT / "research/expat-health-insurance/serp-analysis.json").read_text()
+        )
+    )
+    Draft202012Validator(metrics_schema).validate(
+        json.loads(
+            (ROOT / "research/expat-health-insurance/search-metrics.json").read_text()
+        )
+    )
