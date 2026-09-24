@@ -1,4 +1,4 @@
-from agents.research.connectors.serp.providers.dataforseo import normalize_serp_url
+from agents.research.connectors.serp.normalization import normalize_serp_url
 
 
 def test_removes_known_tracking_parameters():

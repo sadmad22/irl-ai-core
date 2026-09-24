@@ -64,7 +64,7 @@ SSRF hardening additionally:
 
 Conditional requests use \`If-None-Match\` and/or \`If-Modified-Since\` only while the current destination matches the cached final URL. Redirects revalidate their destination before any reuse; validator metadata is not forwarded to an unrelated redirected host. A \`304 Not Modified\` response reuses the prior source document body and identity only when the final URL still matches the cached document.
 
-The default transport is requests. Tests inject a transport so network behavior is deterministic and does not require shell.cloud.
+The default transport is requests. The acquisition layer accepts an injectable DNS resolver as well as a transport, so tests can keep both HTTP and DNS behavior deterministic without depending on shell.cloud.
 
 ## Source Document
 

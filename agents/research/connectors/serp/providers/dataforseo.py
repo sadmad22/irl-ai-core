@@ -1,109 +1,165 @@
 import requests
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+from ..base import SERPProvider, validate_serp_response
+from ..normalization import normalize_serp_url
+from ...dataforseo.config import (
+    DATAFORSEO_BASE_URL,
+    DATAFORSEO_LOCATION_CODES,
+    DATAFORSEO_LOGIN,
+    DATAFORSEO_PASSWORD,
+)
+from ...errors import (
+    ProviderAuthenticationError,
+    ProviderConfigurationError,
+    ProviderNetworkError,
+    ProviderRateLimitError,
+    ProviderResponseError,
+)
 
 API_ENDPOINT = "/v3/serp/google/organic/live/advanced"
 
-from ..base import SERPProvider
-from ..config import BASE_URL, LOGIN, PASSWORD
-
-
-TRACKING_QUERY_PARAMS = {
-    "gclid",
-    "fbclid",
-    "dclid",
-    "msclkid",
-    "srsltid",
-    "_gl",
-}
-
-
-def normalize_serp_url(url: str) -> str:
-    """Remove known tracking parameters while preserving functional URL parameters."""
-    if not url:
-        return url
-
-    parts = urlsplit(url)
-    filtered_query = [
-        (key, value)
-        for key, value in parse_qsl(parts.query, keep_blank_values=True)
-        if key.lower() not in TRACKING_QUERY_PARAMS and not key.lower().startswith("utm_")
-    ]
-
-    return urlunsplit(
-        (
-            parts.scheme,
-            parts.netloc,
-            parts.path,
-            urlencode(filtered_query),
-            parts.fragment,
-        )
-    )
-
 
 class DataForSEOSERPProvider(SERPProvider):
-    """
-    SERP provider using the DataForSEO API.
-    """
+    """DataForSEO SERP provider behind the normalized SERP boundary."""
 
-    def __init__(self):
-        self.session = requests.Session()
-        self.base_url = BASE_URL
+    provider_name = "dataforseo"
 
-    def get_results(
+    def __init__(
         self,
-        keyword: str,
-        language: str,
-        country: str,
-    ) -> dict:
-        
-        url = self.base_url + API_ENDPOINT
+        *,
+        session: requests.Session | None = None,
+        base_url: str | None = None,
+        login: str | None = None,
+        password: str | None = None,
+        location_codes: dict[str, int] | None = None,
+    ):
+        self.session = session or requests.Session()
+        self.base_url = (base_url or DATAFORSEO_BASE_URL).rstrip("/")
+        self.login = login if login is not None else DATAFORSEO_LOGIN
+        self.password = password if password is not None else DATAFORSEO_PASSWORD
+        self.location_codes = dict(location_codes or DATAFORSEO_LOCATION_CODES)
 
-        response = self.session.post(
-        url,
-        auth=(LOGIN, PASSWORD),
-        json=[
-    {
-        "keyword": keyword,
-        "language_code": language,
-        "location_code": 2840,
-    }
-],
-)
+    def get_results(self, keyword: str, language: str, country: str) -> dict:
+        if not isinstance(keyword, str) or not keyword.strip():
+            raise ValueError("keyword must be a non-empty string")
+        if not isinstance(language, str) or not language.strip():
+            raise ValueError("language must be a non-empty string")
+        if not isinstance(country, str) or not country.strip():
+            raise ValueError("country must be a non-empty string")
 
-        response.raise_for_status()
+        if not self.base_url or not self.login or not self.password:
+            raise ProviderConfigurationError(
+                "DataForSEO credentials and base URL are required.",
+                provider=self.provider_name,
+            )
+        if country not in self.location_codes:
+            raise ProviderConfigurationError(
+                f"Unsupported DataForSEO country: {country}",
+                provider=self.provider_name,
+            )
 
-        data = response.json()
+        try:
+            response = self.session.post(
+                self.base_url + API_ENDPOINT,
+                auth=(self.login, self.password),
+                json=[
+                    {
+                        "keyword": keyword.strip(),
+                        "language_code": language.strip().lower(),
+                        "location_code": self.location_codes[country],
+                    }
+                ],
+            )
+        except requests.Timeout as exc:
+            raise ProviderNetworkError(
+                "DataForSEO request timed out.",
+                provider=self.provider_name,
+                cause=exc,
+            ) from exc
+        except requests.ConnectionError as exc:
+            raise ProviderNetworkError(
+                "DataForSEO connection failed.",
+                provider=self.provider_name,
+                cause=exc,
+            ) from exc
+        except requests.RequestException as exc:
+            raise ProviderNetworkError(
+                "DataForSEO request failed.",
+                provider=self.provider_name,
+                cause=exc,
+            ) from exc
 
-        task = data["tasks"][0]
+        if response.status_code in {401, 403}:
+            raise ProviderAuthenticationError(
+                "DataForSEO authentication failed.",
+                provider=self.provider_name,
+            )
+        if response.status_code == 429:
+            raise ProviderRateLimitError(
+                "DataForSEO rate limit was reached.",
+                provider=self.provider_name,
+            )
+        if response.status_code >= 400:
+            raise ProviderResponseError(
+                f"DataForSEO returned HTTP {response.status_code}.",
+                provider=self.provider_name,
+            )
 
-        if task["result_count"] == 0:
-            return {
-               "keyword": keyword,
-               "language": language,
-               "country": country,
-               "results": [],
-    }
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise ProviderResponseError(
+                "DataForSEO returned invalid JSON.",
+                provider=self.provider_name,
+                cause=exc,
+            ) from exc
+
+        try:
+            task = data["tasks"][0]
+            result_count = task["result_count"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise ProviderResponseError(
+                "DataForSEO response is missing the expected task structure.",
+                provider=self.provider_name,
+                cause=exc,
+            ) from exc
 
         results = []
+        if result_count:
+            try:
+                items = task["result"][0]["items"]
+            except (KeyError, IndexError, TypeError) as exc:
+                raise ProviderResponseError(
+                    "DataForSEO response is missing the expected result items.",
+                    provider=self.provider_name,
+                    cause=exc,
+                ) from exc
 
-        for item in task["result"][0]["items"]:
+            for item in items:
+                if item.get("type") != "organic":
+                    continue
+                for field in ("title", "url", "domain", "description"):
+                    if not isinstance(item.get(field), str):
+                        raise ProviderResponseError(
+                            f"DataForSEO organic result is missing {field}.",
+                            provider=self.provider_name,
+                        )
+                results.append(
+                    {
+                        "position": len(results) + 1,
+                        "title": item["title"],
+                        "url": normalize_serp_url(item["url"]),
+                        "domain": item["domain"],
+                        "snippet": item["description"],
+                    }
+                )
 
-         if item["type"] != "organic":
-          continue
-    
-         results.append(
-        {
-            "position": item["rank_absolute"],
-            "title": item["title"],
-            "url": normalize_serp_url(item["url"]),
-            "domain": item["domain"],
-            "snippet": item["description"],
-        }
-    )
-
-        return {
-            "keyword": keyword,
-            "language": language,
-            "country": country,
+        normalized = {
+            "provider": self.provider_name,
+            "keyword": keyword.strip(),
+            "language": language.strip().lower(),
+            "country": country.strip(),
+            "position_semantics": "provider_order",
             "results": results,
-}
+        }
+        return validate_serp_response(normalized, expected_provider=self.provider_name)

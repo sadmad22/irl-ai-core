@@ -12,9 +12,11 @@ class MockSERPProvider(SERPProvider):
     def get_results(self, keyword: str, language: str, country: str) -> dict:
         self.calls.append((keyword, language, country))
         return self.payload or {
+            "provider": "mock",
             "keyword": keyword,
             "language": language,
             "country": country,
+            "position_semantics": "provider_order",
             "results": [
                 {
                     "position": 1,
@@ -130,9 +132,11 @@ def test_requires_ready_article_config():
 def test_provider_metadata_must_match_request():
     provider = MockSERPProvider(
         {
+            "provider": "mock",
             "keyword": "wrong keyword",
             "language": "en",
             "country": "US",
+            "position_semantics": "provider_order",
             "results": [],
         }
     )
@@ -146,7 +150,7 @@ def test_provider_metadata_must_match_request():
 
 def test_empty_results_are_valid():
     provider = MockSERPProvider(
-        {"keyword": "expat health insurance", "language": "en", "country": "US", "results": []}
+        {"provider": "mock", "keyword": "expat health insurance", "language": "en", "country": "US", "position_semantics": "provider_order", "results": []}
     )
     result = build_serp_analysis(content_strategy=strategy(), article_config=config(), provider=provider)
     assert result["serp"]["results"] == []

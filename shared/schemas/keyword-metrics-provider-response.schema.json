@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Search Metrics Model",
+  "title": "Keyword Metrics Provider Response",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "provider": {
       "type": "string",
@@ -20,12 +21,6 @@
       "minimum": 0,
       "maximum": 100
     },
-    "difficulty": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 100,
-      "description": "Legacy stored-artifact field; new provider responses use competition."
-    },
     "cpc": {
       "type": "number",
       "minimum": 0
@@ -41,5 +36,15 @@
       "type": "string",
       "minLength": 2
     }
-  }
+  },
+  "required": [
+    "provider",
+    "keyword",
+    "search_volume",
+    "competition",
+    "cpc",
+    "trend",
+    "language",
+    "country"
+  ]
 }

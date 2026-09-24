@@ -25,12 +25,12 @@ def analyze_business(keyword_data: dict[str, Any], search_intent: dict[str, Any]
     intent = str(search_intent.get("primary_intent", "")).lower()
     cpc = _number(search_metrics, "cpc", "cost_per_click")
     volume = _number(search_metrics, "search_volume", "volume")
-    competition = _number(search_metrics, "competition", "keyword_difficulty")
+    competition = _number(search_metrics, "competition", "difficulty")
 
     commercial = 1.0 if intent == "commercial" else 0.75 if intent == "transactional" else 0.35 if intent == "mixed" else 0.15
     cpc_signal = _clamp((cpc or 0.0) / 10.0)
     volume_signal = _clamp((volume or 0.0) / 10000.0)
-    competition_signal = _clamp(1.0 - (competition or 0.0))
+    competition_signal = _clamp(1.0 - ((competition or 0.0) / 100.0))
     commercial_value = _clamp(0.5 * commercial + 0.25 * cpc_signal + 0.25 * volume_signal)
 
     if commercial_value >= 0.7:
