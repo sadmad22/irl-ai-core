@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import socket
 import shutil
 from collections import deque
 from pathlib import Path
@@ -115,6 +116,183 @@ def test_private_destination_is_blocked_before_network_request():
             provider="example",
             source_type="official",
         )
+
+
+def test_private_ipv6_loopback_destination_is_blocked():
+    with pytest.raises(SourceAcquisitionError, match="public IP"):
+        acquire_source_document(
+            url="http://[::1]/private",
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+        )
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost/private",
+        "http://localhost.localdomain/private",
+        "http://ip6-localhost/private",
+        "http://foo.localhost/private",
+    ],
+)
+def test_localhost_variants_are_blocked(url):
+    with pytest.raises(SourceAcquisitionError, match="local hostname"):
+        acquire_source_document(
+            url=url,
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+        )
+
+
+@pytest.mark.parametrize("url", ["http://[fd00::1]/private", "http://[fe80::1]/private"])
+def test_non_global_ipv6_destinations_are_blocked(url):
+    with pytest.raises(SourceAcquisitionError, match="public IP"):
+        acquire_source_document(
+            url=url,
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+        )
+
+
+def test_malformed_port_fails_closed():
+    with pytest.raises(SourceAcquisitionError, match="URL is malformed|port is invalid"):
+        canonicalize_url("https://example.com:not-a-port/private")
+
+
+def test_redirect_to_private_ipv4_is_blocked():
+    first = "https://93.184.216.34/start"
+    private = "http://192.168.1.10/private"
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": private}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="public IP"):
+        acquire_source_document(
+            url=first,
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+            transport=transport,
+        )
+
+    assert len(transport.calls) == 1
+
+
+def test_redirect_to_localhost_is_blocked():
+    first = "https://93.184.216.34/start"
+    localhost = "http://localhost/private"
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": localhost}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="local hostname"):
+        acquire_source_document(
+            url=first,
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+            transport=transport,
+        )
+
+    assert len(transport.calls) == 1
+
+
+def test_https_to_http_redirect_is_blocked():
+    first = "https://example.com/start"
+    downgrade = "http://example.com/final"
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": downgrade}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="HTTPS to HTTP redirect"):
+        acquire_source_document(
+            url=first,
+            source_id="src_test",
+            provider="example",
+            source_type="official",
+            transport=transport,
+            resolve_public_host=False,
+        )
+
+    assert [call[0] for call in transport.calls] == [first]
+
+
+def test_dns_resolution_change_to_private_address_fails_before_request():
+    resolutions = iter(
+        [
+            [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))],
+            [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.5", 443))],
+        ]
+    )
+
+    def resolver(hostname, port, *, type):
+        return next(resolutions)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/start": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html"},
+                body=HTML,
+            )
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="DNS resolution changed"):
+        acquire_source_document(
+            url="https://example.com/start",
+            source_id="src_test",
+            provider="example.com",
+            source_type="official",
+            transport=transport,
+            dns_resolver=resolver,
+        )
+
+    assert transport.calls == []
+
+
+def test_dns_resolution_consistency_allows_stable_public_source():
+    resolutions = iter(
+        [
+            [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))],
+            [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))],
+        ]
+    )
+
+    def resolver(hostname, port, *, type):
+        return next(resolutions)
+
+    transport = FakeTransport(
+        {
+            "https://example.com/start": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html"},
+                body=HTML,
+            )
+        }
+    )
+
+    document = acquire_source_document(
+        url="https://example.com/start",
+        source_id="src_test",
+        provider="example.com",
+        source_type="official",
+        transport=transport,
+        dns_resolver=resolver,
+    )
+
+    assert document["final_url"] == "https://example.com/start"
+    assert len(transport.calls) == 1
 
 
 def test_redirects_are_manual_and_final_destination_is_revalidated():
