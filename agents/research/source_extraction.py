@@ -44,6 +44,8 @@ class _HTMLExtractor(HTMLParser):
         self.heading_path: list[str] = []
         self.focused_blocks: list[_Block] = []
         self.fallback_blocks: list[_Block] = []
+        self.focused_loose_parts: list[str] = []
+        self.fallback_loose_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
@@ -90,6 +92,9 @@ class _HTMLExtractor(HTMLParser):
             self.title_parts.append(data)
         elif self.current_tag is not None:
             self.current_parts.append(data)
+        else:
+            target = self.focused_loose_parts if self.focus_depth else self.fallback_loose_parts
+            target.append(data)
 
     def close(self) -> None:
         super().close()
@@ -116,6 +121,18 @@ class _HTMLExtractor(HTMLParser):
             self.heading_path.append(text)
 
 
+def _blocks_with_loose_fallback(parser: _HTMLExtractor) -> list[_Block]:
+    blocks = parser.focused_blocks or parser.fallback_blocks
+    if blocks:
+        return blocks
+
+    loose_parts = parser.focused_loose_parts or parser.fallback_loose_parts
+    loose_text = _clean_text(" ".join(loose_parts))
+    if len(loose_text) < 16:
+        return []
+    return [_Block(kind="paragraph", text=loose_text, heading_path=[])]
+
+
 def extract_source_content(document: dict[str, Any]) -> dict[str, Any]:
     html = document.get("html")
     source_document_id = str(document.get("source_document_id", "")).strip()
@@ -128,7 +145,7 @@ def extract_source_content(document: dict[str, Any]) -> dict[str, Any]:
     parser.feed(html)
     parser.close()
 
-    blocks = parser.focused_blocks or parser.fallback_blocks
+    blocks = _blocks_with_loose_fallback(parser)
     seen: set[tuple[str, tuple[str, ...]]] = set()
     passages: list[dict[str, Any]] = []
     normalized_parts: list[str] = []
