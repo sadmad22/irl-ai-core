@@ -193,10 +193,20 @@ class BraveSERPProvider(SERPProvider):
 
             title = item.get("title")
             url = item.get("url")
-            snippet = item.get("description")
-            if not all(isinstance(value, str) and value.strip() for value in (title, url, snippet)):
+            snippet = item.get("description") or ""
+            if not isinstance(title, str) or not title.strip():
                 raise ProviderResponseError(
-                    "Brave Search web result is missing title, url, or description.",
+                    "Brave Search web result is missing title.",
+                    provider=self.provider_name,
+                )
+            if not isinstance(url, str) or not url.strip():
+                raise ProviderResponseError(
+                    "Brave Search web result is missing url.",
+                    provider=self.provider_name,
+                )
+            if not isinstance(snippet, str):
+                raise ProviderResponseError(
+                    "Brave Search web result description must be a string or null.",
                     provider=self.provider_name,
                 )
 
