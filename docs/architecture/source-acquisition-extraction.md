@@ -54,7 +54,7 @@ The boundary:
 - records requested URL, final URL, redirect chain, retrieval time, cache-check time, content type, content hash, raw HTML, ETag, and Last-Modified when supplied;
 - aborts the corpus when any declared source fails.
 
-Conditional requests use \`If-None-Match\` and/or \`If-Modified-Since\` when cached validators exist. A \`304 Not Modified\` response reuses the prior source document body and identity while updating only the cache-check time.
+Conditional requests use \`If-None-Match\` and/or \`If-Modified-Since\` only while the current destination matches the cached final URL. Redirects revalidate their destination before any reuse; validator metadata is not forwarded to an unrelated redirected host. A \`304 Not Modified\` response reuses the prior source document body and identity only when the final URL still matches the cached document.
 
 The default transport is requests. Tests inject a transport so network behavior is deterministic and does not require shell.cloud.
 
