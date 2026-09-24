@@ -146,6 +146,11 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
                 "Google Ads developer token is required.",
                 provider=self.provider_name,
             )
+        if not self.customer_id:
+            raise ProviderConfigurationError(
+                "Google Ads customer_id is required.",
+                provider=self.provider_name,
+            )
         if self.timeout_seconds <= 0:
             raise ProviderConfigurationError(
                 "Google Ads timeout must be positive.",
