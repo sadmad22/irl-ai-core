@@ -1,11 +1,13 @@
 from .base import KeywordMetricsProvider
 from .config import KEYWORD_METRICS_PROVIDER
 from .providers.dataforseo import DataForSEOKeywordMetricsProvider
+from .providers.google_ads import GoogleAdsKeywordMetricsProvider
 from .providers.mock import MockKeywordMetricsProvider
 
 
 PROVIDER_CLASSES = {
     "dataforseo": DataForSEOKeywordMetricsProvider,
+    "google_ads": GoogleAdsKeywordMetricsProvider,
     "mock": MockKeywordMetricsProvider,
 }
 
