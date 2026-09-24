@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import socket
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -162,6 +163,7 @@ def build_source_corpus_from_file(
     cache_max_age_seconds: int = DEFAULT_CACHE_MAX_AGE_SECONDS,
     force_refresh: bool = False,
     now: str | None = None,
+    dns_resolver: Callable[..., list[tuple[Any, ...]]] = socket.getaddrinfo,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if cache_max_age_seconds < 0:
         raise ValueError("cache_max_age_seconds must be non-negative")
@@ -230,6 +232,7 @@ def build_source_corpus_from_file(
                 provider=item["provider"],
                 source_type=item["type"],
                 transport=transport,
+                dns_resolver=dns_resolver,
                 captured_at=check_time,
                 cached_document=cached_document,
             )
