@@ -1,21 +1,18 @@
-from ..base import SERPProvider
+from ..base import SERPProvider, validate_serp_response
 
 
 class MockSERPProvider(SERPProvider):
-    """
-    Temporary provider used to test the SERP architecture.
-    """
+    """Explicit mock provider for contract and unit tests."""
 
-    def get_results(
-        self,
-        keyword: str,
-        language: str,
-        country: str,
-    ) -> dict:
+    provider_name = "mock"
 
-        return {
+    def get_results(self, keyword: str, language: str, country: str) -> dict:
+        payload = {
+            "provider": self.provider_name,
             "keyword": keyword,
             "language": language,
             "country": country,
+            "position_semantics": "provider_order",
             "results": [],
         }
+        return validate_serp_response(payload, expected_provider=self.provider_name)
