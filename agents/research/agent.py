@@ -167,7 +167,13 @@ def run(project_name: str) -> None:
     else:
         print("Fetching search metrics...")
         metrics = get_provider().get_metrics(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
+        )
+        validate_keyword_metrics_response(
+            metrics,
+            expected_provider=metrics.get("provider"),
         )
     save_project_file_if_changed(project_name, SEARCH_METRICS_FILE, metrics)
 
@@ -178,7 +184,13 @@ def run(project_name: str) -> None:
     else:
         print("Fetching SERP data...")
         serp_results = get_serp_provider().get_results(
-            keyword=keyword_data["keyword"], language=keyword_data["language"], country=keyword_data["country"]
+            keyword=keyword_data["keyword"],
+            language=keyword_data["language"],
+            country=keyword_data["country"],
+        )
+        validate_serp_response(
+            serp_results,
+            expected_provider=serp_results.get("provider"),
         )
     serp_results = canonicalize_serp_results(serp_results)
     save_project_file_if_changed(project_name, SERP_ANALYSIS_FILE, serp_results)
