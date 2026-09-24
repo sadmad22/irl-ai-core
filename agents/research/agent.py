@@ -22,6 +22,7 @@ from .evidence.question import build_question_evidence
 from .evidence.business import build_business_evidence
 from .evidence.authority import build_authority_evidence
 from .evidence.substantive import SOURCE_MATERIAL_FILE, SUBSTANTIVE_EVIDENCE_FILE, build_substantive_evidence_from_file
+from .source_corpus import SOURCE_URLS_FILE, build_source_corpus_from_file
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
 from .decision_runner import run_decision_from_report
@@ -248,6 +249,9 @@ def run(project_name: str) -> None:
     save_project_file_if_changed(project_name, AUTHORITY_EVIDENCE_FILE, authority_evidence)
 
     project_path = Path("research") / project_name
+    if (project_path / SOURCE_URLS_FILE).exists():
+        build_source_corpus_from_file(project_path)
+
     substantive_evidence = build_substantive_evidence_from_file(
         report_id=report_id,
         project_path=project_path,
