@@ -164,7 +164,7 @@ def test_malformed_port_fails_closed():
 
 
 def test_redirect_to_private_ipv4_is_blocked():
-    first = "https://93.184.216.34/start"
+    first = "http://93.184.216.34/start"
     private = "http://192.168.1.10/private"
     transport = FakeTransport(
         {
@@ -185,7 +185,7 @@ def test_redirect_to_private_ipv4_is_blocked():
 
 
 def test_redirect_to_localhost_is_blocked():
-    first = "https://93.184.216.34/start"
+    first = "http://93.184.216.34/start"
     localhost = "http://localhost/private"
     transport = FakeTransport(
         {
