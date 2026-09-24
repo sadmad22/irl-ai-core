@@ -39,7 +39,10 @@ def canonicalize_url(url: str) -> str:
         raise SourceAcquisitionError("source URL must not contain credentials")
 
     hostname = parsed.hostname.lower().rstrip(".")
-    port = parsed.port
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise SourceAcquisitionError("source URL port is invalid") from exc
     if port is not None and not 1 <= port <= 65535:
         raise SourceAcquisitionError("source URL port is invalid")
 
