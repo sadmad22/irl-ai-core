@@ -124,7 +124,7 @@ def _corpus(tmp_path: Path):
                     "subject": {"type": "keyword", "id": "sample topic"},
                     "value": {"type": "text", "data": "Age can affect premium cost."},
                     "confidence": 0.92,
-                    "relation": "supports",
+                    "relation": "qualifies",
                 },
             ],
         }],
@@ -146,7 +146,7 @@ def test_bridge_emits_canonical_evidence_and_explicit_lineage(tmp_path):
     assert all(record["type"] == "observation" for record in records)
     assert all(record["status"] == "active" for record in records)
     assert all(record["derived_from"] == [] for record in records)
-    assert {record["relation"] for record in records} == {"supports"}
+    assert {record["relation"] for record in records} == {"supports", "qualifies"}
 
     evidence_schema = json.loads(
         (ROOT / "shared" / "schemas" / "evidence.schema.json").read_text()
