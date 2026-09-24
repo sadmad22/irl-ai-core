@@ -84,7 +84,7 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         self.customer_id = self._normalize_customer_id(
             customer_id if customer_id is not None else GOOGLE_ADS_CUSTOMER_ID,
             field="customer_id",
-            required=True,
+            required=False,
         )
         self.login_customer_id = self._normalize_customer_id(
             login_customer_id
