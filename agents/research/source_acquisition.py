@@ -168,16 +168,17 @@ def acquire_source_document(
             )
             try:
                 status = int(response.status_code)
-                if status < 200 or status >= 300:
-                    raise SourceAcquisitionError(f"source returned HTTP {status}")
-
                 location = response.headers.get("location")
-                if location:
+                if 300 <= status < 400 and location:
                     if len(redirect_chain) >= max_redirects + 1:
                         raise SourceAcquisitionError("source redirect limit exceeded")
-                    current_url = canonicalize_url(urljoin(current_url, str(location)))
+                    next_url = canonicalize_url(urljoin(current_url, str(location)))
+                    current_url = next_url
                     redirect_chain.append(current_url)
                     continue
+
+                if status < 200 or status >= 300:
+                    raise SourceAcquisitionError(f"source returned HTTP {status}")
 
                 content_type = str(response.headers.get("content-type", "")).split(";", 1)[0].strip().lower()
                 if content_type not in _ALLOWED_CONTENT_TYPES:
