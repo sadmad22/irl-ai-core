@@ -119,6 +119,23 @@ def get_canonical_serp_intent_evidence_ids(serp_intent_evidence: list[dict]) -> 
     ]
 
 
+def build_substantive_evidence_for_project(*, report_id: str, project_path: Path) -> list[dict]:
+    """Select the canonical substantive Evidence producer for the project state.
+
+    Passage-bound material is authoritative whenever present. If it is absent,
+    the legacy source-material path remains available for pre-E projects.
+    """
+    if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
+        return build_canonical_evidence_from_file(
+            report_id=report_id,
+            project_path=project_path,
+        )
+    return build_substantive_evidence_from_file(
+        report_id=report_id,
+        project_path=project_path,
+    )
+
+
 def _source(project_name: str, artifact: str) -> dict:
     return {"type": "research_artifact", "project": project_name, "artifact": artifact}
 
@@ -256,16 +273,10 @@ def run(project_name: str) -> None:
     if (project_path / SOURCE_URLS_FILE).exists():
         build_source_corpus_from_file(project_path)
 
-    if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
-        substantive_evidence = build_canonical_evidence_from_file(
-            report_id=report_id,
-            project_path=project_path,
-        )
-    else:
-        substantive_evidence = build_substantive_evidence_from_file(
-            report_id=report_id,
-            project_path=project_path,
-        )
+    substantive_evidence = build_substantive_evidence_for_project(
+        report_id=report_id,
+        project_path=project_path,
+    )
 
     research_report = build_research_report(
         report_id=report_id,
