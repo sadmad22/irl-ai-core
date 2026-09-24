@@ -250,4 +250,4 @@ def test_research_agent_invokes_source_corpus_when_manifest_exists(tmp_path, mon
 
     agent.run("expat-health-insurance")
 
-    assert calls == [destination]
+    assert [tmp_path / call for call in calls] == [destination]
