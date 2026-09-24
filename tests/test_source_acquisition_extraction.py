@@ -450,7 +450,7 @@ def test_source_corpus_reuses_fresh_cache_without_network_request(tmp_path):
             )
         }
     )
-    documents, passages = build_source_corpus_from_file(
+    documents, passages = _build_source_corpus_for_test(
         project,
         transport=first_transport,
         cache_max_age_seconds=3600,
@@ -458,7 +458,7 @@ def test_source_corpus_reuses_fresh_cache_without_network_request(tmp_path):
     )
 
     second_transport = FakeTransport({})
-    cached_documents, cached_passages = build_source_corpus_from_file(
+    cached_documents, cached_passages = _build_source_corpus_for_test(
         project,
         transport=second_transport,
         cache_max_age_seconds=3600,
@@ -495,7 +495,7 @@ def test_stale_cache_304_preserves_document_identity_and_updates_check_time(tmp_
         }
     )
 
-    first_documents, first_passages = build_source_corpus_from_file(
+    first_documents, first_passages = _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=3600,
@@ -504,7 +504,7 @@ def test_stale_cache_304_preserves_document_identity_and_updates_check_time(tmp_
     first_document = first_documents["documents"][0]
     first_passage_ids = [item["passage_id"] for item in first_passages["passages"]]
 
-    second_documents, second_passages = build_source_corpus_from_file(
+    second_documents, second_passages = _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=3600,
@@ -545,13 +545,13 @@ def test_stale_cache_200_changed_content_replaces_document_and_extracts_again(tm
         }
     )
 
-    first_documents, first_passages = build_source_corpus_from_file(
+    first_documents, first_passages = _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=3600,
         now="2026-09-24T10:00:00+00:00",
     )
-    second_documents, second_passages = build_source_corpus_from_file(
+    second_documents, second_passages = _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=3600,
@@ -634,13 +634,13 @@ def test_force_refresh_revalidates_even_when_cache_is_fresh(tmp_path):
         }
     )
 
-    build_source_corpus_from_file(
+    _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=DEFAULT_CACHE_MAX_AGE_SECONDS,
         now="2026-09-24T10:00:00+00:00",
     )
-    refreshed_documents, _ = build_source_corpus_from_file(
+    refreshed_documents, _ = _build_source_corpus_for_test(
         project,
         transport=transport,
         cache_max_age_seconds=DEFAULT_CACHE_MAX_AGE_SECONDS,
@@ -666,7 +666,7 @@ def test_policy_version_change_invalidates_existing_cache(tmp_path, monkeypatch)
             )
         }
     )
-    build_source_corpus_from_file(
+    _build_source_corpus_for_test(
         project,
         transport=first_transport,
         now="2026-09-24T10:00:00+00:00",
@@ -689,7 +689,7 @@ def test_policy_version_change_invalidates_existing_cache(tmp_path, monkeypatch)
             )
         }
     )
-    build_source_corpus_from_file(
+    _build_source_corpus_for_test(
         project,
         transport=second_transport,
         now="2026-09-24T10:05:00+00:00",
@@ -712,7 +712,7 @@ def test_source_corpus_extracts_content_and_preserves_cache(tmp_path):
         }
     )
 
-    documents, passages = build_source_corpus_from_file(project, transport=transport)
+    documents, passages = _build_source_corpus_for_test(project, transport=transport)
 
     _validator("source-documents.schema.json").validate(documents)
     _validator("extracted-passages.schema.json").validate(passages)
@@ -729,7 +729,7 @@ def test_source_corpus_extracts_content_and_preserves_cache(tmp_path):
     )
 
     second_transport = FakeTransport({})
-    cached_documents, cached_passages = build_source_corpus_from_file(project, transport=second_transport)
+    cached_documents, cached_passages = _build_source_corpus_for_test(project, transport=second_transport)
 
     assert cached_documents == documents
     assert cached_passages == passages
@@ -765,7 +765,7 @@ def test_source_corpus_is_all_or_nothing_on_acquisition_failure(tmp_path):
     )
 
     with pytest.raises(SourceAcquisitionError, match="HTTP 500"):
-        build_source_corpus_from_file(project, transport=transport)
+        _build_source_corpus_for_test(project, transport=transport)
 
     assert not (project / "source-documents.json").exists()
     assert not (project / "extracted-passages.json").exists()
