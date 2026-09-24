@@ -261,6 +261,39 @@ def test_dns_resolution_change_to_private_address_fails_before_request():
     assert transport.calls == []
 
 
+def test_redirect_destination_dns_changes_to_private_address_and_is_blocked():
+    first = "https://93.184.216.34/start"
+    redirected = "https://example.com/final"
+    resolution_calls = 0
+
+    def resolver(hostname, port, *, type):
+        nonlocal resolution_calls
+        resolution_calls += 1
+        if resolution_calls == 1:
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))]
+        if resolution_calls == 2:
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.5", 443))]
+        raise AssertionError("unexpected DNS resolution call")
+
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": redirected}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="DNS resolution changed"):
+        acquire_source_document(
+            url=first,
+            source_id="src_test",
+            provider="example.com",
+            source_type="official",
+            transport=transport,
+            dns_resolver=resolver,
+        )
+
+    assert [call[0] for call in transport.calls] == [first]
+
+
 def test_dns_resolution_consistency_allows_stable_public_source():
     resolutions = iter(
         [
