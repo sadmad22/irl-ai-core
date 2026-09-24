@@ -1,13 +1,15 @@
+"""Capability-neutral connector configuration helpers.
+
+Vendor credentials and provider selection belong to capability-specific
+configuration modules. This module intentionally contains no provider-specific
+settings.
+"""
+
 import os
 
 
-ACTIVE_PROVIDER = "dataforseo"
-
-BASE_URL = "https://api.dataforseo.com"
-
-LOGIN = os.getenv("DATAFORSEO_LOGIN")
-PASSWORD = os.getenv("DATAFORSEO_PASSWORD")
-
-LOCATION_CODES = {
-    "US": 2840,
-}
+def env(name: str, default: str | None = None) -> str | None:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip() or default
