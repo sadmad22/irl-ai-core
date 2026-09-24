@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
+from agents.research import agent
 from agents.research.source_acquisition import SourceAcquisitionError, acquire_source_document, canonicalize_url
 from agents.research.source_corpus import build_source_corpus_from_file
 
@@ -15,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _validator(filename: str) -> Draft202012Validator:
     schema = json.loads((ROOT / "shared" / "schemas" / filename).read_text(encoding="utf-8"))
-    return Draft202012Validator(schema)
+    return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
 class FakeResponse:
@@ -175,9 +177,7 @@ def test_source_corpus_extracts_content_and_preserves_cache(tmp_path):
     )
 
     second_transport = FakeTransport({})
-    cached_documents, cached_passages = build_source_corpus_from_file(
-        project, transport=second_transport
-    )
+    cached_documents, cached_passages = build_source_corpus_from_file(project, transport=second_transport)
 
     assert cached_documents == documents
     assert cached_passages == passages
@@ -217,3 +217,37 @@ def test_source_corpus_is_all_or_nothing_on_acquisition_failure(tmp_path):
 
     assert not (project / "source-documents.json").exists()
     assert not (project / "extracted-passages.json").exists()
+
+
+def test_research_agent_invokes_source_corpus_when_manifest_exists(tmp_path, monkeypatch):
+    source = ROOT / "research" / "expat-health-insurance"
+    destination = tmp_path / "research" / "expat-health-insurance"
+    destination.parent.mkdir(parents=True)
+    shutil.copytree(source, destination)
+    (destination / "source-urls.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "project_name": "expat-health-insurance",
+                "sources": [
+                    {
+                        "url": "https://example.com/guide",
+                        "type": "official",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    calls: list[Path] = []
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        agent,
+        "build_source_corpus_from_file",
+        lambda project_path: calls.append(Path(project_path)),
+    )
+
+    agent.run("expat-health-insurance")
+
+    assert calls == [destination]
