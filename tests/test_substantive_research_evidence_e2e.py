@@ -9,6 +9,7 @@ from jsonschema import Draft202012Validator
 
 from agents.research import agent
 from agents.research.article_draft_agent import run as run_article_draft
+from agents.research.content_brief_agent import run as run_content_brief
 from agents.research.section_evidence_readiness import evaluate_section_readiness
 from agents.research.article_draft_agent import _load_evidence_records
 
@@ -84,6 +85,7 @@ def test_substantive_research_produces_canonical_evidence_and_unblocks_article_w
 
     report = agent.run("expat-health-insurance")
     assert report is None
+    run_content_brief("expat-health-insurance")
 
     report_data = json.loads((root / "research-report.json").read_text(encoding="utf-8"))
     refs = report_data["evidence_refs"]["substantive"]
@@ -135,6 +137,7 @@ def test_substantive_research_blocks_article_when_required_pricing_evidence_is_m
     )
 
     monkeypatch.chdir(tmp_path)
+    (root / "article-draft.json").unlink()
     agent.run("expat-health-insurance")
 
     writer = RecordingWriter()
