@@ -104,6 +104,20 @@ def _write_manifest(project: Path) -> None:
     (project / "source-urls.json").write_text(json.dumps(_manifest()), encoding="utf-8")
 
 
+def _stable_public_dns_resolver(hostname, port, *, type):
+    return [
+        (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", port))
+    ]
+
+
+def _build_source_corpus_for_test(*args, **kwargs):
+    return build_source_corpus_from_file(
+        *args,
+        dns_resolver=_stable_public_dns_resolver,
+        **kwargs,
+    )
+
+
 def test_canonicalize_url_normalizes_scheme_host_and_fragment():
     assert canonicalize_url("HTTPS://Example.COM/path#section") == "https://example.com/path"
 
@@ -400,7 +414,7 @@ def test_source_corpus_records_cache_metadata_and_versioned_identity(tmp_path):
         }
     )
 
-    documents, passages = build_source_corpus_from_file(
+    documents, passages = _build_source_corpus_for_test(
         project,
         transport=transport,
         now="2026-09-24T10:00:00+00:00",
