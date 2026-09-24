@@ -131,8 +131,10 @@ def _now_iso(captured_at: str | None) -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _cache_validators(cached_document: dict[str, Any] | None) -> dict[str, str]:
+def _cache_validators(cached_document: dict[str, Any] | None, *, current_url: str) -> dict[str, str]:
     if not cached_document:
+        return {}
+    if cached_document.get("final_url") != current_url:
         return {}
 
     headers: dict[str, str] = {}
@@ -175,7 +177,7 @@ def acquire_source_document(
     requested_url = current_url
     redirect_chain = [requested_url]
     transport_obj: HttpTransport = transport or requests.Session()
-    revalidation_headers = _cache_validators(cached_document)
+    revalidation_headers = _cache_validators(cached_document, current_url=current_url)
     checked_at = _now_iso(captured_at)
 
     try:
@@ -202,6 +204,10 @@ def acquire_source_document(
                         raise SourceAcquisitionError("source redirect limit exceeded")
                     next_url = canonicalize_url(urljoin(current_url, str(location)))
                     current_url = next_url
+                    revalidation_headers = _cache_validators(
+                        cached_document,
+                        current_url=current_url,
+                    )
                     redirect_chain.append(current_url)
                     continue
 
@@ -212,6 +218,8 @@ def acquire_source_document(
                         raise SourceAcquisitionError("cached source document identity mismatch")
                     if canonicalize_url(str(cached_document.get("requested_url", ""))) != requested_url:
                         raise SourceAcquisitionError("cached source document URL mismatch")
+                    if cached_document.get("final_url") != current_url:
+                        raise SourceAcquisitionError("304 response final URL does not match cached source document")
 
                     refreshed = dict(cached_document)
                     refreshed["cache_checked_at"] = checked_at
