@@ -15,6 +15,7 @@ DEFAULT_TIMEOUT_SECONDS = 15
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024
 DEFAULT_MAX_REDIRECTS = 4
 DEFAULT_USER_AGENT = "IRL-AI-Core-Research/1.0 (+https://insurancereviewlab.com/)"
+ACQUISITION_POLICY_VERSION = "1.1"
 
 _ALLOWED_CONTENT_TYPES = {"text/html", "application/xhtml+xml"}
 _PRIVATE_HOSTNAMES = {"localhost", "localhost.localdomain", "ip6-localhost"}
@@ -124,6 +125,26 @@ def _read_limited_body(response: Any, *, max_bytes: int) -> bytes:
     return b"".join(chunks)
 
 
+def _now_iso(captured_at: str | None) -> str:
+    if captured_at is not None:
+        return captured_at
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _cache_validators(cached_document: dict[str, Any] | None) -> dict[str, str]:
+    if not cached_document:
+        return {}
+
+    headers: dict[str, str] = {}
+    etag = cached_document.get("etag")
+    last_modified = cached_document.get("last_modified")
+    if isinstance(etag, str) and etag.strip():
+        headers["If-None-Match"] = etag
+    if isinstance(last_modified, str) and last_modified.strip():
+        headers["If-Modified-Since"] = last_modified
+    return headers
+
+
 def acquire_source_document(
     *,
     url: str,
@@ -137,6 +158,7 @@ def acquire_source_document(
     user_agent: str = DEFAULT_USER_AGENT,
     resolve_public_host: bool = True,
     captured_at: str | None = None,
+    cached_document: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if not str(source_id).strip():
         raise SourceAcquisitionError("source_id is required")
@@ -153,6 +175,8 @@ def acquire_source_document(
     requested_url = current_url
     redirect_chain = [requested_url]
     transport_obj: HttpTransport = transport or requests.Session()
+    revalidation_headers = _cache_validators(cached_document)
+    checked_at = _now_iso(captured_at)
 
     try:
         for _ in range(max_redirects + 1):
@@ -161,7 +185,11 @@ def acquire_source_document(
 
             response = transport_obj.get(
                 current_url,
-                headers={"User-Agent": user_agent, "Accept": "text/html,application/xhtml+xml"},
+                headers={
+                    "User-Agent": user_agent,
+                    "Accept": "text/html,application/xhtml+xml",
+                    **revalidation_headers,
+                },
                 timeout=timeout_seconds,
                 allow_redirects=False,
                 stream=True,
@@ -177,6 +205,24 @@ def acquire_source_document(
                     redirect_chain.append(current_url)
                     continue
 
+                if status == 304:
+                    if cached_document is None:
+                        raise SourceAcquisitionError("304 response received without cached source document")
+                    if cached_document.get("source_id") != source_id:
+                        raise SourceAcquisitionError("cached source document identity mismatch")
+                    if canonicalize_url(str(cached_document.get("requested_url", ""))) != requested_url:
+                        raise SourceAcquisitionError("cached source document URL mismatch")
+
+                    refreshed = dict(cached_document)
+                    refreshed["cache_checked_at"] = checked_at
+                    etag = response.headers.get("etag")
+                    last_modified = response.headers.get("last-modified")
+                    if etag:
+                        refreshed["etag"] = str(etag)
+                    if last_modified:
+                        refreshed["last_modified"] = str(last_modified)
+                    return refreshed
+
                 if status < 200 or status >= 300:
                     raise SourceAcquisitionError(f"source returned HTTP {status}")
 
@@ -186,11 +232,22 @@ def acquire_source_document(
 
                 body = _read_limited_body(response, max_bytes=max_bytes)
                 html = _decode_html(body, str(response.headers.get("content-type", "")))
-                retrieved_at = captured_at or datetime.now(timezone.utc).isoformat()
                 content_sha256 = hashlib.sha256(body).hexdigest()
                 source_document_id = "srcdoc_" + hashlib.sha256(
                     f"{current_url}\0{content_sha256}".encode("utf-8")
                 ).hexdigest()[:24]
+
+                same_content_identity = (
+                    cached_document is not None
+                    and cached_document.get("source_document_id") == source_document_id
+                    and cached_document.get("content_sha256") == content_sha256
+                    and cached_document.get("final_url") == current_url
+                )
+                retrieved_at = (
+                    str(cached_document["retrieved_at"])
+                    if same_content_identity
+                    else checked_at
+                )
 
                 return {
                     "source_document_id": source_document_id,
@@ -200,11 +257,18 @@ def acquire_source_document(
                     "provider": provider,
                     "type": source_type,
                     "retrieved_at": retrieved_at,
+                    "cache_checked_at": checked_at,
                     "http_status": status,
                     "content_type": content_type,
                     "content_sha256": content_sha256,
                     "content_bytes": len(body),
                     "redirect_chain": redirect_chain,
+                    "etag": str(response.headers["etag"]) if response.headers.get("etag") else None,
+                    "last_modified": (
+                        str(response.headers["last-modified"])
+                        if response.headers.get("last-modified")
+                        else None
+                    ),
                     "html": html,
                 }
             finally:
