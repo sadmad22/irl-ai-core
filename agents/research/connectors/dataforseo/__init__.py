@@ -1,0 +1,1 @@
+"""Vendor-specific configuration namespace for DataForSEO."""
