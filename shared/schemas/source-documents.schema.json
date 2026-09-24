@@ -2,13 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://irl-ai-core.local/schemas/source-documents.schema.json",
   "title": "IRL Source Documents",
-  "description": "Fetched source documents with immutable retrieval metadata and raw HTML retained for deterministic downstream extraction.",
+  "description": "Fetched source documents with cache/revalidation metadata and immutable content identity.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
+    "schema_version": { "type": "string", "const": "1.1" },
     "project_name": { "type": "string", "minLength": 1 },
     "request_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "acquisition_policy_version": { "type": "string", "minLength": 1 },
+    "extraction_policy_version": { "type": "string", "minLength": 1 },
     "documents": {
       "type": "array",
       "minItems": 1,
@@ -23,6 +25,7 @@
           "provider": { "type": "string", "minLength": 1 },
           "type": { "type": "string", "enum": ["official", "institutional", "secondary"] },
           "retrieved_at": { "type": "string", "format": "date-time" },
+          "cache_checked_at": { "type": "string", "format": "date-time" },
           "http_status": { "type": "integer", "minimum": 200, "maximum": 299 },
           "content_type": { "type": "string", "minLength": 1 },
           "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
@@ -32,18 +35,29 @@
             "maxItems": 5,
             "items": { "type": "string", "format": "uri" }
           },
+          "etag": {
+            "type": ["string", "null"],
+            "minLength": 1
+          },
+          "last_modified": {
+            "type": ["string", "null"],
+            "minLength": 1
+          },
           "html": { "type": "string", "minLength": 1 },
           "title": { "type": "string", "minLength": 1 },
           "normalized_text": { "type": "string", "minLength": 1 }
         },
         "required": [
           "source_document_id", "source_id", "requested_url", "final_url",
-          "provider", "type", "retrieved_at", "http_status", "content_type",
-          "content_sha256", "content_bytes", "redirect_chain", "html",
-          "title", "normalized_text"
+          "provider", "type", "retrieved_at", "cache_checked_at", "http_status",
+          "content_type", "content_sha256", "content_bytes", "redirect_chain",
+          "etag", "last_modified", "html", "title", "normalized_text"
         ]
       }
     }
   },
-  "required": ["schema_version", "project_name", "request_fingerprint", "documents"]
+  "required": [
+    "schema_version", "project_name", "request_fingerprint",
+    "acquisition_policy_version", "extraction_policy_version", "documents"
+  ]
 }

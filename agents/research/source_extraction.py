@@ -7,6 +7,8 @@ from html.parser import HTMLParser
 from typing import Any
 
 
+EXTRACTION_POLICY_VERSION = "1.0"
+
 _SKIP_TAGS = {"script", "style", "noscript", "template", "svg", "nav", "footer", "header", "aside", "form"}
 _BLOCK_TAGS = {
     "p": "paragraph",
