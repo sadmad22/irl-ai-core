@@ -348,6 +348,49 @@ def test_stale_cache_200_changed_content_replaces_document_and_extracts_again(tm
     )
 
 
+def test_stale_304_after_redirect_to_different_final_url_fails_closed():
+    first = "https://example.com/start"
+    cached_final = "https://example.com/final"
+    changed_final = "https://example.com/other"
+
+    cached = acquire_source_document(
+        url=cached_final,
+        source_id="src_example",
+        provider="example.com",
+        source_type="official",
+        transport=FakeTransport(
+            {
+                cached_final: FakeResponse(
+                    status_code=200,
+                    headers={"content-type": "text/html", "etag": '"v1"'},
+                    body=HTML,
+                )
+            }
+        ),
+        resolve_public_host=False,
+        captured_at="2026-09-24T10:00:00+00:00",
+    )
+
+    transport = FakeTransport(
+        {
+            first: FakeResponse(status_code=302, headers={"location": "/other"}),
+            changed_final: FakeResponse(status_code=304, headers={"etag": '"v1"'}),
+        }
+    )
+
+    with pytest.raises(SourceAcquisitionError, match="final URL"):
+        acquire_source_document(
+            url=first,
+            source_id="src_example",
+            provider="example.com",
+            source_type="official",
+            transport=transport,
+            resolve_public_host=False,
+            captured_at="2026-09-24T12:00:00+00:00",
+            cached_document=cached,
+        )
+
+
 def test_force_refresh_revalidates_even_when_cache_is_fresh(tmp_path):
     project = tmp_path / "research" / "sample"
     project.mkdir(parents=True)
