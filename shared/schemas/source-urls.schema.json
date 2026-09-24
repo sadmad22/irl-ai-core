@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/source-urls.schema.json",
+  "title": "IRL Source URL Manifest",
+  "description": "Explicit source acquisition requests. Each source is a declared authority class and is fetched directly; discovery signals are never upgraded into source material.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "project_name": { "type": "string", "minLength": 1 },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_id": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "format": "uri", "minLength": 1 },
+          "provider": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "enum": ["official", "institutional", "secondary"] }
+        },
+        "required": ["url", "type"]
+      }
+    }
+  },
+  "required": ["schema_version", "project_name", "sources"]
+}
