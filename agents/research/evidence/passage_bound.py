@@ -254,6 +254,7 @@ def build_canonical_evidence_from_passage_bound_material(
                 captured_at=str(source["retrieved_at"]),
                 evidence_id=evidence_id,
             )
+            record["relation"] = fact["relation"]
             _validate(_EVIDENCE_VALIDATOR, record, "canonical Evidence")
             records.append(record)
 
