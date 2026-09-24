@@ -378,7 +378,7 @@ def test_stale_304_after_redirect_to_different_final_url_fails_closed():
         }
     )
 
-    with pytest.raises(SourceAcquisitionError, match="final URL"):
+    with pytest.raises(SourceAcquisitionError, match="URL mismatch"):
         acquire_source_document(
             url=first,
             source_id="src_example",
