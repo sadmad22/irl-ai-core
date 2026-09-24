@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://irl-ai-core.local/schemas/substantive-source-material.schema.json",
+  "title": "Substantive Research Source Material",
+  "description": "Structured, source-backed material that can be deterministically converted into canonical substantive Evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "project_name": { "type": "string", "minLength": 1 },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_id": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "format": "uri", "minLength": 1 },
+          "provider": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": ["official", "institutional", "secondary"]
+          },
+          "retrieved_at": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "facts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "claim_type": { "type": "string", "minLength": 1 },
+                "attribute": { "type": "string", "minLength": 1 },
+                "subject": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "id": { "type": "string", "minLength": 1 }
+                  },
+                  "required": ["type", "id"]
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["categorical", "numeric", "boolean", "text", "list", "object"]
+                    },
+                    "data": {}
+                  },
+                  "required": ["type", "data"]
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "relation": {
+                  "type": "string",
+                  "enum": ["supports", "qualifies"]
+                }
+              },
+              "required": ["claim_type", "attribute", "subject", "value", "confidence", "relation"]
+            }
+          }
+        },
+        "required": ["source_id", "url", "provider", "type", "retrieved_at", "title", "facts"]
+      }
+    }
+  },
+  "required": ["schema_version", "project_name", "sources"]
+}
