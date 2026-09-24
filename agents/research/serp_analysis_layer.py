@@ -5,7 +5,7 @@ import json
 from typing import Any
 
 from .analyzers.competitor import analyze_competitors
-from .connectors.serp.base import SERPProvider
+from .connectors.serp.base import SERPProvider, validate_serp_response
 
 SCHEMA_VERSION = "1.0"
 METHOD_VERSION = "v1"
@@ -75,8 +75,7 @@ def build_serp_analysis(
     language = _text(language, "language").lower()
 
     serp = provider.get_results(keyword=keyword, language=language, country=country)
-    if not isinstance(serp, dict):
-        raise ValueError("SERP provider must return an object")
+    validate_serp_response(serp, expected_provider=serp.get("provider"))
 
     required = {"keyword", "language", "country", "results"}
     missing = sorted(required - serp.keys())
