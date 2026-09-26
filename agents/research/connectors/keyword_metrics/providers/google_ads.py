@@ -19,7 +19,6 @@ from ...google_ads.config import (
     GOOGLE_ADS_CLIENT_ID,
     GOOGLE_ADS_CLIENT_SECRET,
     GOOGLE_ADS_CUSTOMER_ID,
-    GOOGLE_ADS_DEVELOPER_TOKEN,
     GOOGLE_ADS_LANGUAGE_IDS,
     GOOGLE_ADS_LOCATION_IDS,
     GOOGLE_ADS_LOGIN_CUSTOMER_ID,
@@ -47,7 +46,6 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         base_url: str | None = None,
         token_url: str | None = None,
         api_version: str | None = None,
-        developer_token: str | None = None,
         client_id: str | None = None,
         client_secret: str | None = None,
         refresh_token: str | None = None,
@@ -65,11 +63,6 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         self.api_version = (
             api_version or GOOGLE_ADS_API_VERSION
         ).strip().lower()
-        self.developer_token = (
-            developer_token
-            if developer_token is not None
-            else GOOGLE_ADS_DEVELOPER_TOKEN
-        )
         self.client_id = client_id if client_id is not None else GOOGLE_ADS_CLIENT_ID
         self.client_secret = (
             client_secret
@@ -140,11 +133,6 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         if not self.api_version or not self.api_version.startswith("v") or not self.api_version[1:].isdigit():
             raise ProviderConfigurationError(
                 "Google Ads API version must use a major version such as v25.",
-                provider=self.provider_name,
-            )
-        if not self.developer_token:
-            raise ProviderConfigurationError(
-                "Google Ads developer token is required.",
                 provider=self.provider_name,
             )
         if not self.customer_id:
@@ -316,7 +304,6 @@ class GoogleAdsKeywordMetricsProvider(KeywordMetricsProvider):
         token = self._refresh_access_token()
         headers = {
             "Authorization": f"Bearer {token}",
-            "developer-token": self.developer_token or "",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
