@@ -28,6 +28,10 @@ The current Google Ads API release family is v25; Google published v25.2 on Sept
 
 Authentication uses the OAuth 2.0 refresh-token flow. API access is now governed by the Google Cloud project that owns the OAuth client credentials; the deprecated developer-token requirement is removed. When access is through a manager account, `login-customer-id` is sent as the request context.
 
+## Access prerequisite (2026-09-26)
+
+This provider calls `KeywordPlanIdeaService.GenerateKeywordHistoricalMetrics`. Google Ads currently restricts the Planning functionality that includes `KeywordPlanIdeaService` when a Google Cloud project has Explorer access. Real production use of this provider therefore requires a Google Cloud project access level that permits Planning, such as Basic or Standard access. The OAuth credentials and the API access level must belong to the same Google Cloud project.
+
 ## Normalization
 
 Google Ads values are normalized as follows:
