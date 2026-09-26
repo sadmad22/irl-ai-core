@@ -76,7 +76,6 @@ def make_provider(session, **overrides):
         "session": session,
         "base_url": "https://googleads.example.test",
         "token_url": "https://oauth.example.test/token",
-        "developer_token": "developer-token",
         "customer_id": "123-456-7890",
         "access_token": "access-token",
         "timeout_seconds": 9,
@@ -91,12 +90,11 @@ def test_google_ads_provider_is_registered_independently():
     assert provider.provider_name == "google_ads"
 
 
-def test_google_ads_requires_runtime_credentials_before_network():
+def test_google_ads_requires_oauth_credentials_before_network():
     session = FakeSession()
     provider = make_provider(
         session,
         access_token=None,
-        developer_token=None,
     )
     with pytest.raises(ProviderConfigurationError):
         provider.get_metrics("kw", "en", "US")
@@ -133,7 +131,6 @@ def test_google_ads_request_maps_customer_language_country_network_and_average_c
     )
     assert kwargs["timeout"] == 9
     assert kwargs["headers"]["Authorization"] == "Bearer access-token"
-    assert kwargs["headers"]["developer-token"] == "developer-token"
     assert kwargs["headers"]["login-customer-id"] == "9998887777"
     assert kwargs["json"] == {
         "customerId": "1234567890",
