@@ -1,7 +1,7 @@
 # IRL AI Core — P3 Google Ads Provider
 
 **Phase:** P3 — Google Ads Provider  
-**Status:** implementation complete, pending local regression and PR review
+**Status:** implementation complete; Google Ads authentication contract updated 2026-09-26 after developer-token sunset
 
 ## Scope
 
@@ -10,7 +10,7 @@ P3 adds Google Ads as the real Keyword Metrics provider behind the P1 capability
 Included:
 - Google Ads REST connector for historical keyword metrics;
 - OAuth refresh-token authentication boundary;
-- developer-token and customer-context configuration;
+- OAuth 2.0 refresh-token authentication and customer context;
 - country/language resource-name mapping;
 - canonical normalization to search volume, competition index, CPC, and historical trend;
 - fail-closed handling when a required metric is unavailable;
@@ -26,7 +26,7 @@ The provider calls:
 
 The current Google Ads API release family is v25; Google published v25.2 on September 23, 2026. The implementation therefore targets the v25 major REST endpoint by default and keeps the version configurable. Google documents `GenerateKeywordHistoricalMetrics` for historical search volume, competition, competition index, average CPC, and monthly search volumes.
 
-Authentication requires OAuth 2.0 credentials plus a developer token. When access is through a manager account, `login-customer-id` is sent as the request context.
+Authentication uses the OAuth 2.0 refresh-token flow. API access is now governed by the Google Cloud project that owns the OAuth client credentials; the deprecated developer-token requirement is removed. When access is through a manager account, `login-customer-id` is sent as the request context.
 
 ## Normalization
 
@@ -54,7 +54,6 @@ Unsupported mappings fail closed rather than guessing.
 
 Expected environment variables:
 
-- `GOOGLE_ADS_DEVELOPER_TOKEN`
 - `GOOGLE_ADS_CLIENT_ID`
 - `GOOGLE_ADS_CLIENT_SECRET`
 - `GOOGLE_ADS_REFRESH_TOKEN`
