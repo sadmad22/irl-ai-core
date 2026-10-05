@@ -56,7 +56,6 @@ def test_production_brave_fails_closed_without_credentials(monkeypatch):
 
 def test_production_google_ads_fails_closed_without_credentials(monkeypatch):
     monkeypatch.setenv("IRL_ENVIRONMENT", "production")
-    monkeypatch.delenv("GOOGLE_ADS_DEVELOPER_TOKEN", raising=False)
     monkeypatch.delenv("GOOGLE_ADS_CLIENT_ID", raising=False)
     monkeypatch.delenv("GOOGLE_ADS_CLIENT_SECRET", raising=False)
     monkeypatch.delenv("GOOGLE_ADS_REFRESH_TOKEN", raising=False)
@@ -67,7 +66,6 @@ def test_production_google_ads_fails_closed_without_credentials(monkeypatch):
     )
 
     provider = GoogleAdsKeywordMetricsProvider(
-        developer_token=None,
         customer_id=None,
         access_token=None,
         client_id=None,

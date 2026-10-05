@@ -1,7 +1,7 @@
 # IRL AI Core — P4 Production Configuration
 
 **Phase:** P4 — Production Configuration  
-**Status:** implementation complete, pending local regression and PR validation
+**Status:** implementation complete; Google Ads authentication contract updated 2026-09-26 after developer-token sunset
 
 ## Goal
 
@@ -55,7 +55,6 @@ Required:
 
 ### Google Ads
 Required for the live OAuth path:
-- `GOOGLE_ADS_DEVELOPER_TOKEN`
 - `GOOGLE_ADS_CLIENT_ID`
 - `GOOGLE_ADS_CLIENT_SECRET`
 - `GOOGLE_ADS_REFRESH_TOKEN`
@@ -78,6 +77,14 @@ The guard suite verifies:
 - explicit Google Ads credential failure.
 
 The full test suite remains the final regression gate.
+
+### Google Ads authentication maintenance (2026-09-26)
+
+Google sunset developer tokens on September 9, 2026. Production Google Ads configuration therefore no longer defines or requires `GOOGLE_ADS_DEVELOPER_TOKEN`. API access is governed by the Google Cloud project associated with the OAuth credentials. The provider no longer emits the `developer-token` HTTP header.
+
+### Google Ads API access prerequisite
+
+The production project must have a Google Ads API access level that permits the Planning functionality used by `KeywordPlanIdeaService.GenerateKeywordHistoricalMetrics`. Explorer access currently restricts Planning; Basic or Standard access is required for this provider's real production keyword-metrics call.
 
 ## Non-production behavior
 
