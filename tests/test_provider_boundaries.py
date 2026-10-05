@@ -7,6 +7,7 @@ from jsonschema import Draft202012Validator
 from agents.research.connectors.errors import (
     ProviderAuthenticationError,
     ProviderConfigurationError,
+    ProviderResponseError,
 )
 from agents.research.connectors.keyword_metrics.base import (
     validate_keyword_metrics_response,
@@ -170,6 +171,7 @@ def test_dataforseo_serp_normalizes_provider_order_and_country_mapping():
         base_url="https://api.example.test",
         login="login",
         password="password",
+        timeout_seconds=7,
         location_codes={"US": 999},
     )
     result = provider.get_results("kw", "en", "US")
@@ -181,6 +183,7 @@ def test_dataforseo_serp_normalizes_provider_order_and_country_mapping():
 
     payload = session.calls[0][1]["json"][0]
     assert payload["location_code"] == 999
+    assert session.calls[0][1]["timeout"] == 7
 
 
 def test_dataforseo_keyword_metrics_uses_canonical_competition_field():
@@ -209,6 +212,7 @@ def test_dataforseo_keyword_metrics_uses_canonical_competition_field():
         base_url="https://api.example.test",
         login="login",
         password="password",
+        timeout_seconds=11,
         location_codes={"US": 999},
     )
     result = provider.get_metrics("kw", "en", "US")
@@ -219,6 +223,53 @@ def test_dataforseo_keyword_metrics_uses_canonical_competition_field():
 
     payload = session.calls[0][1]["json"][0]
     assert payload["location_code"] == 999
+    assert session.calls[0][1]["timeout"] == 11
+
+
+def test_dataforseo_keyword_metrics_no_result_fails_closed_instead_of_fabricating_metrics():
+    session = FakeSession(
+        FakeResponse(
+            {
+                "tasks": [
+                    {
+                        "result_count": 0,
+                        "result": [],
+                    }
+                ]
+            }
+        )
+    )
+    provider = DataForSEOKeywordMetricsProvider(
+        session=session,
+        base_url="https://api.example.test",
+        login="login",
+        password="password",
+        timeout_seconds=11,
+        location_codes={"US": 999},
+    )
+
+    with pytest.raises(
+        ProviderResponseError,
+        match="no keyword metrics.*no fallback metric values",
+    ):
+        provider.get_metrics("kw", "en", "US")
+
+
+def test_dataforseo_invalid_timeout_fails_closed_before_network():
+    session = FakeSession(FakeResponse({}))
+    provider = DataForSEOKeywordMetricsProvider(
+        session=session,
+        base_url="https://api.example.test",
+        login="login",
+        password="password",
+        timeout_seconds=0,
+        location_codes={"US": 999},
+    )
+
+    with pytest.raises(ProviderConfigurationError, match="timeout must be positive"):
+        provider.get_metrics("kw", "en", "US")
+
+    assert session.calls == []
 
 
 def test_dataforseo_missing_credentials_fail_closed_before_network():
