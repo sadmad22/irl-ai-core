@@ -7,6 +7,7 @@ from ...dataforseo.config import (
     DATAFORSEO_LOCATION_CODES,
     DATAFORSEO_LOGIN,
     DATAFORSEO_PASSWORD,
+    DATAFORSEO_TIMEOUT_SECONDS,
 )
 from ...errors import (
     ProviderAuthenticationError,
@@ -31,12 +32,18 @@ class DataForSEOSERPProvider(SERPProvider):
         base_url: str | None = None,
         login: str | None = None,
         password: str | None = None,
+        timeout_seconds: int | None = None,
         location_codes: dict[str, int] | None = None,
     ):
         self.session = session or requests.Session()
         self.base_url = (base_url or DATAFORSEO_BASE_URL).rstrip("/")
         self.login = login if login is not None else DATAFORSEO_LOGIN
         self.password = password if password is not None else DATAFORSEO_PASSWORD
+        self.timeout_seconds = (
+            DATAFORSEO_TIMEOUT_SECONDS
+            if timeout_seconds is None
+            else timeout_seconds
+        )
         self.location_codes = dict(location_codes or DATAFORSEO_LOCATION_CODES)
 
     def get_results(self, keyword: str, language: str, country: str) -> dict:
@@ -50,6 +57,11 @@ class DataForSEOSERPProvider(SERPProvider):
         if not self.base_url or not self.login or not self.password:
             raise ProviderConfigurationError(
                 "DataForSEO credentials and base URL are required.",
+                provider=self.provider_name,
+            )
+        if self.timeout_seconds <= 0:
+            raise ProviderConfigurationError(
+                "DataForSEO timeout must be positive.",
                 provider=self.provider_name,
             )
         if country not in self.location_codes:
@@ -69,6 +81,7 @@ class DataForSEOSERPProvider(SERPProvider):
                         "location_code": self.location_codes[country],
                     }
                 ],
+                timeout=self.timeout_seconds,
             )
         except requests.Timeout as exc:
             raise ProviderNetworkError(
