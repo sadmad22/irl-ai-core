@@ -6,7 +6,7 @@ import json
 from typing import Any, Callable
 
 SCHEMA_VERSION = "1.1"
-METHOD_VERSION = "v2"
+METHOD_VERSION = "v3"
 
 _PROVIDER_KEYS = {"sections", "tables", "images"}
 _REQUIRED_IMAGE_FIELDS = {"image_id", "section_index", "placement", "prompt", "alt_text", "evidence_refs"}
@@ -173,6 +173,9 @@ def write_article_draft(
         "do_not_use_unassigned_evidence": True,
         "omit_or_reframe_unsupported_factual_statements": True,
         "avoid_broad_unsourced_generalizations": True,
+        "no_free_standing_advice_or_recommendations": True,
+        "no_methodology_claims_without_methodology_evidence": True,
+        "no_fabricated_faq_pairs": True,
         "heading_is_external": True,
         "evidence_constrained_writing_instructions": (
             "Write each section only from the evidence assigned to that section. "
@@ -181,12 +184,19 @@ def write_article_draft(
             "page-reviewed editorial evidence. Do not introduce facts, figures, "
             "provider details, coverage details, costs, comparisons, statistics, "
             "or recommendations from general knowledge or from evidence assigned "
-            "to another section. If the assigned evidence does not support a factual "
-            "statement, omit it or narrow/reframe it so that it does not make an "
-            "unsupported factual claim. Prefer precise evidence-supported statements "
-            "over broad unsourced generalizations. Use concise reader-facing "
-            "transitions where needed, but do not add unsupported factual content. "
-            "The section heading is supplied externally and must not be generated."
+            "to another section. Do not add free-standing advice, shopping guidance, "
+            "warnings, instructions to verify details, or methodological conclusions "
+            "unless the assigned evidence directly supports that proposition. "
+            "Minimal connective prose is allowed only when it adds no new factual, "
+            "normative, or externally verifiable content. If a sentence cannot be "
+            "traced to an assigned evidence record, delete it or rewrite it as a "
+            "non-factual connector. Do not create a question-and-answer pair unless "
+            "the assigned evidence contains the corresponding question_fact and "
+            "answer_fact; otherwise omit that FAQ item. In the methodology section, "
+            "state method, provenance, or lineage only when corresponding "
+            "methodology evidence is assigned. Prefer omission over unsupported "
+            "completion. The section heading is supplied externally and must not "
+            "be generated."
         ),
         "tables_are_structured_and_evidence_linked": True,
         "images_are_specs_only_until_media_generation": True,
