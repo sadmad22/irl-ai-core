@@ -1,0 +1,428 @@
+{
+  "schema_version": "1.0",
+  "project_name": "e2e-nurse-insurance",
+  "sources": [
+    {
+      "source_id": "https://www.nso.com/malpractice-insurance/Individuals/Nurses?Profession=Nurse",
+      "url": "https://www.nso.com/malpractice-insurance/Individuals/Nurses?Profession=Nurse",
+      "provider": "NSO",
+      "type": "official",
+      "retrieved_at": "2026-10-06",
+      "title": "Malpractice Insurance for Nurses",
+      "facts": [
+        {
+          "claim_type": "topic_definition",
+          "attribute": "definition",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Nursing malpractice insurance is professional liability insurance intended to help protect an individual nurse against covered professional liability claims."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "topic_scope",
+          "attribute": "scope",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "NSO's nurse malpractice coverage is offered to individual nursing professionals and includes professional liability coverage, license defense expenses, HIPAA-related supplementary benefits, personal injury coverage, and portable coverage, subject to policy terms and state-specific variations."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "eligibility",
+          "attribute": "who_needs_it",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "NSO provides individual malpractice coverage designed for nursing professionals; eligibility and covered activities depend on the applicable policy terms and the applicant's nursing status."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "use_case",
+          "attribute": "primary_use",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "The primary use of individual nurse malpractice insurance is to provide the nurse with personal professional liability protection, including protection that can remain in force when changing jobs."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "coverage",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "NSO lists professional liability coverage of up to $1 million per claim and $6 million annual aggregate for covered claims, together with license defense expenses and HIPAA proceedings supplementary benefits."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "benefit",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "NSO describes portable coverage that can follow the insured when they change jobs, take a second job, volunteer, move, or become unemployed during the policy period."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "risk_factor",
+          "attribute": "risk",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "NSO states that relying only on employer coverage can leave gaps, particularly for licensing-board matters; its individual coverage includes license protection for covered disciplinary proceedings."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "why-do-nurses-need-individual-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Why do nurses need individual professional liability insurance?"
+          },
+          "confidence": 0.99,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "why-do-nurses-need-individual-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "An individual policy is intended to protect the nurse's own professional interests; NSO notes that employer policies are designed around the employer's interests and may not provide the same individual protections."
+          },
+          "confidence": 0.96,
+          "relation": "supports"
+        }
+      ]
+    },
+    {
+      "source_id": "https://www.berxi.com/resources/articles/most-common-questions-for-nurses/",
+      "url": "https://www.berxi.com/resources/articles/most-common-questions-for-nurses/",
+      "provider": "Berxi",
+      "type": "official",
+      "retrieved_at": "2026-10-06",
+      "title": "Do Nurses Need Malpractice Insurance?: Nurse Malpractice FAQ",
+      "facts": [
+        {
+          "claim_type": "pricing_fact",
+          "attribute": "premium",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi reports starting costs for occurrence policies with $1 million per claim and $3 million aggregate of around $81 per year for RNs, LPNs, and LVNs; actual premiums vary by applicant and policy."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "cost_driver",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi identifies profession, policy limits, location, provider, and insurance type as factors that can affect nursing malpractice insurance cost."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "price_variable",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Liability limits are a direct price variable; Berxi states that higher limits generally cost more, with a $500,000-per-claim/$1.5 million-aggregate policy costing less than a $1 million-per-claim/$3 million-aggregate policy."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "benefit",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi lists potential benefits including settlement and claim costs, defense counsel and legal fees, licensing-board defense, lost wages and travel expenses, HIPAA-related protection, reputation protection, and Good Samaritan coverage."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "comparison_fact",
+          "attribute": "criterion",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi recommends comparing nursing malpractice policies on factors such as profession, liability limits, location, provider, and policy type."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "coverage_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Occurrence policies cover incidents that happen during the policy period regardless of when a claim is filed, while claims-made policies depend on the claim being made during the active policy period."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "cost_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi's reported starting costs differ by nursing role; for occurrence policies with $1 million per claim and $3 million aggregate, it lists around $81 per year for RNs/LPNs/LVNs and around $1,131 per year for family nurse practitioners."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "how-much-is-nurse-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "How much does malpractice insurance for nurses cost?"
+          },
+          "confidence": 0.99,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "how-much-is-nurse-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi reports that occurrence-policy starting costs are around $81 per year for RNs, LPNs, and LVNs, but the actual premium depends on factors such as role, limits, location, provider, and policy type."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "how-much-malpractice-insurance-do-nurses-need"
+          },
+          "value": {
+            "type": "text",
+            "data": "How much malpractice insurance do nurses need?"
+          },
+          "confidence": 0.99,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "how-much-malpractice-insurance-do-nurses-need"
+          },
+          "value": {
+            "type": "text",
+            "data": "Berxi states that many nurses choose limits of $1 million per claim and $3 million aggregate, while the appropriate limit depends on the nurse's risk level and policy needs."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        }
+      ]
+    },
+    {
+      "source_id": "https://www.cmfgroup.com/knowledge-center/nursing-malpractice/insurance-terms-to-know/",
+      "url": "https://www.cmfgroup.com/knowledge-center/nursing-malpractice/insurance-terms-to-know/",
+      "provider": "CM&F Group",
+      "type": "official",
+      "retrieved_at": "2026-10-06",
+      "title": "Nursing Malpractice Insurance Terms to Know",
+      "facts": [
+        {
+          "claim_type": "coverage_fact",
+          "attribute": "coverage",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "CM&F explains that professional liability insurance for nurses protects against covered claims associated with wrongful professional practice and related defense costs, with occurrence and claims-made policy forms used in the market."
+          },
+          "confidence": 0.97,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "exclusion_fact",
+          "attribute": "exclusion",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "CM&F defines malpractice-policy exclusions as specific events, circumstances, locations, or services that are not covered; typical exclusions can include intentional acts, criminal acts, and certain professional misconduct, and exclusions vary by policy and insurer."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "pricing_factor",
+          "attribute": "price_variable",
+          "subject": {
+            "type": "keyword",
+            "id": "nurse insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "CM&F notes that claims-made policies may have a lower initial premium than occurrence policies, but may require tail coverage to protect against later-reported claims after the policy ends."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "comparison_fact",
+          "attribute": "criterion",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "A key comparison criterion is whether a nurse policy is occurrence-based or claims-made, including whether tail coverage may be required after a claims-made policy ends."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "coverage_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "CM&F distinguishes occurrence coverage, which accommodates incidents during the policy period regardless of when a claim is filed, from claims-made coverage, which generally requires the claim to be made and reported during the policy period."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "option_attribute",
+          "attribute": "cost_difference",
+          "subject": {
+            "type": "comparison",
+            "id": "nurse insurance options"
+          },
+          "value": {
+            "type": "text",
+            "data": "CM&F notes that claims-made coverage may have a lower initial premium than occurrence coverage, although tail coverage can add cost when the policy ends."
+          },
+          "confidence": 0.95,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "question_fact",
+          "attribute": "question",
+          "subject": {
+            "type": "question",
+            "id": "what-is-an-exclusion-in-nurse-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "What is an exclusion in nurse malpractice insurance?"
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        },
+        {
+          "claim_type": "answer_fact",
+          "attribute": "answer",
+          "subject": {
+            "type": "question",
+            "id": "what-is-an-exclusion-in-nurse-malpractice-insurance"
+          },
+          "value": {
+            "type": "text",
+            "data": "An exclusion is a specified event, circumstance, location, or service that the policy does not cover; examples can include intentional or criminal acts, subject to the policy wording."
+          },
+          "confidence": 0.98,
+          "relation": "supports"
+        }
+      ]
+    }
+  ]
+}
