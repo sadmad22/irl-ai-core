@@ -16,6 +16,75 @@ SUMMARY_PATH = Path("/tmp/p6-real-e2e-summary.json")
 API_URL = "https://api.openai.com/v1/responses"
 
 
+def _writer_response_schema(section_count: int) -> dict[str, Any]:
+    """Build a strict Responses API schema bound to the current outline length."""
+    if section_count < 1:
+        raise ValueError("P6 writer requires at least one input section")
+    indexes = list(range(section_count))
+
+    return {
+        "type": "object",
+        "properties": {
+            "sections": {
+                "type": "array",
+                "minItems": section_count,
+                "maxItems": section_count,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "section_index": {"type": "integer", "enum": indexes},
+                        "body": {"type": "string"},
+                    },
+                    "required": ["section_index", "body"],
+                    "additionalProperties": False,
+                },
+            },
+            "tables": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "table_id": {"type": "string"},
+                        "title": {"type": "string"},
+                        "section_index": {"type": "integer", "enum": indexes},
+                        "columns": {"type": "array", "items": {"type": "string"}},
+                        "rows": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+                    },
+                    "required": [
+                        "table_id", "title", "section_index", "columns", "rows", "evidence_refs"
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+            "images": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "image_id": {"type": "string"},
+                        "section_index": {"type": "integer", "enum": indexes},
+                        "placement": {"type": "string"},
+                        "prompt": {"type": "string"},
+                        "alt_text": {"type": "string"},
+                        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+                    },
+                    "required": [
+                        "image_id", "section_index", "placement", "prompt", "alt_text", "evidence_refs"
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": ["sections", "tables", "images"],
+        "additionalProperties": False,
+    }
+
+
 class RealOpenAIArticleWriter:
     """Injected real OpenAI writer implementing the repository's writer protocol."""
 
@@ -28,9 +97,11 @@ class RealOpenAIArticleWriter:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is missing; no request was sent")
 
-        instructions = """You are the evidence-constrained article writer for Insurance Review Lab.
+        instructions = f"""You are the evidence-constrained article writer for Insurance Review Lab.
 Return ONLY valid JSON with exactly top-level keys sections, tables, images.
-Return one {section_index, body} for each input section, using zero-based indexes.
+Return exactly {len(sections)} section items, in the same order as the input, with section_index
+values exactly 0 through {len(sections) - 1}; never omit or repeat an input section.
+Each item has only section_index and body. A sparse section still needs a short, cautious body.
 Use only evidence assigned to that section. Every factual, numerical, provider, coverage,
 price, comparison, recommendation, or methodology statement must be directly supported.
 Omit unsupported statements; do not guess, add generic advice, or invent FAQ pairs.
@@ -56,7 +127,14 @@ No markdown fences or text outside the JSON object."""
                 "model": MODEL,
                 "instructions": instructions,
                 "input": json.dumps(payload, ensure_ascii=False),
-                "text": {"format": {"type": "json_object"}},
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": "irl_p6_article_writer",
+                        "strict": True,
+                        "schema": _writer_response_schema(len(sections)),
+                    }
+                },
                 "max_output_tokens": max_output_tokens,
             },
             timeout=int(os.environ.get("P6_OPENAI_TIMEOUT_SECONDS", "180")),
@@ -108,6 +186,27 @@ No markdown fences or text outside the JSON object."""
             ) from exc
         if not isinstance(result, dict):
             raise RuntimeError("OpenAI writer output must be a JSON object")
+
+        returned_sections = result.get("sections")
+        actual_indexes = [
+            item.get("section_index")
+            for item in returned_sections
+            if isinstance(item, dict)
+        ] if isinstance(returned_sections, list) else []
+        expected_indexes = list(range(len(sections)))
+        if (
+            not isinstance(returned_sections, list)
+            or len(returned_sections) != len(sections)
+            or actual_indexes != expected_indexes
+        ):
+            actual_count = len(returned_sections) if isinstance(returned_sections, list) else None
+            raise RuntimeError(
+                "OpenAI writer section contract mismatch: "
+                f"expected_count={len(sections)}; actual_count={actual_count}; "
+                f"expected_indexes={expected_indexes}; actual_indexes={actual_indexes}; "
+                f"response_id={response_id!r}; status={response_status!r}; "
+                f"output_tokens={output_tokens!r}"
+            )
         return result
 
 
