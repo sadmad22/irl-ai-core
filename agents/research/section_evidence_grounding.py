@@ -57,7 +57,6 @@ def _section_key(section: dict[str, Any]) -> str:
 
 def _record_text(record: dict[str, Any]) -> str:
     claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-    value = record.get("value") if isinstance(record.get("value"), dict) else {}
     subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
     source = record.get("source") if isinstance(record.get("source"), dict) else {}
     return " ".join(
@@ -65,8 +64,6 @@ def _record_text(record: dict[str, Any]) -> str:
             record.get("domain"),
             claim.get("type"),
             claim.get("attribute"),
-            value.get("type"),
-            value.get("data"),
             subject.get("type"),
             subject.get("id"),
             source.get("artifact"),
