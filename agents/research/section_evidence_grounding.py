@@ -10,7 +10,11 @@ _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "what_you_need_to_know": ("entity", "market", "question", "overview", "topic", "definition", "scope", "eligibility", "use_case", "risk"),
     "coverage_and_key_factors": ("coverage", "benefit", "network", "exclusion", "medical", "claim", "factor"),
     "costs_and_pricing_factors": ("cost", "price", "pricing", "premium"),
-    "how_to_compare_options": ("comparison", "compare", "competitor", "provider", "serp", "strategy", "score"),
+    "how_to_compare_options": (
+        "comparison", "compare", "competitor", "provider", "serp", "strategy", "score",
+        "coverage", "benefit", "cost", "price", "pricing", "policy", "limit",
+        "license", "defense", "portable", "occurrence", "claims made", "exclusion",
+    ),
     "frequently_asked_questions": ("question", "query", "intent", "faq", "answer"),
     "sources_and_editorial_methodology": ("authority", "evidence", "source", "provenance", "audit", "methodology"),
 }
@@ -61,6 +65,8 @@ def _record_text(record: dict[str, Any]) -> str:
             record.get("domain"),
             claim.get("type"),
             claim.get("attribute"),
+            value.get("type"),
+            value.get("data"),
             subject.get("type"),
             subject.get("id"),
             source.get("artifact"),
