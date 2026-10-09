@@ -10,7 +10,11 @@ _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "what_you_need_to_know": ("entity", "market", "question", "overview", "topic", "definition", "scope", "eligibility", "use_case", "risk"),
     "coverage_and_key_factors": ("coverage", "benefit", "network", "exclusion", "medical", "claim", "factor"),
     "costs_and_pricing_factors": ("cost", "price", "pricing", "premium"),
-    "how_to_compare_options": ("comparison", "compare", "competitor", "provider", "serp", "strategy", "score"),
+    "how_to_compare_options": (
+        "comparison", "compare", "competitor", "provider", "serp", "strategy", "score",
+        "coverage", "benefit", "cost", "price", "pricing", "policy", "limit",
+        "license", "defense", "portable", "portability", "occurrence", "claims", "exclusion",
+    ),
     "frequently_asked_questions": ("question", "query", "intent", "faq", "answer"),
     "sources_and_editorial_methodology": ("authority", "evidence", "source", "provenance", "audit", "methodology"),
 }
@@ -53,7 +57,6 @@ def _section_key(section: dict[str, Any]) -> str:
 
 def _record_text(record: dict[str, Any]) -> str:
     claim = record.get("claim") if isinstance(record.get("claim"), dict) else {}
-    value = record.get("value") if isinstance(record.get("value"), dict) else {}
     subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
     source = record.get("source") if isinstance(record.get("source"), dict) else {}
     return " ".join(

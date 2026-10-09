@@ -182,6 +182,8 @@ def test_writer_receives_strict_claim_discipline_rules():
     assert "free-standing advice" in instructions
     assert "question-and-answer pair" in instructions
     assert "Prefer omission over unsupported completion." in instructions
+    assert "Do not add meta-commentary about article structure, tables, citations" in instructions
+    assert "Prefer a direct, evidence-supported description of the policy distinction" in instructions
 
 
 def test_article_draft_contract_shape():
@@ -210,7 +212,7 @@ def test_article_draft_persists_ready_section_evidence_contracts():
             "section_index": 2,
             "heading": "How to Compare Plans",
             "status": "ready",
-            "evidence_refs": ["ev_3", "ev_4", "ev_5"],
+            "evidence_refs": ["ev_4", "ev_5", "ev_3"],
         },
     ]
 

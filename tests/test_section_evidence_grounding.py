@@ -130,3 +130,49 @@ def test_grounding_keeps_eligible_cost_evidence():
     )
 
     assert result == [["ev_premium"]]
+
+
+
+def test_compare_section_selects_evidence_by_relevant_claim_metadata():
+    outline = [
+        {
+            "heading": "How to Compare Options",
+            "purpose": "compare policy coverage, benefits, and costs",
+        },
+    ]
+    records = [
+        {
+            "evidence_id": "ev_policy_features",
+            "domain": "substantive",
+            "claim": {"type": "option_attribute", "attribute": "coverage_difference"},
+            "value": {
+                "type": "text",
+                "data": (
+                    "NSO individual nurse coverage includes portable coverage, "
+                    "license defense expenses, and HIPAA-related supplementary benefits."
+                ),
+            },
+            "subject": {"type": "insurance_product", "id": "NSO"},
+            "source": {"artifact": "substantive-evidence.json"},
+        },
+        {
+            "evidence_id": "ev_unrelated_topic",
+            "domain": "substantive",
+            "claim": {"type": "eligibility", "attribute": "who_needs_it"},
+            "value": {
+                "type": "text",
+                "data": "Nurses work in clinical settings and may have different job duties.",
+            },
+            "subject": {"type": "profession", "id": "nurse"},
+            "source": {"artifact": "source-material.json"},
+        },
+    ]
+
+    result = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=["ev_policy_features", "ev_unrelated_topic"],
+        evidence_records=records,
+        per_section=4,
+    )
+
+    assert result == [["ev_policy_features"]]
