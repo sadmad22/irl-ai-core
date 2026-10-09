@@ -184,6 +184,9 @@ def test_writer_receives_strict_claim_discipline_rules():
     assert "Prefer omission over unsupported completion." in instructions
     assert "Do not add meta-commentary about article structure, tables, citations" in instructions
     assert "Prefer a direct, evidence-supported description of the policy distinction" in instructions
+    assert "Coverage details should also be compared" in instructions
+    assert "Do not narrate how the article uses evidence" in instructions
+    assert "preserve recorded category labels and values" in instructions
 
 
 def test_article_draft_contract_shape():

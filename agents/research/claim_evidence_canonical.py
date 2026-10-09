@@ -12,6 +12,17 @@ _STOPWORDS = {
     "your", "you", "its", "not", "but", "also", "based", "only", "such",
 }
 _TOKEN_RE = re.compile(r"[a-z0-9]{3,}")
+_TOKEN_ALIASES = {
+    # Evidence-grounding cases: normalize inflection/derivation without
+    # introducing semantic or synonym-based matches.
+    "portability": "portable",
+    "portabilities": "portable",
+    "policies": "policy",
+    "forms": "form",
+    "benefits": "benefit",
+    "claims": "claim",
+    "providers": "provider",
+}
 
 
 def normalize_evidence_value(value: Any) -> str:
@@ -40,7 +51,11 @@ def canonical_evidence_text(record: dict[str, Any]) -> str:
 
 def canonical_tokens(text: str) -> set[str]:
     """Tokenize canonical evidence and claim text with one deterministic policy."""
-    return {token for token in _TOKEN_RE.findall(text.lower()) if token not in _STOPWORDS}
+    return {
+        _TOKEN_ALIASES.get(token, token)
+        for token in _TOKEN_RE.findall(text.lower())
+        if token not in _STOPWORDS
+    }
 
 
 def meaningful_overlap(claim_text: str, record: dict[str, Any]) -> set[str]:

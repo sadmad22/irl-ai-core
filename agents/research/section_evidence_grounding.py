@@ -72,11 +72,31 @@ def _record_text(record: dict[str, Any]) -> str:
 
 
 def _score(section_key: str, record: dict[str, Any]) -> tuple[int, str]:
+    """Score established claim/source metadata without inspecting the evidence payload."""
     text = _record_text(record)
     profile = (_normalize(token) for token in _SECTION_PROFILES.get(section_key, ()))
     score = sum(1 for token in profile if token and token in text)
     evidence_id = str(record.get("evidence_id", ""))
     return score, evidence_id
+
+
+def _value_profile_score(section_key: str, record: dict[str, Any]) -> int:
+    """Score independent section-profile signals in a substantive evidence value.
+
+    Content-only matching is a constrained rescue path: at least two distinct
+    profile terms must appear in the value. This avoids pulling a generic record
+    into a section merely because it mentions one broad term such as "coverage".
+    """
+    value = record.get("value") if isinstance(record.get("value"), dict) else {}
+    data = value.get("data")
+    if isinstance(data, str):
+        text = data.lower()
+    elif isinstance(data, (list, dict)):
+        text = str(data).lower()
+    else:
+        return 0
+    profile = (_normalize(token) for token in _SECTION_PROFILES.get(section_key, ()))
+    return sum(1 for token in profile if token and token in text)
 
 
 def ground_evidence_by_section(
@@ -111,13 +131,20 @@ def ground_evidence_by_section(
             (
                 record
                 for record in indexed.values()
-                if _score(key, record)[0] > 0
+                if (
+                    _score(key, record)[0] > 0
+                    or _value_profile_score(key, record) >= 2
+                )
                 and not (
                     key == "costs_and_pricing_factors"
                     and _normalize(record.get("domain")) == "business"
                 )
             ),
-            key=lambda record: (-_score(key, record)[0], str(record.get("evidence_id", ""))),
+            key=lambda record: (
+                -_score(key, record)[0],
+                -_value_profile_score(key, record),
+                str(record.get("evidence_id", "")),
+            ),
         )
         selected = candidates[: min(per_section, len(candidates))]
         results.append([str(record["evidence_id"]) for record in selected])
