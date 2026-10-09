@@ -133,7 +133,7 @@ def test_grounding_keeps_eligible_cost_evidence():
 
 
 
-def test_compare_section_selects_relevant_evidence_from_substantive_value_text():
+def test_compare_section_selects_evidence_by_relevant_claim_metadata():
     outline = [
         {
             "heading": "How to Compare Options",
