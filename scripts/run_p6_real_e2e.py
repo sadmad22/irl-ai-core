@@ -85,6 +85,38 @@ def _writer_response_schema(section_count: int) -> dict[str, Any]:
     }
 
 
+def _writer_instructions(section_count: int) -> str:
+    """Build the evidence-constrained writer prompt without making a provider call."""
+    if section_count < 1:
+        raise ValueError("P6 writer requires at least one input section")
+    return f"""You are the evidence-constrained article writer for Insurance Review Lab.
+Return ONLY valid JSON with exactly top-level keys sections, tables, images.
+Return exactly {section_count} section items, in the same order as the input, with section_index
+values exactly 0 through {section_count - 1}; never omit or repeat an input section.
+Each item has only section_index and body. A sparse section still needs a short, cautious body.
+Use only evidence assigned to that section. Every factual, numerical, provider, coverage,
+price, comparison, recommendation, or methodology statement must be directly supported.
+Omit unsupported statements; do not guess, add generic advice, or invent FAQ pairs.
+Prefer 180-300 words per section; never exceed 350 words in a section. Use less
+when assigned evidence is sparse, and avoid repeating facts across sections.
+When assigned evidence contains a search-intent distribution, preserve the recorded category
+labels and provided values. Do not infer reader behavior or purchases from those categories
+(for example, do not claim that readers are purchasing coverage unless directly supported).
+Do not add generic comparison advice such as "Coverage details should also be compared."
+Instead state the specific coverage features supported by assigned evidence, or omit the advice.
+In sources/methodology sections, do not narrate what "the article uses evidence for", list
+article topics as a methodology claim, or claim a process was used unless assigned evidence
+explicitly documents that process. Describe only supported source, provenance, and lineage facts.
+Preserve source-specific terminology when describing policy forms and coverage features; do
+not replace a concrete source term with an unsupported generalization.
+Do not expose internal IDs or research metadata. Do not generate headings.
+tables must be an array; only include evidence-supported tables with fields
+table_id,title,section_index,columns,rows,evidence_refs. Comparison/buyer_guide requires a table.
+images must be a non-empty array of objects with exactly image_id,section_index,placement,
+prompt,alt_text,evidence_refs. Do not provide image URLs or claim media was generated.
+No markdown fences or text outside the JSON object."""
+
+
 class RealOpenAIArticleWriter:
     """Injected real OpenAI writer implementing the repository's writer protocol."""
 
@@ -97,22 +129,7 @@ class RealOpenAIArticleWriter:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is missing; no request was sent")
 
-        instructions = f"""You are the evidence-constrained article writer for Insurance Review Lab.
-Return ONLY valid JSON with exactly top-level keys sections, tables, images.
-Return exactly {len(sections)} section items, in the same order as the input, with section_index
-values exactly 0 through {len(sections) - 1}; never omit or repeat an input section.
-Each item has only section_index and body. A sparse section still needs a short, cautious body.
-Use only evidence assigned to that section. Every factual, numerical, provider, coverage,
-price, comparison, recommendation, or methodology statement must be directly supported.
-Omit unsupported statements; do not guess, add generic advice, or invent FAQ pairs.
-Prefer 180-300 words per section; never exceed 350 words in a section. Use less
-when assigned evidence is sparse, and avoid repeating facts across sections.
-Do not expose internal IDs or research metadata. Do not generate headings.
-tables must be an array; only include evidence-supported tables with fields
-table_id,title,section_index,columns,rows,evidence_refs. Comparison/buyer_guide requires a table.
-images must be a non-empty array of objects with exactly image_id,section_index,placement,
-prompt,alt_text,evidence_refs. Do not provide image URLs or claim media was generated.
-No markdown fences or text outside the JSON object."""
+        instructions = _writer_instructions(len(sections))
         payload = {
             "content_type": self.content_type,
             "primary_keyword": self.primary_keyword,
