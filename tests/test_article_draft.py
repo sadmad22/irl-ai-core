@@ -161,6 +161,29 @@ def test_writer_receives_heading_as_context_without_generating_it():
     assert "must not be generated" in captured["rules"]["evidence_constrained_writing_instructions"]
 
 
+def test_writer_receives_strict_claim_discipline_rules():
+    captured = {}
+
+    class CapturingWriter(FakeWriter):
+        def write(self, *, sections, editorial_rules):
+            captured["rules"] = editorial_rules
+            return super().write(sections=sections, editorial_rules=editorial_rules)
+
+    build_article_draft(
+        content_brief=_brief(),
+        evidence_records=_evidence_records(),
+        llm_provider=CapturingWriter(),
+    )
+
+    assert captured["rules"]["no_free_standing_advice_or_recommendations"] is True
+    assert captured["rules"]["no_methodology_claims_without_methodology_evidence"] is True
+    assert captured["rules"]["no_fabricated_faq_pairs"] is True
+    instructions = captured["rules"]["evidence_constrained_writing_instructions"]
+    assert "free-standing advice" in instructions
+    assert "question-and-answer pair" in instructions
+    assert "Prefer omission over unsupported completion." in instructions
+
+
 def test_article_draft_contract_shape():
     draft = _build()
     assert draft["lifecycle_stage"] == "draft_ready"
