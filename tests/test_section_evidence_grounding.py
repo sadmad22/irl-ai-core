@@ -176,3 +176,50 @@ def test_compare_section_selects_evidence_by_relevant_claim_metadata():
     )
 
     assert result == [["ev_policy_features"]]
+
+
+
+def test_compare_section_uses_multiple_profile_signals_in_evidence_value():
+    outline = [
+        {
+            "heading": "How to Compare Options",
+            "purpose": "compare coverage features and policy differences",
+        },
+    ]
+    records = [
+        {
+            "evidence_id": "ev_nso_scope",
+            "domain": "substantive",
+            "claim": {"type": "topic_scope", "attribute": "scope"},
+            "value": {
+                "type": "text",
+                "data": (
+                    "NSO nurse malpractice coverage includes professional liability coverage, "
+                    "license defense expenses, HIPAA-related supplementary benefits, "
+                    "personal injury coverage, and portable coverage."
+                ),
+            },
+            "subject": {"type": "keyword", "id": "nurse insurance"},
+            "source": {"artifact": "substantive-evidence.json"},
+        },
+        {
+            "evidence_id": "ev_generic_coverage",
+            "domain": "topic",
+            "claim": {"type": "topic_definition", "attribute": "definition"},
+            "value": {
+                "type": "text",
+                "data": "Expat health insurance provides international health coverage for people living abroad.",
+            },
+            "subject": {"type": "keyword", "id": "expat health insurance"},
+            "source": {"artifact": "topic-definition.json"},
+        },
+    ]
+
+    result = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=["ev_nso_scope", "ev_generic_coverage"],
+        evidence_records=records,
+        per_section=4,
+    )
+
+    assert result == [["ev_nso_scope"]]
