@@ -182,6 +182,8 @@ def test_writer_receives_strict_claim_discipline_rules():
     assert "free-standing advice" in instructions
     assert "question-and-answer pair" in instructions
     assert "Prefer omission over unsupported completion." in instructions
+    assert "Do not add meta-commentary about article structure, tables, citations" in instructions
+    assert "Prefer a direct, evidence-supported description of the policy distinction" in instructions
 
 
 def test_article_draft_contract_shape():
