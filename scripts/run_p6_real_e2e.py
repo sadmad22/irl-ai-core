@@ -34,6 +34,8 @@ Return one {section_index, body} for each input section, using zero-based indexe
 Use only evidence assigned to that section. Every factual, numerical, provider, coverage,
 price, comparison, recommendation, or methodology statement must be directly supported.
 Omit unsupported statements; do not guess, add generic advice, or invent FAQ pairs.
+Prefer 180-300 words per section; never exceed 350 words in a section. Use less
+when assigned evidence is sparse, and avoid repeating facts across sections.
 Do not expose internal IDs or research metadata. Do not generate headings.
 tables must be an array; only include evidence-supported tables with fields
 table_id,title,section_index,columns,rows,evidence_refs. Comparison/buyer_guide requires a table.
@@ -46,6 +48,7 @@ No markdown fences or text outside the JSON object."""
             "sections": sections,
             "editorial_rules": editorial_rules,
         }
+        max_output_tokens = int(os.environ.get("P6_OPENAI_MAX_OUTPUT_TOKENS", "12000"))
         response = requests.post(
             API_URL,
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
@@ -54,7 +57,7 @@ No markdown fences or text outside the JSON object."""
                 "instructions": instructions,
                 "input": json.dumps(payload, ensure_ascii=False),
                 "text": {"format": {"type": "json_object"}},
-                "max_output_tokens": int(os.environ.get("P6_OPENAI_MAX_OUTPUT_TOKENS", "12000")),
+                "max_output_tokens": max_output_tokens,
             },
             timeout=int(os.environ.get("P6_OPENAI_TIMEOUT_SECONDS", "180")),
         )
@@ -66,6 +69,22 @@ No markdown fences or text outside the JSON object."""
             raise RuntimeError(f"OpenAI writer request failed: HTTP {response.status_code}" + (f": {message}" if message else ""))
 
         data = response.json()
+        response_id = data.get("id")
+        response_status = data.get("status")
+        incomplete_details = data.get("incomplete_details") or {}
+        incomplete_reason = incomplete_details.get("reason")
+        usage = data.get("usage") or {}
+        output_tokens = usage.get("output_tokens")
+
+        # Do not attempt to parse partial text from an incomplete Response.
+        if response_status != "completed":
+            raise RuntimeError(
+                "OpenAI response was not completed: "
+                f"status={response_status!r}; reason={incomplete_reason!r}; "
+                f"output_tokens={output_tokens!r}; max_output_tokens={max_output_tokens}; "
+                f"response_id={response_id!r}"
+            )
+
         output = data.get("output_text")
         if not isinstance(output, str) or not output.strip():
             chunks = [
@@ -81,7 +100,12 @@ No markdown fences or text outside the JSON object."""
         try:
             result = json.loads(output)
         except json.JSONDecodeError as exc:
-            raise RuntimeError("OpenAI writer returned invalid JSON") from exc
+            raise RuntimeError(
+                "OpenAI writer returned invalid JSON: "
+                f"response_id={response_id!r}; status={response_status!r}; "
+                f"output_chars={len(output)}; line={exc.lineno}; column={exc.colno}; "
+                f"output_tokens={output_tokens!r}; incomplete_reason={incomplete_reason!r}"
+            ) from exc
         if not isinstance(result, dict):
             raise RuntimeError("OpenAI writer output must be a JSON object")
         return result
