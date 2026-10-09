@@ -13,7 +13,7 @@ _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "how_to_compare_options": (
         "comparison", "compare", "competitor", "provider", "serp", "strategy", "score",
         "coverage", "benefit", "cost", "price", "pricing", "policy", "limit",
-        "license", "defense", "portable", "occurrence", "claims made", "exclusion",
+        "license", "defense", "portable", "portability", "occurrence", "claims", "exclusion",
     ),
     "frequently_asked_questions": ("question", "query", "intent", "faq", "answer"),
     "sources_and_editorial_methodology": ("authority", "evidence", "source", "provenance", "audit", "methodology"),
