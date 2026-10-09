@@ -212,7 +212,7 @@ def test_article_draft_persists_ready_section_evidence_contracts():
             "section_index": 2,
             "heading": "How to Compare Plans",
             "status": "ready",
-            "evidence_refs": ["ev_3", "ev_4", "ev_5"],
+            "evidence_refs": ["ev_4", "ev_5", "ev_3"],
         },
     ]
 
