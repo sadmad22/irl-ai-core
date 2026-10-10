@@ -28,6 +28,16 @@ _SIGNAL_CLAIMS = {
     ("authority", "authority_score"),
     ("authority", "topic_fit"),
 }
+ 
+_PIPELINE_METADATA_CLAIMS = {
+    ("source_identity", "source"),
+    ("source_identity", "provider"),
+    ("provenance_fact", "method"),
+    ("provenance_fact", "analyzer"),
+    ("provenance_fact", "analyzer_version"),
+    ("lineage_fact", "evidence_lineage"),
+    ("evidence_status", "status"),
+}
 
 _AUTHORITY_CLASS_BY_SOURCE_TYPE = {
     "official": "A_primary_official",
@@ -95,10 +105,45 @@ def _depth_class(record: dict[str, Any], *, required_claim: tuple[str, str] | No
     return "D2", True, ["substantive_support"]
 
 
+def _is_pipeline_methodology_evidence(
+    record: dict[str, Any],
+    required_claim: tuple[str, str],
+) -> bool:
+    """Accept internal provenance only from the trusted pipeline contract or legacy producer."""
+    if required_claim not in _PIPELINE_METADATA_CLAIMS or _claim_ref(record) != required_claim:
+        return False
+
+    source = _source(record)
+    provenance = record.get("provenance") if isinstance(record.get("provenance"), dict) else {}
+    source_type = str(source.get("type", "")).strip().lower()
+
+    if (
+        source_type == "research_artifact"
+        and str(source.get("provider", "")).strip().lower() == "irl-ai-core"
+        and str(source.get("source_id", "")).startswith("research-artifact:")
+        and str(provenance.get("analyzer", "")).strip() == "pipeline_methodology"
+        and str(provenance.get("analyzer_version", "")).strip() == "v1"
+        and str(provenance.get("method", "")).strip() == "pipeline_metadata_v1"
+    ):
+        return True
+
+    # Backward compatibility for pre-passage-bound projects. The legacy
+    # producer explicitly materialized these records with this provenance.
+    return (
+        source_type in _AUTHORITY_CLASS_BY_SOURCE_TYPE
+        and str(provenance.get("analyzer", "")).strip() == "substantive_research"
+        and str(provenance.get("analyzer_version", "")).strip() == "v1"
+        and str(provenance.get("method", "")).strip() == "source_material_v1"
+    )
+
+
 def _authority_state(record: dict[str, Any], required: bool) -> str:
     if not required:
         return "PASS"
+    family = _claim_ref(record)
     source_type = str(_source(record).get("type", "")).strip().lower()
+    if source_type == "research_artifact" and _is_pipeline_methodology_evidence(record, family):
+        return "PASS"
     source_class = _AUTHORITY_CLASS_BY_SOURCE_TYPE.get(source_type)
     if source_class in {"A_primary_official", "B_institutional_professional", "C_reputable_secondary"}:
         return "PASS"
@@ -373,6 +418,13 @@ def evaluate_section_readiness(
                 if required_claim["evidence_kind"] == "signal":
                     if depth_class == "D0":
                         matches.append(record)
+                elif required_claim["evidence_kind"] == "pipeline":
+                    if (
+                        depth_class == "D2"
+                        and substantive
+                        and _is_pipeline_methodology_evidence(record, family)
+                    ):
+                        matches.append(record)
                 elif depth_class == "D2" and substantive:
                     matches.append(record)
             if matches:
@@ -393,7 +445,7 @@ def evaluate_section_readiness(
             record
             for family, records in supporting.items()
             for record in records
-            if claim_policies.get(family) == "substantive"
+            if claim_policies.get(family) in {"substantive", "pipeline"}
         ]
         authority_states = [_authority_state(record, True) for record in used_records]
         authority = "FAIL" if "FAIL" in authority_states else ("UNKNOWN" if "UNKNOWN" in authority_states else "PASS")
