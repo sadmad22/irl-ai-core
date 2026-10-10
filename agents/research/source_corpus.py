@@ -245,7 +245,13 @@ def build_source_corpus_from_file(
                 if not passages:
                     raise ValueError("revalidated source document has no cached extracted passages")
             else:
-                extracted = extract_source_content(document)
+                try:
+                    extracted = extract_source_content(document)
+                except ValueError as exc:
+                    host = urlsplit(item["url"]).hostname or "<unknown>"
+                    raise ValueError(
+                        f"source extraction failed for {host}: {exc}"
+                    ) from exc
                 document = extracted["document"]
                 passages = extracted["passages"]
 

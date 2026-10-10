@@ -88,27 +88,50 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
         ("evidence", "lineage_fact", "evidence_lineage", "Evidence retains traceable lineage to the research record.", "source:official-lineage"),
     ]
 
+    pipeline_artifacts = {
+        ("source_identity", "source"): "source-documents.json",
+        ("provenance_fact", "method"): "passage-bound-source-material.json",
+        ("lineage_fact", "evidence_lineage"): "passage-bound-evidence-lineage.json",
+    }
+
     for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
+        pipeline_artifact = pipeline_artifacts.get((claim_type, attribute))
+        record_domain = "pipeline_methodology" if pipeline_artifact else domain
+        record_subject = (
+            {"type": "project", "id": root.name}
+            if pipeline_artifact
+            else {"type": "keyword", "id": "best expat health insurance"}
+        )
+        record_source = {
+            "type": "research_artifact" if pipeline_artifact else ("official" if domain != "intent" else "query"),
+            "source_id": f"research-artifact:{root.name}/{pipeline_artifact}" if pipeline_artifact else source_id,
+            "provider": "irl-ai-core" if pipeline_artifact else "test",
+            "retrieved_at": "2026-09-23T12:00:00Z",
+        }
+        record_provenance = (
+            {
+                "analyzer": "pipeline_methodology",
+                "analyzer_version": "v1",
+                "method": "pipeline_metadata_v1",
+            }
+            if pipeline_artifact
+            else {
+                "analyzer": "e2e_test",
+                "analyzer_version": "1.0",
+                "method": "deterministic_test",
+            }
+        )
         record = {
             "evidence_id": f"ev_test_required_{index}",
             "report_id": "rr_draft_demo",
             "schema_version": "1.0",
             "type": "observation",
-            "domain": domain,
-            "subject": {"type": "keyword", "id": "best expat health insurance"},
+            "domain": record_domain,
+            "subject": record_subject,
             "claim": {"type": claim_type, "attribute": attribute},
             "value": {"type": "text", "data": data},
-            "source": {
-                "type": "official" if domain != "intent" else "query",
-                "source_id": source_id,
-                "provider": "test",
-                "retrieved_at": "2026-09-23T12:00:00Z",
-            },
-            "provenance": {
-                "analyzer": "e2e_test",
-                "analyzer_version": "1.0",
-                "method": "deterministic_test",
-            },
+            "source": record_source,
+            "provenance": record_provenance,
             "confidence": 1.0,
             "relation": "supports",
             "derived_from": [],

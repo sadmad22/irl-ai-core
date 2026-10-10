@@ -72,3 +72,23 @@ def test_contract_shape_is_strict():
     schema = json.loads(schema_path.read_text())
     result = build_content_strategy(research_report=approved_report(), decision=decision())
     validate(result, schema)
+
+
+
+def test_pipeline_methodology_refs_are_added_without_mutating_decision_refs():
+    report = approved_report()
+    approved_decision = decision()
+    original_refs = list(approved_decision["evidence_refs"])
+
+    result = build_content_strategy(
+        research_report=report,
+        decision=approved_decision,
+        pipeline_methodology_evidence_refs=["ev_pipeline_method", "ev_pipeline_lineage"],
+    )
+
+    assert result["evidence_refs"] == [
+        *original_refs,
+        "ev_pipeline_method",
+        "ev_pipeline_lineage",
+    ]
+    assert approved_decision["evidence_refs"] == original_refs

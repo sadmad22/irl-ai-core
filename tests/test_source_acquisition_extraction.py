@@ -803,3 +803,38 @@ def test_research_agent_invokes_source_corpus_when_manifest_exists(tmp_path, mon
     agent.run("expat-health-insurance")
 
     assert [tmp_path / call for call in calls] == [destination]
+
+
+def test_source_corpus_extraction_failure_includes_source_host(tmp_path):
+    project = tmp_path / "research" / "sample"
+    project.mkdir(parents=True)
+    (project / "source-urls.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "project_name": "sample",
+                "sources": [
+                    {
+                        "url": "https://example.com/blocked",
+                        "source_id": "src_blocked",
+                        "provider": "example.com",
+                        "type": "official",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    transport = FakeTransport(
+        {
+            "https://example.com/blocked": FakeResponse(
+                status_code=200,
+                headers={"content-type": "text/html; charset=utf-8"},
+                body=b"<html><head><title>Challenge</title></head><body><script>renderPage()</script></body></html>",
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="source extraction failed for example.com: source document contains no extractable content"):
+        _build_source_corpus_for_test(project, transport=transport)
+    assert len(transport.calls) == 1

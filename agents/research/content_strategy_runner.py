@@ -6,7 +6,10 @@ from .content_strategy import build_content_strategy
 
 
 def run_content_strategy_from_report(
-    report: dict[str, Any], decision: dict[str, Any]
+    report: dict[str, Any],
+    decision: dict[str, Any],
+    *,
+    pipeline_methodology_evidence_refs: list[str] | None = None,
 ) -> dict[str, Any]:
     """Generate Content Strategy from an existing approved Decision."""
     if report.get("lifecycle_stage") != "research_complete":
@@ -18,4 +21,8 @@ def run_content_strategy_from_report(
     if decision.get("report_id") != report.get("report_id"):
         raise ValueError("Decision.report_id must match ResearchReport.report_id")
 
-    return build_content_strategy(research_report=report, decision=decision)
+    return build_content_strategy(
+        research_report=report,
+        decision=decision,
+        pipeline_methodology_evidence_refs=pipeline_methodology_evidence_refs,
+    )

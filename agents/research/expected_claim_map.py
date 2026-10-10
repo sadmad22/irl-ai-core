@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
-MAP_VERSION = "v1"
+MAP_VERSION = "v2"
 
 
 def _claim(claim_type: str, attribute: str, role: str, evidence_kind: str) -> dict[str, str]:
@@ -106,15 +106,15 @@ EXPECTED_CLAIM_MAP: dict[str, dict[str, Any]] = {
     "sources_and_editorial_methodology": {
         "heading": "Sources and Editorial Methodology",
         "required_claims": [
-            _claim("source_identity", "source", "required", "substantive"),
-            _claim("provenance_fact", "method", "required", "substantive"),
-            _claim("lineage_fact", "evidence_lineage", "required", "substantive"),
+            _claim("source_identity", "source", "required", "pipeline"),
+            _claim("provenance_fact", "method", "required", "pipeline"),
+            _claim("lineage_fact", "evidence_lineage", "required", "pipeline"),
         ],
         "supporting_claims": [
-            _claim("source_identity", "provider", "supporting", "substantive"),
-            _claim("provenance_fact", "analyzer", "supporting", "substantive"),
-            _claim("provenance_fact", "analyzer_version", "supporting", "substantive"),
-            _claim("evidence_status", "status", "supporting", "substantive"),
+            _claim("source_identity", "provider", "supporting", "pipeline"),
+            _claim("provenance_fact", "analyzer", "supporting", "pipeline"),
+            _claim("provenance_fact", "analyzer_version", "supporting", "pipeline"),
+            _claim("evidence_status", "status", "supporting", "pipeline"),
         ],
         "signal_only": ["authority.authority_score"],
     },
