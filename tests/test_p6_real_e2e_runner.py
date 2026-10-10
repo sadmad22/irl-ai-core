@@ -14,6 +14,9 @@ def test_p6_prompt_targets_the_five_observed_grounding_failure_modes():
     assert 'Coverage details should also be compared' in prompt
     assert 'the article uses evidence for' in prompt
     assert "Preserve source-specific terminology" in prompt
+    assert "Do not add a sentence that only announces or points to a following table" in prompt
+    assert "let the structured" in prompt
+    assert '"The comparison points are summarized below."' in prompt
 
 
 def test_p6_prompt_builder_rejects_an_empty_section_contract():
