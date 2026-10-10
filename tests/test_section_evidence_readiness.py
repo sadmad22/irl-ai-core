@@ -7,6 +7,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from agents.research import article_draft
+from agents.research.expected_claim_map import EXPECTED_CLAIM_MAP, MAP_VERSION, SCHEMA_VERSION as CLAIM_MAP_SCHEMA_VERSION
 from agents.research.section_evidence_readiness import evaluate_section_readiness, require_ready_sections
 
 
@@ -552,3 +553,39 @@ def test_methodology_section_does_not_accept_unverified_page_claims_as_pipeline_
         ("provenance_fact", "method"),
         ("lineage_fact", "evidence_lineage"),
     }
+
+
+
+def test_expected_claim_map_schema_accepts_pipeline_evidence_kind():
+    schema = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "shared"
+            / "schemas"
+            / "expected-claim-map.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    serialized = {
+        "schema_version": CLAIM_MAP_SCHEMA_VERSION,
+        "map_version": MAP_VERSION,
+        "sections": [
+            {
+                "section_key": key,
+                "heading": value["heading"],
+                "required_claims": value["required_claims"],
+                "supporting_claims": value["supporting_claims"],
+                "signal_only": value["signal_only"],
+            }
+            for key, value in EXPECTED_CLAIM_MAP.items()
+        ],
+    }
+
+    Draft202012Validator(schema).validate(serialized)
+    methodology = next(
+        item for item in serialized["sections"]
+        if item["section_key"] == "sources_and_editorial_methodology"
+    )
+    assert all(
+        item["evidence_kind"] == "pipeline"
+        for item in methodology["required_claims"]
+    )
