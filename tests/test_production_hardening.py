@@ -87,20 +87,48 @@ def _install_test_evidence_contract(monkeypatch):
         ]
 
         refs = list(result.get("evidence_refs", []))
+        pipeline_artifacts = {
+            ("source_identity", "source"): "source-documents.json",
+            ("provenance_fact", "method"): "passage-bound-source-material.json",
+            ("lineage_fact", "evidence_lineage"): "passage-bound-evidence-lineage.json",
+        }
         for index, (domain, claim_type, attribute, data, source_id) in enumerate(required_records, start=1):
+            pipeline_artifact = pipeline_artifacts.get((claim_type, attribute))
             source = dict(source_base)
-            source["source_id"] = source_id
-            if domain == "intent":
+            source["source_id"] = (
+                f"research-artifact:{project_name}/{pipeline_artifact}"
+                if pipeline_artifact
+                else source_id
+            )
+            record_domain = "pipeline_methodology" if pipeline_artifact else domain
+            record_subject = (
+                {"type": "project", "id": project_name}
+                if pipeline_artifact
+                else {"type": "keyword", "id": keyword}
+            )
+            record_provenance = (
+                {
+                    "analyzer": "pipeline_methodology",
+                    "analyzer_version": "v1",
+                    "method": "pipeline_metadata_v1",
+                }
+                if pipeline_artifact
+                else provenance
+            )
+            if pipeline_artifact:
+                source["type"] = "research_artifact"
+                source["provider"] = "irl-ai-core"
+            elif domain == "intent":
                 source["type"] = "query"
 
             record = build_observation(
                 report_id=report_id,
-                domain=domain,
-                subject={"type": "keyword", "id": keyword},
+                domain=record_domain,
+                subject=record_subject,
                 claim={"type": claim_type, "attribute": attribute},
                 value={"type": "text", "data": data},
                 source=source,
-                provenance=provenance,
+                provenance=record_provenance,
                 confidence=1.0,
                 captured_at=captured_at,
                 evidence_id=f"ev_hardening_{index:02d}_{project_name}",
