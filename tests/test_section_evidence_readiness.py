@@ -443,12 +443,22 @@ def _pipeline_methodology_record(
     source_type: str = "research_artifact",
     method: str = "pipeline_metadata_v1",
 ) -> dict:
+    artifact_by_claim = {
+        ("source_identity", "source"): "source-documents.json",
+        ("source_identity", "provider"): "source-documents.json",
+        ("provenance_fact", "method"): "passage-bound-source-material.json",
+        ("provenance_fact", "analyzer"): "passage-bound-source-material.json",
+        ("provenance_fact", "analyzer_version"): "passage-bound-source-material.json",
+        ("lineage_fact", "evidence_lineage"): "passage-bound-evidence-lineage.json",
+        ("evidence_status", "status"): "substantive-evidence.json",
+    }
+    artifact = artifact_by_claim.get((claim_type, attribute), "passage-bound-evidence-lineage.json")
     record = _record(
         evidence_id=evidence_id,
         claim_type=claim_type,
         attribute=attribute,
         source_type=source_type,
-        source_id="research-artifact:sample/passage-bound-evidence-lineage.json",
+        source_id=f"research-artifact:sample/{artifact}",
         domain="pipeline_methodology",
         value=f"Verified pipeline metadata for {claim_type}.{attribute}.",
     )
