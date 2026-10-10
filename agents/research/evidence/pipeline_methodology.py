@@ -134,10 +134,18 @@ def build_pipeline_methodology_evidence(
         not canonical_ids
         or len(canonical_ids) != len(substantive)
         or len(canonical_ids) != len(set(canonical_ids))
+        or len(lineage_ids) != len(set(lineage_ids))
+        or len(binding_ids) != len(set(binding_ids))
         or set(canonical_ids) != set(lineage_ids)
         or set(canonical_ids) != set(binding_ids)
     ):
         raise ValueError("pipeline methodology requires exact canonical Evidence-to-lineage identity")
+    if any(
+        not isinstance(record, dict)
+        or str(record.get("report_id", "")).strip() != str(report_id).strip()
+        for record in substantive
+    ):
+        raise ValueError("pipeline methodology canonical Evidence report_id mismatch")
 
     documents_by_id = {
         str(item.get("source_document_id", "")).strip(): item
