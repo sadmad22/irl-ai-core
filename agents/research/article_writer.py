@@ -176,12 +176,17 @@ def write_article_draft(
         "no_free_standing_advice_or_recommendations": True,
         "no_methodology_claims_without_methodology_evidence": True,
         "no_fabricated_faq_pairs": True,
+        "separate_independently_verifiable_claims": True,
         "heading_is_external": True,
         "evidence_constrained_writing_instructions": (
             "Write each section only from the evidence assigned to that section. "
             "For every factual or externally verifiable statement, use information "
             "directly supported by the assigned evidence records or available "
-            "page-reviewed editorial evidence. Do not introduce facts, figures, "
+            "page-reviewed editorial evidence. Keep independent factual propositions "
+            "in separate sentences when they rely on different evidence records, so each "
+            "sentence can be grounded to its specific supporting evidence. In particular, "
+            "do not combine search-intent distribution values, dominant category, and "
+            "mixed-intent status into one sentence. Do not introduce facts, figures, "
             "provider details, coverage details, costs, comparisons, statistics, "
             "or recommendations from general knowledge or from evidence assigned "
             "to another section. Do not add free-standing advice, shopping guidance, "
