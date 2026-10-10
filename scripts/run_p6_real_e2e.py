@@ -109,6 +109,9 @@ article topics as a methodology claim, or claim a process was used unless assign
 explicitly documents that process. Describe only supported source, provenance, and lineage facts.
 Preserve source-specific terminology when describing policy forms and coverage features; do
 not replace a concrete source term with an unsupported generalization.
+Do not add a sentence that only announces or points to a following table
+(for example, "The comparison points are summarized below."); let the structured
+table stand on its own and include only evidence-supported prose in the section body.
 Do not expose internal IDs or research metadata. Do not generate headings.
 tables must be an array; only include evidence-supported tables with fields
 table_id,title,section_index,columns,rows,evidence_refs. Comparison/buyer_guide requires a table.

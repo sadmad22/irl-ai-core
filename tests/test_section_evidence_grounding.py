@@ -223,3 +223,66 @@ def test_compare_section_uses_multiple_profile_signals_in_evidence_value():
     )
 
     assert result == [["ev_nso_scope"]]
+
+
+def test_methodology_section_includes_search_intent_lineage_evidence():
+    outline = [
+        {
+            "heading": "Sources and Editorial Methodology",
+            "purpose": "document sources and recorded search analysis provenance",
+        },
+    ]
+    subject = {"type": "keyword", "id": "nurse insurance"}
+    source = {"artifact": "serp-intent-analysis.json"}
+    records = [
+        {
+            "evidence_id": "ev_intent_distribution",
+            "domain": "intent",
+            "claim": {"type": "serp_intent", "attribute": "intent_distribution"},
+            "value": {
+                "type": "distribution",
+                "data": {"Informational": 0.7904, "Transactional": 0.2096},
+            },
+            "subject": subject,
+            "source": source,
+        },
+        {
+            "evidence_id": "ev_intent_dominant",
+            "domain": "intent",
+            "claim": {"type": "serp_intent", "attribute": "dominant_intent"},
+            "value": {"type": "categorical", "data": "Informational"},
+            "subject": subject,
+            "source": source,
+        },
+        {
+            "evidence_id": "ev_intent_mixed",
+            "domain": "intent",
+            "claim": {"type": "serp_intent", "attribute": "mixed_intent"},
+            "value": {"type": "boolean", "data": False},
+            "subject": subject,
+            "source": source,
+        },
+        {
+            "evidence_id": "ev_unrelated_coverage",
+            "domain": "substantive",
+            "claim": {"type": "coverage_fact", "attribute": "coverage"},
+            "value": {"type": "text", "data": "Nurse malpractice coverage features."},
+            "subject": {"type": "profession", "id": "nurse"},
+            "source": {"artifact": "provider-facts.json"},
+        },
+    ]
+
+    result = ground_evidence_by_section(
+        outline=outline,
+        evidence_refs=[record["evidence_id"] for record in records],
+        evidence_records=records,
+        per_section=10,
+    )
+
+    assert set(result[0]) == {
+        "ev_intent_distribution",
+        "ev_intent_dominant",
+        "ev_intent_mixed",
+    }
+    assert "ev_unrelated_coverage" not in result[0]
+
