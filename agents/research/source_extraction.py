@@ -9,7 +9,20 @@ from typing import Any
 
 EXTRACTION_POLICY_VERSION = "1.0"
 
-_SKIP_TAGS = {"script", "style", "noscript", "template", "svg", "nav", "footer", "header", "aside", "form"}
+# Do not skip forms as containers: some upstream HTML has broad or malformed
+# form boundaries, and HTMLParser does not apply the browser's HTML5 form rules.
+# A form must not hide subsequent main/article content from source extraction.
+_SKIP_TAGS = {
+    "script",
+    "style",
+    "noscript",
+    "template",
+    "svg",
+    "nav",
+    "footer",
+    "header",
+    "aside",
+}
 _BLOCK_TAGS = {
     "p": "paragraph",
     "li": "list_item",
