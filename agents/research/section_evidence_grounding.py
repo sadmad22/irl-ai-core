@@ -16,7 +16,10 @@ _SECTION_PROFILES: dict[str, tuple[str, ...]] = {
         "license", "defense", "portable", "portability", "occurrence", "claims", "exclusion",
     ),
     "frequently_asked_questions": ("question", "query", "intent", "faq", "answer"),
-    "sources_and_editorial_methodology": ("authority", "evidence", "source", "provenance", "audit", "methodology"),
+    "sources_and_editorial_methodology": (
+        "authority", "evidence", "source", "provenance", "audit", "methodology",
+        "intent", "query", "serp", "distribution", "dominant", "mixed",
+    ),
 }
 
 
