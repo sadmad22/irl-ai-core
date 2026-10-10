@@ -132,6 +132,12 @@ def _seed(tmp_path: Path, project: str = "draft-demo") -> Path:
             "value": {"type": "text", "data": data},
             "source": record_source,
             "provenance": record_provenance,
+            "confidence": 1.0,
+            "relation": "supports",
+            "derived_from": [],
+            "captured_at": "2026-09-23T12:00:00Z",
+            "status": "active",
+        }
         (root / f"evidence-required-{index}.json").write_text(
             json.dumps(record, indent=4, ensure_ascii=False),
             encoding="utf-8",
