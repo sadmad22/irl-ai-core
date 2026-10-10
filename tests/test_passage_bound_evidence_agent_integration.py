@@ -26,10 +26,16 @@ def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, mo
 
     monkeypatch.setattr(agent, "build_canonical_evidence_from_file", bridge)
     monkeypatch.setattr(agent, "build_substantive_evidence_from_file", legacy)
+    methodology_calls: list[dict] = []
+
+    def pipeline_methodology(**kwargs):
+        methodology_calls.append(kwargs)
+        return [{"evidence_id": "ev_pipeline_methodology"}]
+
     monkeypatch.setattr(
         agent,
         "build_pipeline_methodology_evidence",
-        lambda **kwargs: [{"evidence_id": "ev_pipeline_methodology"}],
+        pipeline_methodology,
     )
 
     records = agent.build_substantive_evidence_for_project(
@@ -37,11 +43,9 @@ def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, mo
         project_path=project,
     )
 
-    assert records == [
-        {"evidence_id": "ev_bridge"},
-        {"evidence_id": "ev_pipeline_methodology"},
-    ]
+    assert records == [{"evidence_id": "ev_bridge"}]
     assert calls == ["bridge"]
+    assert methodology_calls == [{"report_id": "rr_sample", "project_path": project}]
 
 
 def test_research_agent_uses_legacy_path_only_when_passage_bound_output_is_absent(
