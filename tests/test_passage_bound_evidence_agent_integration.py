@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from agents.research import agent
+from agents.research.evidence import pipeline_methodology
 
 
 def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, monkeypatch):
@@ -26,6 +27,11 @@ def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, mo
 
     monkeypatch.setattr(agent, "build_canonical_evidence_from_file", bridge)
     monkeypatch.setattr(agent, "build_substantive_evidence_from_file", legacy)
+    monkeypatch.setattr(
+        agent,
+        "build_pipeline_methodology_evidence",
+        lambda **kwargs: [{"evidence_id": "ev_pipeline_methodology"}],
+    )
 
     records = agent.build_substantive_evidence_for_project(
         report_id="rr_sample",
