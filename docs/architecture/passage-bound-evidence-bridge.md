@@ -83,6 +83,20 @@ If the Passage-Bound artifact exists but bridge validation fails, the Research A
 
 The existing Article Draft loader already consumes \`substantive-evidence.json\`. This bridge therefore feeds canonical Evidence into Section Readiness and Article Writer without changing their contracts.
 
+## Pipeline-Owned Methodology Evidence
+
+External source passages must not be asked to prove the internal mechanics of IRL AI Core. When the passage-bound bridge is active, the Research Agent also writes \`pipeline-methodology-evidence.json\` as a separate set of deterministic, code-owned Evidence records.
+
+That sidecar is built only after the canonical Evidence and lineage sidecar have been written. It verifies project/corpus identity, exact canonical evidence-ID agreement, source-document identity, and passage bindings before recording internal source identity, provider, method, analyzer, analyzer version, and lineage metadata.
+
+The Expected Claim Map classifies the methodology families as \`evidence_kind: "pipeline"\`, distinct from source-backed \`substantive\` claims and discovery \`signal\` claims. Section Readiness accepts these records only when their artifact identity and provenance match the trusted pipeline contract. They are added to Content Strategy's evidence references without changing the already-made Decision's evidence references.
+
+This split prevents a source extraction provider from fabricating claims about the internal editorial pipeline, while keeping the canonical passage-bound Evidence IDs and lineage sidecar unchanged.
+
+## Downstream Boundary
+
+The Article Draft builder uses the Content Brief's \`evidence_refs\` as its authoritative upstream lineage. Pipeline-owned methodology references are added to Content Strategy separately from the Decision's evidence references, so internal process metadata does not alter the earlier decision.
+
 ## Non-Goals
 
 - changing \`evidence.schema.json\`;
