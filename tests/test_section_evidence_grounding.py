@@ -223,7 +223,7 @@ def test_compare_section_uses_multiple_profile_signals_in_evidence_value():
     )
 
     assert result == [["ev_nso_scope"]]
- 
+
 
 def test_methodology_section_includes_search_intent_lineage_evidence():
     outline = [
@@ -268,7 +268,7 @@ def test_methodology_section_includes_search_intent_lineage_evidence():
             "claim": {"type": "coverage_fact", "attribute": "coverage"},
             "value": {"type": "text", "data": "Nurse malpractice coverage features."},
             "subject": {"type": "profession", "id": "nurse"},
-            "source": {"artifact": "substantive-evidence.json"},
+            "source": {"artifact": "provider-facts.json"},
         },
     ]
 
