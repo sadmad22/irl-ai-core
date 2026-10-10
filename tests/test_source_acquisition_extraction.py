@@ -20,7 +20,10 @@ from agents.research.source_corpus import (
     DEFAULT_CACHE_MAX_AGE_SECONDS,
     build_source_corpus_from_file,
 )
-from agents.research.source_extraction import EXTRACTION_POLICY_VERSION
+from agents.research.source_extraction import (
+    EXTRACTION_POLICY_VERSION,
+    extract_source_content,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -838,3 +841,38 @@ def test_source_corpus_extraction_failure_includes_source_host(tmp_path):
     with pytest.raises(ValueError, match="source extraction failed for example.com: source document contains no extractable content"):
         _build_source_corpus_for_test(project, transport=transport)
     assert len(transport.calls) == 1
+
+
+
+def test_source_extraction_does_not_skip_main_inside_broad_form_markup():
+    html = """<!doctype html>
+    <html>
+      <head><title>Nurse Insurance Guide</title></head>
+      <body>
+        <form id="site-shell">
+          <nav><p>Navigation boilerplate that must not become source material.</p></nav>
+          <script>const unavailableText = "script content must not be extracted";</script>
+          <main>
+            <h1>Nursing Malpractice Insurance</h1>
+            <p>Individual professional liability coverage can help protect nurses against covered claims.</p>
+          </main>
+        </form>
+      </body>
+    </html>
+    """
+
+    extracted = extract_source_content(
+        {
+            "source_document_id": "srcdoc_form_wrapped_main",
+            "html": html,
+        }
+    )
+
+    passage_text = [item["text"] for item in extracted["passages"]]
+    assert "Nursing Malpractice Insurance" in passage_text
+    assert (
+        "Individual professional liability coverage can help protect nurses against covered claims."
+        in passage_text
+    )
+    assert all("Navigation boilerplate" not in text for text in passage_text)
+    assert all("script content must not be extracted" not in text for text in passage_text)
