@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from agents.research import agent
-from agents.research.evidence import pipeline_methodology
 
 
 def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, monkeypatch):
@@ -38,7 +37,10 @@ def test_research_agent_prefers_passage_bound_evidence_when_present(tmp_path, mo
         project_path=project,
     )
 
-    assert records == [{"evidence_id": "ev_bridge"}]
+    assert records == [
+        {"evidence_id": "ev_bridge"},
+        {"evidence_id": "ev_pipeline_methodology"},
+    ]
     assert calls == ["bridge"]
 
 
