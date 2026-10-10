@@ -133,14 +133,11 @@ def build_substantive_evidence_for_project(*, report_id: str, project_path: Path
             report_id=report_id,
             project_path=project_path,
         )
-        methodology_records = build_pipeline_methodology_evidence(
+        build_pipeline_methodology_evidence(
             report_id=report_id,
             project_path=project_path,
         )
-        return sorted(
-            [*records, *methodology_records],
-            key=lambda item: str(item.get("evidence_id", "")),
-        )
+        return records
     return build_substantive_evidence_from_file(
         report_id=report_id,
         project_path=project_path,
