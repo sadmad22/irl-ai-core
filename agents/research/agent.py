@@ -326,7 +326,28 @@ def run(project_name: str) -> None:
     save_project_file_if_changed(project_name, DECISION_FILE, decision)
 
     if decision.get("outcome") == "approved":
-        content_strategy = run_content_strategy_from_report(research_report, decision)
+        pipeline_methodology_refs: list[str] = []
+        if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
+            methodology_path = project_path / "pipeline-methodology-evidence.json"
+            if not methodology_path.is_file():
+                raise FileNotFoundError(
+                    "Passage-bound production requires pipeline-methodology-evidence.json"
+                )
+            methodology_records = json.loads(methodology_path.read_text(encoding="utf-8"))
+            if not isinstance(methodology_records, list):
+                raise ValueError("pipeline-methodology-evidence.json must contain an array")
+            pipeline_methodology_refs = [
+                str(item["evidence_id"])
+                for item in methodology_records
+                if isinstance(item, dict) and str(item.get("evidence_id", "")).strip()
+            ]
+            if len(pipeline_methodology_refs) != len(methodology_records):
+                raise ValueError("pipeline-methodology-evidence.json contains an invalid record")
+        content_strategy = run_content_strategy_from_report(
+            research_report,
+            decision,
+            pipeline_methodology_evidence_refs=pipeline_methodology_refs,
+        )
         save_project_file_if_changed(project_name, CONTENT_STRATEGY_FILE, content_strategy)
         final_status = "content_strategy_ready"
     else:
