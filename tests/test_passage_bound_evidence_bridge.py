@@ -13,6 +13,10 @@ from agents.research.evidence.passage_bound import (
     build_canonical_evidence_from_file,
     build_canonical_evidence_from_passage_bound_material,
 )
+from agents.research.evidence.pipeline_methodology import (
+    PIPELINE_METHODOLOGY_EVIDENCE_FILE,
+    build_pipeline_methodology_evidence,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -332,3 +336,51 @@ def test_file_bridge_requires_corpus_and_does_not_fallback(tmp_path):
             report_id="rr_sample",
             project_path=root,
         )
+
+
+
+def test_pipeline_methodology_evidence_is_artifact_backed_and_separate_from_passage_lineage(tmp_path):
+    root, documents, passages, material = _corpus(tmp_path)
+    (root / "source-documents.json").write_text(
+        json.dumps(documents, indent=2), encoding="utf-8"
+    )
+    (root / "extracted-passages.json").write_text(
+        json.dumps(passages, indent=2), encoding="utf-8"
+    )
+    (root / "passage-bound-source-material.json").write_text(
+        json.dumps(material, indent=2), encoding="utf-8"
+    )
+
+    canonical = build_canonical_evidence_from_file(
+        report_id="rr_sample",
+        project_path=root,
+    )
+    methodology = build_pipeline_methodology_evidence(
+        report_id="rr_sample",
+        project_path=root,
+    )
+
+    assert len(methodology) == 7
+    assert {item["provenance"]["method"] for item in methodology} == {"pipeline_metadata_v1"}
+    assert {item["source"]["type"] for item in methodology} == {"research_artifact"}
+    assert {
+        (item["claim"]["type"], item["claim"]["attribute"])
+        for item in methodology
+    } >= {
+        ("source_identity", "source"),
+        ("provenance_fact", "method"),
+        ("lineage_fact", "evidence_lineage"),
+    }
+
+    saved_canonical = json.loads((root / SUBSTANTIVE_EVIDENCE_FILE).read_text(encoding="utf-8"))
+    saved_lineage = json.loads(
+        (root / CANONICAL_EVIDENCE_LINEAGE_FILE).read_text(encoding="utf-8")
+    )
+    saved_methodology = json.loads(
+        (root / PIPELINE_METHODOLOGY_EVIDENCE_FILE).read_text(encoding="utf-8")
+    )
+    assert saved_canonical == canonical
+    assert set(saved_lineage["evidence_ids"]) == {item["evidence_id"] for item in canonical}
+    assert set(saved_lineage["evidence_ids"]).isdisjoint(
+        {item["evidence_id"] for item in saved_methodology}
+    )
