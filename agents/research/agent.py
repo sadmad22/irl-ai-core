@@ -28,6 +28,7 @@ from .evidence.passage_bound import (
     PASSAGE_BOUND_SOURCE_MATERIAL_FILE,
     build_canonical_evidence_from_file,
 )
+from .evidence.pipeline_methodology import build_pipeline_methodology_evidence
 from .source_corpus import SOURCE_URLS_FILE, build_source_corpus_from_file
 from .report import build_research_report
 from .recommendation_runner import run_recommendation_from_report
@@ -128,10 +129,15 @@ def build_substantive_evidence_for_project(*, report_id: str, project_path: Path
     the legacy source-material path remains available for pre-E projects.
     """
     if (project_path / PASSAGE_BOUND_SOURCE_MATERIAL_FILE).exists():
-        return build_canonical_evidence_from_file(
+        records = build_canonical_evidence_from_file(
             report_id=report_id,
             project_path=project_path,
         )
+        build_pipeline_methodology_evidence(
+            report_id=report_id,
+            project_path=project_path,
+        )
+        return records
     return build_substantive_evidence_from_file(
         report_id=report_id,
         project_path=project_path,
