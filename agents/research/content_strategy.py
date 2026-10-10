@@ -105,7 +105,12 @@ def _business_goal(report: dict[str, Any]) -> str:
     return "Build qualified organic traffic and provide trustworthy insurance guidance."
 
 
-def build_content_strategy(*, research_report: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
+def build_content_strategy(
+    *,
+    research_report: dict[str, Any],
+    decision: dict[str, Any],
+    pipeline_methodology_evidence_refs: list[str] | None = None,
+) -> dict[str, Any]:
     """Translate an approved operational Decision into a production strategy.
 
     This engine does not create a new decision, evaluate upstream evidence,
@@ -128,6 +133,16 @@ def build_content_strategy(*, research_report: dict[str, Any], decision: dict[st
     refs = decision.get("evidence_refs")
     if not isinstance(refs, list) or not refs:
         raise ValueError("Decision must contain explicit evidence_refs")
+    methodology_refs = pipeline_methodology_evidence_refs or []
+    if not isinstance(methodology_refs, list):
+        raise ValueError("pipeline_methodology_evidence_refs must be a list")
+    normalized_refs = list(dict.fromkeys(
+        str(ref).strip()
+        for ref in [*refs, *methodology_refs]
+        if isinstance(ref, str) and ref.strip()
+    ))
+    if not normalized_refs:
+        raise ValueError("Content Strategy must preserve at least one evidence reference")
 
     content_type = _content_type(research_report, {"content_type": decision.get("content_type")})
     payload = {
@@ -140,7 +155,7 @@ def build_content_strategy(*, research_report: dict[str, Any], decision: dict[st
         "entities": _entities(research_report),
         "questions": _questions(research_report),
         "business_goal": _business_goal(research_report),
-        "evidence_refs": list(dict.fromkeys(str(ref) for ref in refs if ref)),
+        "evidence_refs": normalized_refs,
     }
     return {
         "strategy_id": _strategy_id(report_id, decision_id, payload),
