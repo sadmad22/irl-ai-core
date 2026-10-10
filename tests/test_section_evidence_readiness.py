@@ -432,3 +432,113 @@ def test_require_ready_sections_returns_results_for_ready_input():
         evidence_records=_intro_evidence(),
     )
     assert result[0]["readiness"] == "READY"
+
+
+
+def _pipeline_methodology_record(
+    *,
+    evidence_id: str,
+    claim_type: str,
+    attribute: str,
+    source_type: str = "research_artifact",
+    method: str = "pipeline_metadata_v1",
+) -> dict:
+    record = _record(
+        evidence_id=evidence_id,
+        claim_type=claim_type,
+        attribute=attribute,
+        source_type=source_type,
+        source_id="research-artifact:sample/passage-bound-evidence-lineage.json",
+        domain="pipeline_methodology",
+        value=f"Verified pipeline metadata for {claim_type}.{attribute}.",
+    )
+    record["subject"] = {"type": "project", "id": "sample"}
+    record["source"]["provider"] = "irl-ai-core"
+    record["provenance"] = {
+        "analyzer": "pipeline_methodology",
+        "analyzer_version": "v1",
+        "method": method,
+    }
+    return record
+
+
+def test_methodology_section_accepts_trusted_pipeline_metadata_evidence():
+    outline = [{
+        "heading": "Sources and Editorial Methodology",
+        "purpose": "Describe source identity, evidence provenance, and lineage.",
+    }]
+    records = [
+        _pipeline_methodology_record(
+            evidence_id="ev_source_identity",
+            claim_type="source_identity",
+            attribute="source",
+        ),
+        _pipeline_methodology_record(
+            evidence_id="ev_provenance_method",
+            claim_type="provenance_fact",
+            attribute="method",
+        ),
+        _pipeline_methodology_record(
+            evidence_id="ev_lineage",
+            claim_type="lineage_fact",
+            attribute="evidence_lineage",
+        ),
+    ]
+
+    result = evaluate_section_readiness(
+        report_id="rr_test",
+        outline=outline,
+        evidence_refs=[record["evidence_id"] for record in records],
+        evidence_records=records,
+    )
+
+    assert result[0]["section_key"] == "sources_and_editorial_methodology"
+    assert result[0]["readiness"] == "READY"
+    assert result[0]["missing_required_claims"] == []
+
+
+def test_methodology_section_does_not_accept_unverified_page_claims_as_pipeline_metadata():
+    outline = [{
+        "heading": "Sources and Editorial Methodology",
+        "purpose": "Describe source identity, evidence provenance, and lineage.",
+    }]
+    records = [
+        _pipeline_methodology_record(
+            evidence_id="ev_untrusted_source_identity",
+            claim_type="source_identity",
+            attribute="source",
+            source_type="official",
+            method="unverified_model_claim",
+        ),
+        _pipeline_methodology_record(
+            evidence_id="ev_untrusted_provenance",
+            claim_type="provenance_fact",
+            attribute="method",
+            source_type="official",
+            method="unverified_model_claim",
+        ),
+        _pipeline_methodology_record(
+            evidence_id="ev_untrusted_lineage",
+            claim_type="lineage_fact",
+            attribute="evidence_lineage",
+            source_type="official",
+            method="unverified_model_claim",
+        ),
+    ]
+
+    result = evaluate_section_readiness(
+        report_id="rr_test",
+        outline=outline,
+        evidence_refs=[record["evidence_id"] for record in records],
+        evidence_records=records,
+    )
+
+    assert result[0]["readiness"] == "INSUFFICIENT"
+    assert {
+        (item["claim_type"], item["attribute"])
+        for item in result[0]["missing_required_claims"]
+    } == {
+        ("source_identity", "source"),
+        ("provenance_fact", "method"),
+        ("lineage_fact", "evidence_lineage"),
+    }
