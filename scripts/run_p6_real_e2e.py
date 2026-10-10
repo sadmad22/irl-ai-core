@@ -102,6 +102,9 @@ when assigned evidence is sparse, and avoid repeating facts across sections.
 When assigned evidence contains a search-intent distribution, preserve the recorded category
 labels and provided values. Do not infer reader behavior or purchases from those categories
 (for example, do not claim that readers are purchasing coverage unless directly supported).
+Keep independent factual propositions in separate sentences when they rely on different evidence
+records. In particular, report search-intent distribution values, the dominant category, and
+mixed-intent status in separate sentences so each claim can be grounded to its specific evidence.
 Do not add generic comparison advice such as "Coverage details should also be compared."
 Instead state the specific coverage features supported by assigned evidence, or omit the advice.
 In sources/methodology sections, do not narrate what "the article uses evidence for", list

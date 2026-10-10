@@ -178,7 +178,10 @@ def test_writer_receives_strict_claim_discipline_rules():
     assert captured["rules"]["no_free_standing_advice_or_recommendations"] is True
     assert captured["rules"]["no_methodology_claims_without_methodology_evidence"] is True
     assert captured["rules"]["no_fabricated_faq_pairs"] is True
+    assert captured["rules"]["separate_independently_verifiable_claims"] is True
     instructions = captured["rules"]["evidence_constrained_writing_instructions"]
+    assert "Keep independent factual propositions in separate sentences" in instructions
+    assert "do not combine search-intent distribution values" in instructions
     assert "free-standing advice" in instructions
     assert "question-and-answer pair" in instructions
     assert "Prefer omission over unsupported completion." in instructions
