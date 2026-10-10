@@ -117,10 +117,26 @@ def _is_pipeline_methodology_evidence(
     provenance = record.get("provenance") if isinstance(record.get("provenance"), dict) else {}
     source_type = str(source.get("type", "")).strip().lower()
 
+    artifact_by_claim = {
+        ("source_identity", "source"): "source-documents.json",
+        ("source_identity", "provider"): "source-documents.json",
+        ("provenance_fact", "method"): "passage-bound-source-material.json",
+        ("provenance_fact", "analyzer"): "passage-bound-source-material.json",
+        ("provenance_fact", "analyzer_version"): "passage-bound-source-material.json",
+        ("lineage_fact", "evidence_lineage"): "passage-bound-evidence-lineage.json",
+        ("evidence_status", "status"): "substantive-evidence.json",
+    }
+    subject = record.get("subject") if isinstance(record.get("subject"), dict) else {}
+    project_name = str(subject.get("id", "")).strip()
+    expected_source_id = (
+        f"research-artifact:{project_name}/{artifact_by_claim[required_claim]}"
+        if required_claim in artifact_by_claim and project_name
+        else ""
+    )
     if (
         source_type == "research_artifact"
         and str(source.get("provider", "")).strip().lower() == "irl-ai-core"
-        and str(source.get("source_id", "")).startswith("research-artifact:")
+        and str(source.get("source_id", "")).strip() == expected_source_id
         and str(provenance.get("analyzer", "")).strip() == "pipeline_methodology"
         and str(provenance.get("analyzer_version", "")).strip() == "v1"
         and str(provenance.get("method", "")).strip() == "pipeline_metadata_v1"
