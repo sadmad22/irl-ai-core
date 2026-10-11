@@ -38,6 +38,36 @@ def _clean_text(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+class _HTMLTitleExtractor(HTMLParser):
+    """Extract the document title independently from the content-block state."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.in_title = False
+        self.found_title = False
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() == "title" and not self.found_title:
+            self.in_title = True
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "title" and self.in_title:
+            self.in_title = False
+            self.found_title = True
+
+    def handle_data(self, data: str) -> None:
+        if self.in_title:
+            self.parts.append(data)
+
+
+def _extract_html_title(html: str) -> str:
+    parser = _HTMLTitleExtractor()
+    parser.feed(html)
+    parser.close()
+    return _clean_text(" ".join(parser.parts))
+
+
 @dataclass
 class _Block:
     kind: str
@@ -228,7 +258,11 @@ def extract_source_content(document: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("source document contains no extractable content")
 
     normalized_text = "\n".join(normalized_parts)
-    title = _clean_text(" ".join(parser.title_parts)) or source_document_id
+    title = (
+        _clean_text(" ".join(parser.title_parts))
+        or _extract_html_title(html)
+        or source_document_id
+    )
     enriched_document = dict(document)
     enriched_document["title"] = title
     enriched_document["normalized_text"] = normalized_text
