@@ -876,3 +876,44 @@ def test_source_extraction_does_not_skip_main_inside_broad_form_markup():
     )
     assert all("Navigation boilerplate" not in text for text in passage_text)
     assert all("script content must not be extracted" not in text for text in passage_text)
+
+def test_source_extraction_preserves_loose_text_between_structured_blocks():
+    html = """<!doctype html>
+    <html>
+      <head><title>Nursing Coverage Guide</title></head>
+      <body>
+        <nav><p>Navigation boilerplate that must not be extracted.</p></nav>
+        <main>
+          <h1>Nurse Insurance Coverage</h1>
+          <div class="coverage-copy">Claims-made policies may require tail coverage for claims reported after the policy ends.</div>
+          <p>Structured paragraph remains available for comparison.</p>
+        </main>
+      </body>
+    </html>
+    """
+
+    extracted = extract_source_content(
+        {
+            "source_document_id": "srcdoc_loose_content",
+            "html": html,
+        }
+    )
+
+    passage_text = [item["text"] for item in extracted["passages"]]
+    heading_index = next(
+        i for i, text in enumerate(passage_text)
+        if text == "Nurse Insurance Coverage"
+    )
+    loose_index = next(
+        i for i, text in enumerate(passage_text)
+        if "tail coverage for claims reported after the policy ends" in text.lower()
+    )
+    structured_index = next(
+        i for i, text in enumerate(passage_text)
+        if "Structured paragraph remains available" in text
+    )
+
+    assert heading_index < loose_index < structured_index
+    assert all("Navigation boilerplate" not in text for text in passage_text)
+    assert extracted["document"]["normalized_text"] == "\\n".join(passage_text)
+
