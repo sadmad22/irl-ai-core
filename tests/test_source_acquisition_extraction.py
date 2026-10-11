@@ -917,3 +917,31 @@ def test_source_extraction_preserves_loose_text_between_structured_blocks():
     assert all("Navigation boilerplate" not in text for text in passage_text)
     assert extracted["document"]["normalized_text"] == "\n".join(passage_text)
 
+def test_source_title_survives_unbalanced_skipped_container_markup():
+    html = """<!doctype html>
+    <html>
+      <header><nav>Header navigation</header>
+      <head><title>Berxi Coverage Exclusions Guide</title></head>
+      </nav>
+      <body>
+        <main>
+          <h1>Coverage Exclusions</h1>
+          <p>Insurance policies may exclude certain actions and complaints from coverage.</p>
+        </main>
+      </body>
+    </html>
+    """
+
+    extracted = extract_source_content(
+        {
+            "source_document_id": "srcdoc_title_fallback",
+            "html": html,
+        }
+    )
+
+    assert extracted["document"]["title"] == "Berxi Coverage Exclusions Guide"
+    assert any(
+        "exclude certain actions and complaints" in passage["text"]
+        for passage in extracted["passages"]
+    )
+
