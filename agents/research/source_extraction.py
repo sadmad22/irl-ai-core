@@ -7,7 +7,7 @@ from html.parser import HTMLParser
 from typing import Any
 
 
-EXTRACTION_POLICY_VERSION = "1.0"
+EXTRACTION_POLICY_VERSION = "1.1"
 
 # Do not skip forms as containers: some upstream HTML has broad or malformed
 # form boundaries, and HTMLParser does not apply the browser's HTML5 form rules.
@@ -56,25 +56,49 @@ class _HTMLExtractor(HTMLParser):
         self.current_kind: str | None = None
         self.current_parts: list[str] = []
         self.current_heading_level: int | None = None
+        self.current_loose_parts: list[str] = []
         self.heading_path: list[str] = []
         self.focused_blocks: list[_Block] = []
         self.fallback_blocks: list[_Block] = []
         self.focused_loose_parts: list[str] = []
         self.fallback_loose_parts: list[str] = []
 
+    def _finalize_loose_block(self) -> None:
+        """Preserve meaningful text outside the explicitly recognized HTML blocks."""
+        if self.current_tag is not None or not self.current_loose_parts:
+            return
+
+        text = _clean_text(" ".join(self.current_loose_parts))
+        self.current_loose_parts = []
+        if len(text) < 16:
+            return
+
+        block = _Block(
+            kind="paragraph",
+            text=text,
+            heading_path=list(self.heading_path),
+        )
+        target = self.focused_blocks if self.focus_depth else self.fallback_blocks
+        target.append(block)
+
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
         if tag in _SKIP_TAGS:
+            if not self.skip_depth:
+                self._finalize_loose_block()
             self.skip_depth += 1
             return
         if tag == "title":
+            self._finalize_loose_block()
             self.has_title = True
             self.title_parts = []
             return
         if tag in {"main", "article"}:
+            self._finalize_loose_block()
             self.focus_depth += 1
 
         if self.current_tag is None and tag in _BLOCK_TAGS:
+            self._finalize_loose_block()
             self.current_tag = tag
             self.current_kind = _BLOCK_TAGS[tag]
             self.current_parts = []
@@ -89,6 +113,9 @@ class _HTMLExtractor(HTMLParser):
         if tag == "title":
             self.has_title = False
             return
+
+        if tag in {"main", "article"}:
+            self._finalize_loose_block()
 
         if self.current_tag == tag:
             self._finalize_block()
@@ -108,6 +135,7 @@ class _HTMLExtractor(HTMLParser):
         elif self.current_tag is not None:
             self.current_parts.append(data)
         else:
+            self.current_loose_parts.append(data)
             target = self.focused_loose_parts if self.focus_depth else self.fallback_loose_parts
             target.append(data)
 
@@ -119,6 +147,7 @@ class _HTMLExtractor(HTMLParser):
             self.current_kind = None
             self.current_parts = []
             self.current_heading_level = None
+        self._finalize_loose_block()
 
     def _finalize_block(self) -> None:
         text = _clean_text(" ".join(self.current_parts))
