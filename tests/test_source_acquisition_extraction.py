@@ -915,5 +915,5 @@ def test_source_extraction_preserves_loose_text_between_structured_blocks():
 
     assert heading_index < loose_index < structured_index
     assert all("Navigation boilerplate" not in text for text in passage_text)
-    assert extracted["document"]["normalized_text"] == "\\n".join(passage_text)
+    assert extracted["document"]["normalized_text"] == "\n".join(passage_text)
 
